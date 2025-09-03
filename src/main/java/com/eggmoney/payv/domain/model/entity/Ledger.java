@@ -1,0 +1,56 @@
+package com.eggmoney.payv.domain.model.entity;
+
+import java.time.LocalDateTime;
+
+import com.eggmoney.payv.domain.model.vo.LedgerId;
+import com.eggmoney.payv.domain.model.vo.UserId;
+import com.eggmoney.payv.domain.shared.util.EntityIdentifier;
+
+import lombok.Builder;
+import lombok.Getter;
+
+/**
+ * 가계부 일관성 경계(소유자/이름/생성일), 하위 엔티티 생성/소속 조율.
+ * @author 정의탁
+ *
+ */
+@Getter
+public class Ledger {
+
+	private LedgerId id;
+	private UserId ownerId;
+	private String name;
+	private LocalDateTime createdAt;
+	
+	@Builder
+	public Ledger(LedgerId id, UserId ownerId, String name, LocalDateTime createdAt) {
+		this.id = id;
+		this.ownerId = ownerId;
+		this.name = name;
+		this.createdAt = createdAt;
+	}
+	
+	private Ledger(LedgerId id, UserId ownerId, String name) {
+		if (id == null) throw new IllegalArgumentException("id is required");
+        if (ownerId == null) throw new IllegalArgumentException("ownerId is required");
+        if (name == null) throw new IllegalArgumentException("name is required");
+        
+        this.id = id;
+        this.ownerId = ownerId;
+        this.name = name;
+        this.createdAt = LocalDateTime.now();
+	}
+	
+	public static Ledger create(UserId ownerId, String name) {
+		return new Ledger(LedgerId.of(EntityIdentifier.generateUuid()), ownerId, name);
+	}
+	
+	// 가계부 이름(제목) 변경.
+	public void rename(String newName){
+        if (newName == null || newName.trim().isEmpty()) {
+        	throw new IllegalArgumentException("name is required");
+        }        
+        this.name = newName.trim();
+    }
+	
+}
