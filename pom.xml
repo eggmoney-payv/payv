@@ -60,10 +60,17 @@
 			<artifactId>spring-security-config</artifactId>
 			<version>${spring.security.version}</version>
 		</dependency>
-		<!-- Security 태그 라이브러리  -->
+		<!-- Security 태그 라이브러리 -->
 		<dependency>
 			<groupId>org.springframework.security</groupId>
 			<artifactId>spring-security-taglibs</artifactId>
+			<version>${spring.security.version}</version>
+		</dependency>
+
+		<!-- BCrypt 비밀번호 암호화를 위해 필요 -->
+		<dependency>
+			<groupId>org.springframework.security</groupId>
+			<artifactId>spring-security-crypto</artifactId>
 			<version>${spring.security.version}</version>
 		</dependency>
 
