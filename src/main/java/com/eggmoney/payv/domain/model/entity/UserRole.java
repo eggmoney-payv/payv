@@ -15,6 +15,10 @@ public enum UserRole {
 		this.authority = authority;
 	}
 	
+	/**
+     * Spring Security에서 사용할 권한 문자열 반환
+     * @return "ROLE_USER" 또는 "ROLE_ADMIN"
+     */
 	public String getAuthority() {
 		return authority;
 	}
