@@ -19,6 +19,11 @@ public final class UserId implements StringId {
     	return value; 
     }
     
+    // JSP EL에서 프로퍼티로 인식하려면 getValue() 필요
+    public String getValue() {
+        return value;
+    }
+    
     @Override 
     public String toString() { return value; }
     
