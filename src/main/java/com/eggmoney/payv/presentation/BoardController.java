@@ -25,7 +25,6 @@ public class BoardController {
     public String list(Model model) {
         List<Board> boardList = boardAppService.getAllBoards();
         model.addAttribute("boardList", boardList);
-        model.addAttribute("currentPage", "boards"); // 현재 페이지 정보를 모델에 전달
         return "board/list"; // WEB-INF/views/board/list.jsp
     }
 

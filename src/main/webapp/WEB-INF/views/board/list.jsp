@@ -1,38 +1,29 @@
-<%@ page contentType="text/html;charset=UTF-8" language="java" %>
-<%@ include file="/WEB-INF/views/common/header.jsp" %>
-<%@ include file="/WEB-INF/views/common/aside.jsp" %>
+<%@ page contentType="text/html;charset=UTF-8" %>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <html>
-<head>
-  <title>게시판</title>
-  <link rel="stylesheet" href="<c:url value='/resources/css/common.css'/>" />
-  <script src="<c:url value='/resources/js/common.js'/>" defer></script>
-</head>
+<head><title>게시글 목록</title></head>
 <body>
-  <main>
-    <h1>게시판</h1>
-    <table class="board-table">
-      <thead>
-        <tr>
-          <th>제목</th>
-          <th>작성자</th>
-          <th>작성일</th>
-          <th>조회수</th>
-          <th>좋아요</th>
-        </tr>
-      </thead>
-      <tbody>
-        <%-- 게시글 리스트 반복 (예: request attribute에 List<Board> 들어있다고 가정) --%>
-        <c:forEach var="board" items="${boards}">
-          <tr>
-            <td><a href="/boards/${board.id.value}">${board.title}</a></td>
-            <td>${board.userId.value}</td>
-            <td><fmt:formatDate value="${board.createdAt}" pattern="yyyy.MM.dd"/></td>
-            <td>${board.viewCount}</td>
-            <td>0</td> <%-- 좋아요 수 있으면 연동 --%>
-          </tr>
+    <h2>게시판 목록</h2>
+    <a href="${pageContext.request.contextPath}/boards/new">새 글쓰기</a>
+    <table border="1" cellpadding="5" cellspacing="0">
+        <thead>
+            <tr>
+                <th>글번호</th>
+                <th>제목</th>
+                <th>작성자ID</th>
+                <th>생성일</th>
+            </tr>
+        </thead>
+        <tbody>
+        <c:forEach var="board" items="${boardList}">
+            <tr>
+                <td>${board.id.value}</td>
+                <td>${board.title}</td>
+                <td>${board.userId.value}</td>
+                <td>${board.createdAt}</td>
+            </tr>
         </c:forEach>
-      </tbody>
+        </tbody>
     </table>
-  </main>
 </body>
 </html>
