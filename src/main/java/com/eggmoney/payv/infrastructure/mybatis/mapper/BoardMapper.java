@@ -36,6 +36,6 @@ public interface BoardMapper {
 
 	int update(BoardRecord record);
 	
-//	int deleteById(@Param("boardId") String boardId);
+	int deleteById(@Param("boardId") String boardId);
 	
 }

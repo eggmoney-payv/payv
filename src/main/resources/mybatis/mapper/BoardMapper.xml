@@ -67,7 +67,7 @@
     WHERE board_id = #{boardId}
   </update>
 
-  <!-- 선택: 삭제 -->
+  <!-- 삭제 -->
   <delete id="deleteById" parameterType="string">
     DELETE FROM board WHERE board_id = #{boardId}
   </delete>

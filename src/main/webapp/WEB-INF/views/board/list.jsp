@@ -24,7 +24,7 @@
         <%-- 게시글 리스트 반복 (예: request attribute에 List<Board> 들어있다고 가정) --%>
         <c:forEach var="board" items="${boards}">
           <tr>
-            <td><a href="/boards/${board.id.value}">${board.title}</a></td>
+            <td><a href="<c:url value='/boards/${board.id.value}'/>">${board.title}</a></td>
             <td>${board.userId.value}</td>
             <td><fmt:formatDate value="${board.createdAt}" pattern="yyyy.MM.dd"/></td>
             <td>${board.viewCount}</td>

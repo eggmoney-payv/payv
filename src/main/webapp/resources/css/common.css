@@ -5,7 +5,7 @@ body, html {
 }
 
 header {
-  height: 60px; /* header 높이 */
+  height: 100px; /* header 높이 */
   display: flex; 
   align-items: center; 
   justify-content: space-between;
@@ -32,11 +32,11 @@ header img {
   height: 40px;
 }
 
-aside {
+/* aside {
   position: fixed; top: 0; left: 0;
-  width: 280px; 
+  width: 380px; 
   left: 0;
-  top: 60px; /* header 높이 만큼 내려감 */
+  top: 60px; header 높이 만큼 내려감
   height: calc(100vh - 60px);
   background: #FFF8DE;
   border-right: 2px solid #967E76;
@@ -45,8 +45,24 @@ aside {
   transform: translateX(-100%);
   transition: transform 0.3s ease;
   overflow-y: auto;
-  z-index: 1000; /* header보다 아래로 */
+  z-index: 1000; header보다 아래로
+} */
+aside {
+  position: fixed;
+  top: 100px;        /* header 높이와 일치시켜야 함 */
+  left: 0;
+  width: 380px;      /* 원하는 사이드바 넓이 */
+  height: calc(100vh - 100px); /* header 높이만큼 계산 */
+  background: #FFF8DE;
+  border-right: 2px solid #967E76;
+  padding: 20px;
+  box-sizing: border-box;
+  transform: translateX(-100%);
+  transition: transform 0.3s ease;
+  overflow-y: auto;
+  z-index: 1000;
 }
+
 
 aside.show {
   transform: translateX(0);
@@ -106,21 +122,21 @@ aside nav ul li.active > a {
 
 /* 페이지마다 바뀌는 메인 영역 */
 main {
-  margin-top: 60px; /* header 높이만큼 */
-  margin-left: 20;
-  margin-right: 20;
+  margin-top: 100px; /* header 높이 */
+  margin-left: 20px; /* 단위 추가 */
+  margin-right: 20px; /* 단위 추가 */
   padding: 20px;
   transition: margin-left 0.3s ease;
   box-sizing: border-box;
-  max-width: calc(100% - 60px); /* 적당히 양쪽에 20px 패딩 */
+  max-width: calc(100% - 420px); /* 380px(aside) + 20px*2(좌우마진) */
 }
 
 main.shifted {
-  margin-left: 280px; /* aside와 동일하게 */
+  margin-left: 380px; /* aside와 동일하게 */
 }
-aside {
+/* aside {
   position: fixed;
-  top: 60px; /* header 높이 아래 시작 */
+  top: 60px; header 높이 아래 시작
   left: 0;
   width: 280px;
   height: calc(100vh - 60px);
@@ -132,7 +148,7 @@ aside {
   transition: transform 0.3s ease;
   overflow-y: auto;
   z-index: 1000;
-}
+} */
 aside.show {
   transform: translateX(0);
 }
