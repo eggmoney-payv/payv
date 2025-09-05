@@ -16,11 +16,11 @@ public class UserAppService {
 	private final UserRepository userRepository;
 	
 	// 이메일 유일성 보장 하에 새 사용자 등록.
-    public User register(String email, String name){
+    public User register(String email, String name, String password){
         if (userRepository.findByEmail(email).isPresent()) {
             throw new DomainException("이미 사용중인 이메일 입니다. (" + email + ")");
         }
-        User user = User.create(email, name);
+        User user = User.create(email, name, password);
         userRepository.save(user);
         return user;
     }

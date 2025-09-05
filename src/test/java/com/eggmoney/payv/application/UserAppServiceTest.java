@@ -30,7 +30,7 @@ public class UserAppServiceTest {
 
         // 1) 사용자 등록
         String email1 = "user+" + System.nanoTime() + "@example.com";
-        User user1 = userAppService.register(email1, "Alice");
+        User user1 = userAppService.register(email1, "Alice", "EncodedPassword");
         assertNotNull(user1.getId());
 
         // 2) 조회 (by id / by email)
@@ -39,7 +39,7 @@ public class UserAppServiceTest {
 
         // 3) 중복 이메일 등록 실패
         try {
-        	userAppService.register(email1, "Alice Dup");
+        	userAppService.register(email1, "Alice Dup", "EncodedPassword");
             fail("Expected DomainException for duplicate email");
         } catch (DomainException expected) { /* ok */ }
 
@@ -51,7 +51,7 @@ public class UserAppServiceTest {
 
         // 6) 다른 사용자와 이메일 충돌 검증
         String email2 = "bob+" + System.nanoTime() + "@example.com";
-        User user2 = userAppService.register(email2, "Bob");
+        User user2 = userAppService.register(email2, "Bob", "EncodedPassword");
         try {
         	userAppService.changeEmail(user2.getId(), emailNew); // user1이 이미 사용 중인 이메일
             fail("Expected DomainException for email conflict");

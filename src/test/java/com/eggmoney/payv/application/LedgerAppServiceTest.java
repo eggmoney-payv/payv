@@ -37,7 +37,7 @@ public class LedgerAppServiceTest {
         LedgerAppService ledgerService = new LedgerAppService(ledgerRepository, userRepository);
 
         // --- 사용자 등록 ---
-        User owner = userService.register("owner+" + System.nanoTime() + "@example.com", "Owner");
+        User owner = userService.register("owner+" + System.nanoTime() + "@example.com", "Owner", "EncodedPassword");
         assertNotNull(owner.getId());
 
         // --- 개인 가계부 개설 (User가 Creator, 서비스가 검증/저장) ---
@@ -59,7 +59,7 @@ public class LedgerAppServiceTest {
         }
 
         // --- 권한 없는 사용자의 이름 변경 시도 ---
-        User stranger = userService.register("stranger+" + System.nanoTime() + "@example.com", "Stranger");
+        User stranger = userService.register("stranger+" + System.nanoTime() + "@example.com", "Stranger", "EncodedPassword");
         try {
         	ledgerService.rename(ledger.getId(), "Hacked!", stranger.getId());
             fail("Expected DomainException for permission check");

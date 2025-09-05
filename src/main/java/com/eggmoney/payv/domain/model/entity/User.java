@@ -20,30 +20,20 @@ public class User {
 	private String email;
 	private String name;
 	private String password; // 암호화된 비밀번호
-	private UserRole role; // 사용자 권한
-	private boolean enabled; // 계정 활성화 여부
 	private LocalDateTime createdAt;
-	private LocalDateTime lastLoginAt; // 마지막 로그인 시간
 
 	@Builder
-	public User(UserId id, String email, String name, String password, UserRole role, boolean enabled,
-			LocalDateTime createdAt, LocalDateTime lastLoginAt) {
+	public User(UserId id, String email, String name, String password, LocalDateTime createdAt) {
 		this.id = id;
 		this.email = email;
 		this.name = name;
 		this.password = password;
-		this.role = role;
-		this.enabled = enabled;
 		this.createdAt = createdAt;
-		this.lastLoginAt = lastLoginAt;
 	}
 
 	// 가계부 생성.
 	public Ledger createLedger(String ledgerName) {
-		if (!this.enabled) {
-
-			throw new IllegalStateException("비활성화된 계정은 가계부를 생성할 수 없습니다.");
-		}
+		
 		return Ledger.create(this.id, ledgerName);
 	}
 
@@ -61,10 +51,7 @@ public class User {
 		this.email = email;
 		this.name = name;
 		this.password = password;
-		this.role = role;
-		this.enabled = true; // 기본값(활성화)
 		this.createdAt = LocalDateTime.now();
-		this.lastLoginAt = null;
 	}
 
 	// 일반유저 회원가입
@@ -91,24 +78,5 @@ public class User {
 			throw new IllegalArgumentException("password is required");
 		}
 		this.password = encodedPassword;
-	}
-
-	// 로그인 시간 업데이트
-	public void updateLastLogin() {
-		this.lastLoginAt = LocalDateTime.now();
-	}
-
-	// 계정 활성화/비활성화
-	public void activate() {
-		this.enabled = true;
-	}
-
-	public void deactivate() {
-		this.enabled = false;
-	}
-
-	// 권한 확인
-	public boolean isAdmin() {
-		return this.role == UserRole.ADMIN;
 	}
 }
