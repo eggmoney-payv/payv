@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:security="http://www.springframework.org/schema/security"
+	xsi:schemaLocation="
+           http://www.springframework.org/schema/beans
+           http://www.springframework.org/schema/beans/spring-beans.xsd
+           http://www.springframework.org/schema/security
+           http://www.springframework.org/schema/security/spring-security.xsd">
+
+	<!-- Spring Security XML 설정 프로젝트 요구사항: Spring Tools 3.9, Spring Framework 
+		5 XML 설정을 사용하는 이유: - Spring Tools 3.9 환경에서 안정적 동작 - 설정 변경 시 재컴파일 불필요 - 전통적인 
+		Spring 방식으로 팀원들이 이해하기 쉬움 -->
+
+	<!-- HTTP 보안 설정 -->
+	<security:http auto-config="true" use-expressions="true">
+		<!-- CSRF 비활성화 (개발 단계) -->
+		<security:csrf disabled="true" />
+
+		<!-- URL별 접근 권한 설정 -->
+		<!-- 정적 리소스는 모든 사용자 허용 -->
+		<security:intercept-url pattern="/resources/**"
+			access="permitAll" />
+		<security:intercept-url pattern="/css/**"
+			access="permitAll" />
+		<security:intercept-url pattern="/js/**"
+			access="permitAll" />
+		<security:intercept-url pattern="/images/**"
+			access="permitAll" />
+		<security:intercept-url pattern="/favicon.ico"
+			access="permitAll" />
+
+		<!-- 인증 불필요 페이지 -->
+		<security:intercept-url pattern="/"
+			access="permitAll" />
+		<security:intercept-url pattern="/home"
+			access="permitAll" />
+		<security:intercept-url pattern="/signup"
+			access="permitAll" />
+		<security:intercept-url pattern="/signup/**"
+			access="permitAll" />
+		<security:intercept-url pattern="/login"
+			access="permitAll" />
+		<security:intercept-url pattern="/login/**"
+			access="permitAll" />
+		<security:intercept-url pattern="/error/**"
+			access="permitAll" />
+
+		<!-- API 엔드포인트 -->
+		<security:intercept-url
+			pattern="/api/public/**" access="permitAll" />
+		<security:intercept-url pattern="/api/auth/**"
+			access="permitAll" />
+
+		<!-- 개발용 임시 경로 -->
+		<security:intercept-url pattern="/dev/**"
+			access="permitAll" />
+
+		<!-- 향후 추가할 보안 규칙 (현재 주석 처리) -->
+		<!-- <security:intercept-url pattern="/admin/**" access="hasRole('ADMIN')"/> 
+			<security:intercept-url pattern="/premium/**" access="hasAnyRole('PREMIUM','ADMIN')"/> 
+			<security:intercept-url pattern="/ledger/**" access="hasAnyRole('STANDARD','PREMIUM','ADMIN')"/> -->
+
+		<!-- 현재는 개발 편의상 모든 요청 허용 -->
+		<security:intercept-url pattern="/**"
+			access="permitAll" />
+
+		<!-- 커스텀 로그인 페이지 설정 -->
+		<security:form-login login-page="/login"
+			login-processing-url="/perform_login" username-parameter="email"
+			password-parameter="password" default-target-url="/dashboard"
+			authentication-failure-url="/login?error"
+			always-use-default-target="true" />
+
+		<!-- 로그아웃 설정 -->
+		<security:logout logout-url="/logout"
+			logout-success-url="/login?logout" invalidate-session="true"
+			delete-cookies="JSESSIONID" />
+
+		<!-- 세션 관리 -->
+		<security:session-management>
+			<security:concurrency-control
+				max-sessions="1" expired-url="/login?expired" />
+		</security:session-management>
+
+		<!-- 접근 거부 처리 -->
+		<security:access-denied-handler
+			error-page="/error/403" />
+	</security:http>
+
+	<!-- 인증 관리자 설정 -->
+	<security:authentication-manager>
+		<security:authentication-provider>
+			<!-- 메모리 기반 사용자 인증 (개발용) -->
+			<security:user-service>
+				<!-- 관리자 계정 -->
+				<security:user name="admin@payv.com"
+					password="{bcrypt}$2a$10$N.zmdr9k7uOCQb376NoUnuTJ8iAt6Z5EHsM7lbdxOoJ7Nm9FlDKhu"
+					authorities="ROLE_ADMIN" />
+				<!-- 일반 사용자 계정 -->
+				<security:user name="test@payv.com"
+					password="{bcrypt}$2a$10$N.zmdr9k7uOCQb376NoUnuTJ8iAt6Z5EHsM7lbdxOoJ7Nm9FlDKhu"
+					authorities="ROLE_STANDARD" />
+				<!-- 프리미엄 사용자 계정 -->
+				<security:user name="premium@payv.com"
+					password="{bcrypt}$2a$10$N.zmdr9k7uOCQb376NoUnuTJ8iAt6Z5EHsM7lbdxOoJ7Nm9FlDKhu"
+					authorities="ROLE_PREMIUM" />
+			</security:user-service>
+			<!-- 패스워드 인코더 설정 -->
+			<security:password-encoder
+				ref="passwordEncoder" />
+		</security:authentication-provider>
+	</security:authentication-manager>
+
+	<!-- BCrypt 패스워드 인코더 Bean -->
+	<bean id="passwordEncoder"
+		class="org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder" />
+
+</beans>
