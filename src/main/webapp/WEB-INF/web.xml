@@ -99,6 +99,12 @@
 	<!-- 6. 에러 페이지 설정 -->
 	<!-- ====================================== -->
 
+	<!-- HTTP 상태 코드별 에러 페이지 -->
+	<error-page>
+		<error-code>400</error-code>
+		<location>/WEB-INF/views/error/400.jsp</location>
+	</error-page>
+
 	<error-page>
 		<error-code>403</error-code>
 		<location>/WEB-INF/views/error/403.jsp</location>
@@ -112,6 +118,12 @@
 	<error-page>
 		<error-code>500</error-code>
 		<location>/WEB-INF/views/error/500.jsp</location>
+	</error-page>
+
+	<!-- 예외 타입별 에러 페이지 -->
+	<error-page>
+		<exception-type>java.lang.Exception</exception-type>
+		<location>/WEB-INF/views/error/error.jsp</location>
 	</error-page>
 
 </web-app>
