@@ -1,0 +1,141 @@
+/* 공통 css */
+body, html {
+  margin: 0; padding: 0; font-family: 'Inter', sans-serif; background-color: #FFF8DE;
+  color: #1E1E1E;
+}
+
+header {
+  height: 60px; /* header 높이 */
+  display: flex; 
+  align-items: center; 
+  justify-content: space-between;
+  padding: 0 24px; /* 좌우 동일 여백 */
+  background-color: #FFF8DE;
+  border-bottom: 2px solid #967E76;
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 2000; /* header를 가장 위로 */
+  box-sizing: border-box;
+}
+
+header .left-buttons,
+header .right-buttons {
+  display: flex; align-items: center; gap: 10px;
+}
+
+header .logo {
+  display: flex; align-items: center; gap: 4px;
+  cursor: pointer;
+}
+
+header img {
+  height: 40px;
+}
+
+aside {
+  position: fixed; top: 0; left: 0;
+  width: 280px; 
+  left: 0;
+  top: 60px; /* header 높이 만큼 내려감 */
+  height: calc(100vh - 60px);
+  background: #FFF8DE;
+  border-right: 2px solid #967E76;
+  padding: 20px;
+  box-sizing: border-box;
+  transform: translateX(-100%);
+  transition: transform 0.3s ease;
+  overflow-y: auto;
+  z-index: 1000; /* header보다 아래로 */
+}
+
+aside.show {
+  transform: translateX(0);
+}
+
+aside nav ul {
+  list-style: none;
+  margin: 0; padding: 0;
+}
+
+aside nav ul li {
+  margin: 10px 0;
+}
+
+aside nav ul li a {
+  display: block;
+  padding: 10px 18px;
+  color: #5D5045; 
+  text-decoration: none;
+  border-radius: 8px;
+  font-size: 18px;
+  transition: background 0.2s, color 0.2s;
+}
+
+aside nav ul li a:hover,
+aside nav ul li.active > a {
+  background: #967E76;
+  color: #fff;
+}
+
+main {
+  margin-top: 60px; /* header 높이만큼 */
+  margin-left: 0;
+  padding: 20px;
+  transition: margin-left 0.3s ease;
+  box-sizing: border-box;
+  max-width: calc(100% - 40px); /* 적당히 양쪽에 20px 패딩 */
+}
+
+main.shifted {
+  margin-left: 280px; /* aside와 동일하게 */
+}
+aside {
+  position: fixed;
+  top: 60px; /* header 높이 아래 시작 */
+  left: 0;
+  width: 280px;
+  height: calc(100vh - 60px);
+  background: #FFF8DE;
+  border-right: 2px solid #967E76;
+  padding: 20px;
+  box-sizing: border-box;
+  transform: translateX(-100%);
+  transition: transform 0.3s ease;
+  overflow-y: auto;
+  z-index: 1000;
+}
+aside.show {
+  transform: translateX(0);
+}
+
+/* 게시판 테이블 스타일 */
+.board-table {
+  width: 100%;
+  border-collapse: collapse;
+  background-color: white;
+  box-shadow: 0 0 8px rgba(0,0,0,0.1);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.board-table th,
+.board-table td {
+  padding: 12px 15px;
+  border-bottom: 1px solid #D9D9D9;
+  text-align: left;
+  font-size: 18px;
+}
+
+.board-table thead {
+  background-color: #C5D3E8;
+  color: black;
+  font-weight: 600;
+}
+
+.board-table tbody tr:nth-child(even) {
+  background-color: #F9F9F9;
+}
+
+.board-table tbody tr:hover {
+  background-color: #EAEAEA;
+}
