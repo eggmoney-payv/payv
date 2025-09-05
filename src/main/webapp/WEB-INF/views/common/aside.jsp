@@ -16,7 +16,11 @@
  <%@ page contentType="text/html;charset=UTF-8" language="java"%>
  <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <aside>
-  <div class="account-title">가계부1</div>
+  <!-- <div class="account-title">가계부1</div> -->
+  <div class="account-title">
+      <a href="/account-select" class="account-link">${currentAccountName}</a>
+  </div>
+  <hr class="aside-divider">
   <nav>
     <ul>
       <li class="${currentPage == 'accounts' ? 'active' : ''}"><a href="/accounts">내역</a></li>

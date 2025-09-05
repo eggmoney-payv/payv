@@ -52,6 +52,33 @@ aside.show {
   transform: translateX(0);
 }
 
+/* 선택한 가계부 표시 */
+/* .account-link에 이동 경로(/account-select 예시)와 hover 효과 적용. */
+.account-title {
+  padding-left: 18px; /* nav ul li a와 동일하게 */
+  margin-bottom: 10px;
+  font-size: 22px;
+  font-weight: 600;
+}
+
+.account-link {
+  color: #1E1E1E;
+  text-decoration: none;
+  cursor: pointer;
+  transition: color 0.2s;
+}
+.account-link:hover {
+  color: #967E76;
+}
+
+/* 구분선 스타일 */
+hr.aside-divider {
+  border: none;
+  border-top: 2px solid #967E76;
+  margin: 12px 0 16px 0;
+}
+
+/* 메뉴 */
 aside nav ul {
   list-style: none;
   margin: 0; padding: 0;
@@ -77,13 +104,15 @@ aside nav ul li.active > a {
   color: #fff;
 }
 
+/* 페이지마다 바뀌는 메인 영역 */
 main {
   margin-top: 60px; /* header 높이만큼 */
-  margin-left: 0;
+  margin-left: 20;
+  margin-right: 20;
   padding: 20px;
   transition: margin-left 0.3s ease;
   box-sizing: border-box;
-  max-width: calc(100% - 40px); /* 적당히 양쪽에 20px 패딩 */
+  max-width: calc(100% - 60px); /* 적당히 양쪽에 20px 패딩 */
 }
 
 main.shifted {
