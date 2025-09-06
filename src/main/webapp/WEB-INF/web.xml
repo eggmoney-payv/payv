@@ -27,7 +27,7 @@
     </filter-mapping>
     -->
 
-    <!-- CharacterEncoding
+    <!-- CharacterEncoding (주석 해제함) -->
     <filter>
         <filter-name>encodingFilter</filter-name>
         <filter-class>org.springframework.web.filter.CharacterEncodingFilter</filter-class>
@@ -37,7 +37,7 @@
     <filter-mapping>
         <filter-name>encodingFilter</filter-name><url-pattern>/*</url-pattern>
     </filter-mapping>
-    -->
+    
 
     <!-- DispatcherServlet -->
     <servlet>

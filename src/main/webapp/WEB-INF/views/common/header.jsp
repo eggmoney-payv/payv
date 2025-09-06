@@ -6,8 +6,8 @@
       <img src="<c:url value='/resources/images/menu.png'/>" alt="Menu" height="32" />
     </button>
     <div class="logo" onclick="location.href='/'">
-      <img src="<c:url value='/resources/images/logo-part1.png'/>" alt="Logo Part 1" />
-      <img src="<c:url value='/resources/images/logo-part2.png'/>" alt="Logo Part 2" />
+      <img id="logo-img" src="<c:url value='/resources/images/logo-part1.png'/>" alt="Logo Part 1" />
+      <img id="logo-img" src="<c:url value='/resources/images/logo-part2.png'/>" alt="Logo Part 2" />
     </div>
   </div>
   <div class="right-buttons">

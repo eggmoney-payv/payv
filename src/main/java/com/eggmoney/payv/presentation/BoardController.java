@@ -16,6 +16,7 @@ import com.eggmoney.payv.application.service.ReactionAppService;
 import com.eggmoney.payv.domain.model.entity.Board;
 import com.eggmoney.payv.domain.model.entity.Comment;
 import com.eggmoney.payv.domain.model.vo.BoardId;
+import com.eggmoney.payv.presentation.dto.PageInfo;
 
 import lombok.RequiredArgsConstructor;
 
@@ -29,16 +30,41 @@ public class BoardController {
 
     // 게시글 목록 화면
     @GetMapping
-    public String list(Model model) {
-        List<Board> boardList = boardAppService.getAllBoards();
+    public String list(@RequestParam(defaultValue = "1") int page, Model model) {
+        int pageSize = 10; // 한 페이지에 보여줄 개수
+        int blockSize = 5;	// 한 블럭에 들어갈 페이지 수
+        
+        int totalCount = boardAppService.getBoardCount(); // 전체 게시글 수
+        int totalPage = (int) Math.ceil((double) totalCount / pageSize);
+        
+        // 현재 페이지에 보여줄 시작 offset
+        int offset = (page - 1) * pageSize;
+
+        List<Board> boardList = boardAppService.getBoardsByPage(offset, pageSize);
+//        List<Board> boardList = boardAppService.getAllBoards();
+        
+        int currentBlock = (int) Math.ceil((double) page / blockSize);
+        int startPage = (currentBlock - 1) * blockSize + 1;
+        int endPage = Math.min(startPage + blockSize - 1, totalPage);
+
+        PageInfo pageInfo = new PageInfo(
+                page, totalPage, startPage, endPage,
+                startPage > 1, endPage < totalPage
+            );
+        
         model.addAttribute("boardList", boardList);
         model.addAttribute("currentPage", "boards"); // 현재 페이지 정보를 모델에 전달(aside에 호버된 상태 표시하기 위함)
+        
+        // 페이지네이션 정보 전달
+        model.addAttribute("pageInfo", pageInfo);
+        
         return "board/list"; // WEB-INF/views/board/list.jsp
     }
 
     // 글쓰기 폼 화면
     @GetMapping("/new")
-    public String createForm() {
+    public String createForm(Model model) {
+    	model.addAttribute("currentPage", "boards"); // 현재 페이지 정보를 모델에 전달(aside에 호버된 상태 표시하기 위함)
         return "board/create"; // WEB-INF/views/board/create.jsp
     }
 

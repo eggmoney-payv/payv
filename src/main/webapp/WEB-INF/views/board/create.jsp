@@ -1,14 +1,39 @@
 <%@ page contentType="text/html;charset=UTF-8" %>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+<%@ include file="/WEB-INF/views/common/header.jsp"%>
+<%@ include file="/WEB-INF/views/common/aside.jsp"%>
 <html>
-<head><title>게시글 작성</title></head>
+<head>
+    <title>게시글 작성</title>
+    <link rel="stylesheet" href="<c:url value='/resources/css/common.css'/>" />
+    <link rel="stylesheet" href="<c:url value='/resources/css/board.css'/>" />
+</head>
 <body>
-    <h2>새 글 작성</h2>
-    <form action="${pageContext.request.contextPath}/boards" method="post">
-        <p>작성자ID: <input type="text" name="userId" required></p>
-        <p>제목: <input type="text" name="title" required></p>
-        <p>내용: <textarea name="content" rows="5" cols="40"></textarea></p>
-        <button type="submit">작성</button>
+<main>
+    <h1 class="board-title">게시글 작성</h1>
+
+    <form action="${pageContext.request.contextPath}/boards" method="post" class="board-form">
+        <div class="form-group">
+            <label>작성자 ID</label>
+            <input type="text" name="userId" required />
+        </div>
+
+        <div class="form-group">
+            <label>제목</label>
+            <input type="text" name="title" required />
+        </div>
+
+        <div class="form-group">
+            <label>내용</label>
+            <textarea name="content" rows="10" required></textarea>
+        </div>
+
+        <div class="form-actions">
+            <button type="submit" class="btn-create">작성</button>
+            <a href="${pageContext.request.contextPath}/boards" class="btn-cancel">취소</a>
+        </div>
     </form>
-    <a href="${pageContext.request.contextPath}/boards">목록으로</a>
+</main>
 </body>
 </html>
+

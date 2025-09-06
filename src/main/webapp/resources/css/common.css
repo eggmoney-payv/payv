@@ -32,21 +32,10 @@ header img {
   height: 40px;
 }
 
-/* aside {
-  position: fixed; top: 0; left: 0;
-  width: 380px; 
-  left: 0;
-  top: 60px; header 높이 만큼 내려감
-  height: calc(100vh - 60px);
-  background: #FFF8DE;
-  border-right: 2px solid #967E76;
-  padding: 20px;
-  box-sizing: border-box;
-  transform: translateX(-100%);
-  transition: transform 0.3s ease;
-  overflow-y: auto;
-  z-index: 1000; header보다 아래로
-} */
+header #logo-img{
+  height: 50px;
+}
+
 aside {
   position: fixed;
   top: 100px;        /* header 높이와 일치시켜야 함 */
@@ -120,11 +109,34 @@ aside nav ul li.active > a {
   color: #fff;
 }
 
+/* 설정 2단 메뉴 (기본 숨김) */
+.submenu {
+  display: none;
+  padding-left: 15px;
+  margin-top: 5px;
+}
+
+.has-sub.open > .submenu {
+  display: block; /* open이 붙으면 펼쳐짐 */
+}
+
+.has-sub > a::after {
+  content: "▾"; /* 아래 화살표 */
+  float: right;
+  font-size: 12px;
+}
+
+.has-sub.open > a::after {
+  content: "▴"; /* 위 화살표 */
+}
+
+
+
 /* 페이지마다 바뀌는 메인 영역 */
 main {
-  margin-top: 100px; /* header 높이 */
-  margin-left: 20px; /* 단위 추가 */
-  margin-right: 20px; /* 단위 추가 */
+  margin-top: 100px; 
+  margin-left: 20px; 
+  margin-right: 20px; 
   padding: 20px;
   transition: margin-left 0.3s ease;
   box-sizing: border-box;
@@ -151,36 +163,4 @@ main.shifted {
 } */
 aside.show {
   transform: translateX(0);
-}
-
-/* 게시판 테이블 스타일 */
-.board-table {
-  width: 100%;
-  border-collapse: collapse;
-  background-color: white;
-  box-shadow: 0 0 8px rgba(0,0,0,0.1);
-  border-radius: 8px;
-  overflow: hidden;
-}
-
-.board-table th,
-.board-table td {
-  padding: 12px 15px;
-  border-bottom: 1px solid #D9D9D9;
-  text-align: left;
-  font-size: 18px;
-}
-
-.board-table thead {
-  background-color: #C5D3E8;
-  color: black;
-  font-weight: 600;
-}
-
-.board-table tbody tr:nth-child(even) {
-  background-color: #F9F9F9;
-}
-
-.board-table tbody tr:hover {
-  background-color: #EAEAEA;
 }

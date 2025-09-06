@@ -26,9 +26,22 @@
       <li class="${currentPage == 'accounts' ? 'active' : ''}"><a href="/accounts">내역</a></li>
       <li class="${currentPage == 'calendar' ? 'active' : ''}"><a href="/calendar">달력</a></li>
       <li class="${currentPage == 'reports' ? 'active' : ''}"><a href="/reports">보고서</a></li>
-      <li class="${currentPage == 'community' ? 'active' : ''}"><a href="/community">커뮤니티</a></li>
-      <li class="${currentPage == 'settings' ? 'active' : ''}"><a href="/settings">설정</a></li>
+      <li class="${currentPage == 'boards' ? 'active' : ''}"><a href="/boards">커뮤니티</a></li>
+      <!-- 설정 메뉴: 2단 구조 -->
+      <li class="has-sub ${openMenu == 'settings' ? 'open' : ''}">
+        <a href="javascript:void(0)">설정</a>
+        <ul class="submenu">
+          <li class="${currentPage == 'settings-profile' ? 'active' : ''}">
+            <a href="/settings/profile">카테고리 설정</a>
+          </li>
+          <li class="${currentPage == 'settings-account' ? 'active' : ''}">
+            <a href="/settings/account">예산 설정</a>
+          </li>
+          <li class="${currentPage == 'settings-security' ? 'active' : ''}">
+            <a href="/settings/security">기타 설정</a>
+          </li>
+        </ul>
+      </li>
     </ul>
   </nav>
 </aside>
- 

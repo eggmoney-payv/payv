@@ -18,10 +18,6 @@ import lombok.RequiredArgsConstructor;
  * Application Service: BoardAppService - 책임: Board 관련 유스케이스(application logic)
  * 제공. - 도메인 엔티티(User, Board)와 Repository를 조합하는 역할. - 트랜잭션 경계로 동작할 수 있음.
  * 
- * 주요 기능: - createBoard(): 새로운 게시글 생성 - updateBoard(): 게시글 수정 (작성자 본인만 가능) -
- * getBoard(): 단일 게시글 조회 - getAllBoards(): 전체 게시글 조회 - getBoardsByUser(): 특정 사용자
- * 게시글 조회
- * 
  * @author 한지원
  *
  */
@@ -79,6 +75,17 @@ public class BoardAppService {
 	public List<Board> getAllBoards() {
 		return boardRepository.findAll();
 	}
+	
+	// 전체 게시글 수 조회 
+	public int getBoardCount() {
+	    return boardRepository.count();
+	}
+
+	// 패이징 조회
+	public List<Board> getBoardsByPage(int offset, int limit) {
+	    return boardRepository.findByPage(offset, limit);
+	}
+
 
 	// 특정 유저 게시글 조회
 	public List<Board> getBoardsByUser(UserId userId) {

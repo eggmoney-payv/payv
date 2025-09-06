@@ -38,16 +38,12 @@ public class MyBatisBoardRepository implements BoardRepository {
 
     @Override
     public Optional<Board> findById(BoardId id) {
-        return Optional.ofNullable(mapper.selectById(id.value())).map(this::toDomain);
+        return Optional.ofNullable(mapper.selectById(id.value()))
+                .map(this::toDomain);
     }
 
     @Override
     public void save(Board board) {
-//    	// updated row count가 0이면 insert
-//    	int updated = mapper.update(toRecord(board));
-//    	if(updated == 0) {
-//    		mapper.insert(toRecord(board));
-//    	}
         BoardRecord existing = mapper.selectById(board.getId().value());
         if (existing == null) {
             mapper.insert(toRecord(board));
@@ -55,7 +51,7 @@ public class MyBatisBoardRepository implements BoardRepository {
             mapper.update(toRecord(board));
         }
     }
-    
+
     @Override
     public List<Board> findAll() {
         return mapper.selectAll().stream()
@@ -70,7 +66,19 @@ public class MyBatisBoardRepository implements BoardRepository {
                 .collect(Collectors.toList());
     }
 
-    
+    @Override
+    public int count() {
+        return mapper.count();
+    }
+
+    @Override
+    public List<Board> findByPage(int offset, int limit) {
+        return mapper.selectByPage(offset, limit).stream()
+                .map(this::toDomain)
+                .collect(Collectors.toList());
+    }
+
+    // toDomain, toRecord
     private Board toDomain(BoardRecord record) {
         return Board.builder()
             .id(BoardId.of(record.getBoardId()))
