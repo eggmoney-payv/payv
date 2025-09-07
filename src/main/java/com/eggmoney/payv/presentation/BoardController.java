@@ -1,5 +1,6 @@
 package com.eggmoney.payv.presentation;
 
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 import org.springframework.stereotype.Controller;
@@ -84,6 +85,12 @@ public class BoardController {
         List<Comment> comments = commentAppService.getComments(BoardId.of(boardId));
         long likeCount = reactionAppService.getLikeCount(BoardId.of(boardId));
 
+        DateTimeFormatter fmt = DateTimeFormatter.ofPattern("yyyy.MM.dd HH:mm");
+        model.addAttribute("boardCreatedAtText",
+            board.getCreatedAt() != null ? board.getCreatedAt().format(fmt) : "");
+        
+        model.addAttribute("currentPage", "boards"); // 현재 페이지 정보를 모델에 전달(aside에 호버된 상태 표시하기 위함)
+        
         model.addAttribute("board", board);
         model.addAttribute("comments", comments);
         model.addAttribute("likeCount", likeCount);
