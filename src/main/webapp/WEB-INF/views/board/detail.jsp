@@ -107,7 +107,8 @@
 
         <!-- 댓글 작성 -->
         <form action="<c:url value='/boards/${board.id.value}/comments'/>" method="post" class="comment-form">
-          <input type="hidden" name="userId" value="${loginUser.id.value}" />
+          <!-- <input type="hidden" name="userId" value="anonymous" /> -->
+          <input type="hidden" name="userId" value="anonymous" />
           <textarea name="content" placeholder="댓글을 입력하세요"></textarea>
           <button type="submit">등록</button>
         </form>

@@ -20,9 +20,14 @@ public class CommentController {
 
     @PostMapping
     public String addComment(@PathVariable String boardId,
-                             @RequestParam String userId,
+                             @RequestParam(required = false) String userId,
                              @RequestParam String content) {
+        // 로그인 없으면 userId 파라미터가 없으므로 임시 ID 할당
+        if (userId == null || userId.trim().isEmpty()) {
+            userId = "anonymous"; // 임시 사용자 ID
+        }
         commentAppService.addComment(BoardId.of(boardId), UserId.of(userId), content);
         return "redirect:/boards/" + boardId;
     }
+
 }

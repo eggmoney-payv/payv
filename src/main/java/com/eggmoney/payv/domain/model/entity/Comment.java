@@ -1,6 +1,7 @@
 package com.eggmoney.payv.domain.model.entity;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 import com.eggmoney.payv.domain.model.vo.BoardId;
 import com.eggmoney.payv.domain.model.vo.CommentId;
@@ -43,6 +44,12 @@ public class Comment {
                 .updatedAt(LocalDateTime.now())
                 .build();
     }
+    
+    public String getCreatedAtText() {
+        if (this.createdAt == null) return "";
+        return this.createdAt.format(DateTimeFormatter.ofPattern("yyyy.MM.dd HH:mm"));
+    }
+
 
     public void update(String newContent) {
         this.content = newContent;
