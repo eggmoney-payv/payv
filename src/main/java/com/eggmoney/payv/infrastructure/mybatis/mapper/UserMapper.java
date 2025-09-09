@@ -22,14 +22,12 @@ public interface UserMapper {
     UserRecord selectUserById(@Param("userId") String userId);
     UserRecord selectUserByEmail(@Param("email") String email);
     List<UserRecord> selectUserList();
-    List<UserRecord> selectUserListByRole(@Param("role") String role);
     
     // Update
     int updateUser(UserRecord user);
     int updateUserEmail(@Param("userId") String userId, @Param("email") String email);
     int updateUserPassword(@Param("userId") String userId, @Param("password") String password);
     int updateUserName(@Param("userId") String userId, @Param("name") String name);
-    int updateUserRole(@Param("userId") String userId, @Param("role") String role);
     
     // Delete
     int deleteUserById(@Param("userId") String userId);
@@ -42,5 +40,4 @@ public interface UserMapper {
     List<UserRecord> selectUserListByNameContaining(@Param("name") String name, 
                                                    @Param("limit") int limit, 
                                                    @Param("offset") int offset);
-    long countUsersByRole(@Param("role") String role);
 }

@@ -10,48 +10,39 @@
         <result property="email" column="email" />
         <result property="name" column="name" />
         <result property="password" column="password" />
-        <result property="role" column="role" />
-        <result property="createdAt" column="created_at" javaType="java.time.LocalDateTime" />
+        <result property="createAt" column="create_at" javaType="java.time.LocalDateTime" />
     </resultMap>
 
     <!-- Create -->
     <insert id="insertUser" parameterType="com.eggmoney.payv.infrastructure.mybatis.record.UserRecord">
         INSERT INTO users (
-            user_id, email, name, password, role, created_at
+            user_id, email, name, password, create_at
         ) VALUES (
             #{userId},
             #{email},
             #{name},
             #{password},
-            #{role},
-            #{createdAt}
+            #{createAt}
         )
     </insert>
 
     <!-- Read -->
     <select id="selectUserById" parameterType="string" resultMap="userResultMap">
-        SELECT user_id, email, name, password, role, created_at
+        SELECT user_id, email, name, password, create_at
         FROM users
         WHERE user_id = #{userId}
     </select>
 
     <select id="selectUserByEmail" parameterType="string" resultMap="userResultMap">
-        SELECT user_id, email, name, password, role, created_at
+        SELECT user_id, email, name, password, create_at
         FROM users
         WHERE email = #{email}
     </select>
 
     <select id="selectUserList" resultMap="userResultMap">
-        SELECT user_id, email, name, password, role, created_at
+        SELECT user_id, email, name, password, create_at
         FROM users
-        ORDER BY created_at DESC
-    </select>
-
-    <select id="selectUserListByRole" resultMap="userResultMap">
-        SELECT user_id, email, name, password, role, created_at
-        FROM users
-        WHERE role = #{role}
-        ORDER BY created_at DESC
+        ORDER BY create_at DESC
     </select>
 
     <!-- Update -->
@@ -59,8 +50,7 @@
         UPDATE users SET
             email = #{email},
             name = #{name},
-            password = #{password},
-            role = #{role}
+            password = #{password}
         WHERE user_id = #{userId}
     </update>
 
@@ -76,11 +66,6 @@
 
     <update id="updateUserName">
         UPDATE users SET name = #{name}
-        WHERE user_id = #{userId}
-    </update>
-
-    <update id="updateUserRole">
-        UPDATE users SET role = #{role}
         WHERE user_id = #{userId}
     </update>
 
@@ -109,21 +94,15 @@
         SELECT * FROM (
             SELECT ROWNUM rn, a.*
             FROM (
-                SELECT user_id, email, name, password, role, created_at
+                SELECT user_id, email, name, password, create_at
                 FROM users
                 WHERE name LIKE '%' || #{name} || '%'
-                ORDER BY created_at DESC
+                ORDER BY create_at DESC
             ) a
             WHERE ROWNUM <= #{offset} + #{limit}
         )
         WHERE rn > #{offset}
         ]]>
-    </select>
-
-    <select id="countUsersByRole" resultType="long">
-        SELECT COUNT(*)
-        FROM users
-        WHERE role = #{role}
     </select>
 
 </mapper>

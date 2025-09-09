@@ -57,7 +57,11 @@ public class MyBatisUserRepository implements UserRepository {
 
 	@Override
 	public List<User> findByRole(UserRole role) {
-		return userMapper.selectUserListByRole(role.name()).stream().map(this::toDomain).collect(Collectors.toList());
+		// DB에 role 컬럼이 없으므로 모든 사용자를 조회하고 메모리에서 필터링
+		return userMapper.selectUserList().stream()
+				.map(this::toDomain)
+				.filter(user -> user.getRole().equals(role))
+				.collect(Collectors.toList());
 	}
 
 	@Override
@@ -83,23 +87,37 @@ public class MyBatisUserRepository implements UserRepository {
 
 	@Override
 	public long countByRole(UserRole role) {
-		return userMapper.countUsersByRole(role.name());
+		// DB에 role 컬럼이 없으므로 모든 사용자를 조회하고 메모리에서 카운트
+		return userMapper.selectUserList().stream()
+				.map(this::toDomain)
+				.filter(user -> user.getRole().equals(role))
+				.count();
 	}
 
 	/**
-	 * Record를 Domain으로 변환
+	 * Record를 Domain으로 변환 (role은 기본값 USER로 설정)
 	 */
 	private User toDomain(UserRecord record) {
-		return User.builder().id(UserId.of(record.getUserId())).email(record.getEmail()).name(record.getName())
-				.password(record.getPassword()).role(UserRole.valueOf(record.getRole()))
-				.createdAt(record.getCreatedAt()).build();
+		return User.builder()
+				.id(UserId.of(record.getUserId()))
+				.email(record.getEmail())
+				.name(record.getName())
+				.password(record.getPassword())
+				.role(UserRole.USER)  // DB에 role 컬럼이 없으므로 기본값으로 USER 설정
+				.createdAt(record.getCreateAt())  // createAt 사용
+				.build();
 	}
 
 	/**
-	 * Domain을 Record로 변환
+	 * Domain을 Record로 변환 (role 정보는 저장하지 않음)
 	 */
 	private UserRecord toRecord(User user) {
-		return UserRecord.builder().userId(user.getId().value()).email(user.getEmail()).name(user.getName())
-				.password(user.getPassword()).role(user.getRole().name()).createdAt(user.getCreatedAt()).build();
+		return UserRecord.builder()
+				.userId(user.getId().value())
+				.email(user.getEmail())
+				.name(user.getName())
+				.password(user.getPassword())
+				.createAt(user.getCreatedAt())  // createAt 사용
+				.build();
 	}
 }

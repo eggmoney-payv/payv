@@ -13,6 +13,5 @@ public class UserRecord {
     private String email;
     private String name;
     private String password;
-    private String role;          // UserRole enum을 String으로 저장
-    private LocalDateTime createdAt;    
+    private LocalDateTime createAt;    
 }
