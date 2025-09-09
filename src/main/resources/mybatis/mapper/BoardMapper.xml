@@ -8,7 +8,8 @@
 
 	<!-- 컬럼 목록 -->
 	<sql id="Board_Columns">
-		board_id, user_id, type, title, content, visibility, view_count, created_at,
+		board_id, user_id, type, title, content, visibility,
+		view_count, created_at,
 		updated_at
 	</sql>
 
@@ -62,39 +63,87 @@
 		SELECT *
 		FROM board
 		ORDER BY created_at DESC
-		OFFSET #{offset} ROWS FETCH NEXT #{limit} ROWS ONLY
+		OFFSET #{offset}
+		ROWS FETCH NEXT #{limit} ROWS ONLY
 	</select>
 
+	<!-- 제목으로 검색 -->
+    <select id="selectByTitle" resultType="com.eggmoney.payv.infrastructure.mybatis.record.BoardRecord">
+        SELECT
+            <include refid="Board_Columns" />
+        FROM board
+        WHERE title LIKE '%' || #{keyword} || '%'
+        ORDER BY created_at DESC
+        OFFSET #{offset} ROWS FETCH NEXT #{limit} ROWS ONLY
+    </select>
 
-	<!-- INSERT -->
-	<insert id="insert"
-		parameterType="com.eggmoney.payv.infrastructure.mybatis.record.BoardRecord">
-		INSERT INTO board
-		(board_id, user_id, type, title, content, visibility, view_count, created_at,
-		updated_at)
-		VALUES
-		(#{boardId}, #{userId}, #{type}, #{title}, #{content}, #{visibility},
-		#{viewCount},
-		#{createdAt}, #{updatedAt})
-	</insert>
+    <!-- 내용으로 검색 -->
+    <select id="selectByContent" resultType="com.eggmoney.payv.infrastructure.mybatis.record.BoardRecord">
+        SELECT
+            <include refid="Board_Columns" />
+        FROM board
+        WHERE TO_CHAR(content) LIKE '%' || #{keyword} || '%'
+        ORDER BY created_at DESC
+        OFFSET #{offset} ROWS FETCH NEXT #{limit} ROWS ONLY
+    </select>
 
-	<!-- UPDATE (PK 기준) -->
-	<update id="update"
-		parameterType="com.eggmoney.payv.infrastructure.mybatis.record.BoardRecord">
-		UPDATE board
-		SET
-		type = #{type},
-		title = #{title},
-		content = #{content},
-		visibility= #{visibility},
-		view_count= #{viewCount},
-		updated_at= #{updatedAt}
-		WHERE board_id = #{boardId}
-	</update>
+    <!-- 작성자로 검색 -->
+    <select id="selectByAuthor" resultType="com.eggmoney.payv.infrastructure.mybatis.record.BoardRecord">
+        SELECT
+            <include refid="Board_Columns" />
+        FROM board
+        WHERE user_id LIKE '%' || #{keyword} || '%'
+        ORDER BY created_at DESC
+        OFFSET #{offset} ROWS FETCH NEXT #{limit} ROWS ONLY
+    </select>
 
-	<!-- 삭제 -->
-	<delete id="deleteById" parameterType="string">
-		DELETE FROM board WHERE board_id = #{boardId}
-	</delete>
+    <!-- 제목으로 검색된 게시글 수 -->
+    <select id="countByTitle" resultType="int">
+        SELECT COUNT(*) FROM board
+        WHERE title LIKE '%' || #{keyword} || '%'
+    </select>
+
+    <!-- 내용으로 검색된 게시글 수 -->
+    <select id="countByContent" resultType="int">
+        SELECT COUNT(*) FROM board
+        WHERE content LIKE '%' || #{keyword} || '%'
+    </select>
+
+    <!-- 작성자로 검색된 게시글 수 -->
+    <select id="countByAuthor" resultType="int">
+        SELECT COUNT(*) FROM board
+        WHERE user_id LIKE '%' || #{keyword} || '%'
+    </select>
+
+<!-- INSERT -->
+<insert id="insert"
+	parameterType="com.eggmoney.payv.infrastructure.mybatis.record.BoardRecord">
+	INSERT INTO board
+	(board_id, user_id, type, title, content, visibility, view_count, created_at,
+	updated_at)
+	VALUES
+	(#{boardId}, #{userId}, #{type}, #{title}, #{content}, #{visibility},
+	#{viewCount},
+	#{createdAt}, #{updatedAt})
+</insert>
+
+<!-- UPDATE (PK 기준) -->
+<update id="update"
+	parameterType="com.eggmoney.payv.infrastructure.mybatis.record.BoardRecord">
+	UPDATE board
+	SET
+	type = #{type},
+	title = #{title},
+	content = #{content},
+	visibility= #{visibility},
+	view_count= #{viewCount},
+	updated_at= #{updatedAt}
+	WHERE board_id = #{boardId}
+</update>
+
+<!-- 삭제 -->
+<delete id="deleteById" parameterType="string">
+	DELETE FROM board WHERE board_id = #{boardId}
+</delete>
 
 </mapper>

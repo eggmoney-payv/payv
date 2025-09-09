@@ -33,6 +33,20 @@ public interface BoardMapper {
     List<BoardRecord> selectByPage(@Param("offset") int offset,
                                    @Param("limit") int limit);
 
+ // 검색된 게시글 목록 (제목, 내용, 작성자별 검색)
+    List<BoardRecord> selectByTitle(@Param("keyword") String keyword, @Param("offset") int offset, @Param("limit") int limit);
+    List<BoardRecord> selectByContent(@Param("keyword") String keyword, @Param("offset") int offset, @Param("limit") int limit);
+    List<BoardRecord> selectByAuthor(@Param("keyword") String keyword, @Param("offset") int offset, @Param("limit") int limit);
+    
+ // 제목으로 검색된 게시글 수
+    int countByTitle(@Param("keyword") String keyword);
+
+    // 내용으로 검색된 게시글 수
+    int countByContent(@Param("keyword") String keyword);
+
+    // 작성자로 검색된 게시글 수
+    int countByAuthor(@Param("keyword") String keyword);
+    
     // 게시글 저장
 	int insert(BoardRecord record);
 

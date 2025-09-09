@@ -18,6 +18,14 @@
 	gap: 6px;
 }
 
+/* combobox엔 적용 안되는 듯 (확인해보기) */
+.search-form select {
+	padding: 6px 10px;
+	border: 1px solid #967E76;
+	border-radius: 6px;
+	font-size: 14px;
+}
+
 .search-form input {
 	padding: 6px 10px;
 	border: 1px solid #967E76;
@@ -178,6 +186,22 @@ main.board-detail {
 	font-size: 14px;
 	color: #666;
 } */
+
+/* 목록 버튼 스타일 */
+.btn-list {
+  padding: 8px 16px;
+  background-color: #007bff;
+  color: #fff;
+  text-decoration: none;
+  border-radius: 5px;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.btn-list:hover {
+  background-color: #0056b3;
+}
+
 .post-card {
 	margin-top: 20px; background : #fff;
 	border: 1px solid #e5e7eb;

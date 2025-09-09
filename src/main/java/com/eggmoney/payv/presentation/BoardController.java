@@ -100,5 +100,51 @@ public class BoardController {
         return "board/detail";
     }
     
+    @GetMapping("/search")
+    public String search(@RequestParam String keyword, @RequestParam String searchType, 
+                         @RequestParam(defaultValue = "1") int page, Model model) {
+    	
+    	// 검색어가 없을 때는 기본 값 설정
+        if (keyword == null) {
+            keyword = "";  // 기본 검색어를 빈 문자열로 설정
+        }
+        if (searchType == null) {
+            searchType = "title";  // 기본 검색타입을 "title"로 설정
+        }
+        
+        int pageSize = 10; // 한 페이지에 보여줄 개수
+        int blockSize = 5;	// 한 블럭에 들어갈 페이지 수
+        
+        int totalCount = boardAppService.getBoardsCountBySearch(keyword, searchType);
+        int totalPage = (int) Math.ceil((double) totalCount / pageSize);
+        
+        int offset = (page - 1) * pageSize;
+        
+        List<Board> boardList = boardAppService.getBoardsBySearch(keyword, searchType, offset, pageSize);
+
+        int currentBlock = (int) Math.ceil((double) page / blockSize);
+        int startPage = (currentBlock - 1) * blockSize + 1;
+        int endPage = Math.min(startPage + blockSize - 1, totalPage);
+
+        PageInfo pageInfo = new PageInfo(
+                page, totalPage, startPage, endPage,
+                startPage > 1, endPage < totalPage
+            );
+        
+        model.addAttribute("boardList", boardList);
+        model.addAttribute("totalPage", totalPage);
+        model.addAttribute("currentPage", "boards"); // 현재 페이지 정보를 모델에 전달(aside에 호버된 상태 표시하기 위함)
+        model.addAttribute("searchKeyword", keyword);
+        model.addAttribute("searchType", searchType);
+        model.addAttribute("totalCount", totalCount);  // 검색된 게시글 수 추가
+        model.addAttribute("noResults", boardList.isEmpty()); // 결과가 없을 때 noResults = true
+
+     // 페이지네이션 정보 전달
+        model.addAttribute("pageInfo", pageInfo);
+        
+        return "board/list";
+        
+
+    }
     // 수정폼, 수정처리도 추가 예정
 }

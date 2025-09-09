@@ -33,4 +33,10 @@ public interface BoardRepository {
 
     // 페이징 조회
     List<Board> findByPage(int offset, int limit);
+    
+ // 제목, 내용, 작성자별 검색
+    List<Board> findBySearch(String keyword, String searchType, int offset, int limit);
+
+    // 제목, 내용, 작성자별 검색된 게시글 수
+    int countBySearch(String keyword, String searchType);
 }
