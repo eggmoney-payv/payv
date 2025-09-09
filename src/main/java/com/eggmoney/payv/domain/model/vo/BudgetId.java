@@ -3,16 +3,16 @@ package com.eggmoney.payv.domain.model.vo;
 import com.eggmoney.payv.domain.shared.id.StringId;
 import com.eggmoney.payv.domain.shared.util.EntityIdentifier;
 
-public final class TransactionId implements StringId {
+public final class BudgetId implements StringId {
+
+private final String value;
 	
-	private final String value;
-	
-	private TransactionId(String value) {
-		this.value = EntityIdentifier.nonBlank(value, "transactionId");
+	private BudgetId(String value) {
+		this.value = EntityIdentifier.nonBlank(value, "budgetId");
 	}
 	
-	public static TransactionId of(String value) {
-		return new TransactionId(value);
+	public static BudgetId of(String value) {
+		return new BudgetId(value);
 	}
 	
 	public String value() {
@@ -27,6 +27,6 @@ public final class TransactionId implements StringId {
     
     @Override 
     public boolean equals(Object o) {
-        return (o instanceof TransactionId) && ((TransactionId)o).value.equals(this.value);
+        return (o instanceof BudgetId) && ((BudgetId)o).value.equals(this.value);
     }
 }

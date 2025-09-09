@@ -11,6 +11,7 @@ public class UserRecord {
 
 	private String userId;
     private String email;
+    private String password;
     private String name;
     private LocalDateTime createdAt;    
 }

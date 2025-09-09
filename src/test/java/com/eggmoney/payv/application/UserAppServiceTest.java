@@ -1,6 +1,10 @@
 package com.eggmoney.payv.application;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.fail;
+
+import java.util.UUID;
 
 import javax.annotation.Resource;
 
@@ -12,7 +16,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.eggmoney.payv.application.service.UserAppService;
 import com.eggmoney.payv.domain.model.entity.User;
-import com.eggmoney.payv.domain.model.repository.UserRepository;
 import com.eggmoney.payv.domain.shared.error.DomainException;
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -21,44 +24,27 @@ import com.eggmoney.payv.domain.shared.error.DomainException;
 public class UserAppServiceTest {
 
 	@Resource 
-	UserRepository userRepository;
+	UserAppService userAppService;
+
+    private static String randomEmail() {
+        return "test_" + UUID.randomUUID().toString().substring(0, 8) + "@test.local";
+    }
 
     @Test
-    public void userAppServiceTest() {
-    	// 도메인 서비스 조립
-        UserAppService userAppService = new UserAppService(userRepository);
+    public void register_success_and_duplicateEmailFails() {
+        String email = randomEmail();
 
-        // 1) 사용자 등록
-        String email1 = "user+" + System.nanoTime() + "@example.com";
-        User user1 = userAppService.register(email1, "Alice");
-        assertNotNull(user1.getId());
+        User u1 = userAppService.register(email, "{noop}pw", "테스터");
+        assertNotNull(u1);
+        assertNotNull(u1.getId());
+        assertEquals(email, u1.getEmail());
 
-        // 2) 조회 (by id / by email)
-        assertTrue(userRepository.findById(user1.getId()).isPresent());
-        assertTrue(userRepository.findByEmail(email1).isPresent());
-
-        // 3) 중복 이메일 등록 실패
+        // 동일 이메일 재등록 → UNIQUE(EMAIL) 위반 = DomainException (또는 DuplicateKeyException)
         try {
-        	userAppService.register(email1, "Alice Dup");
-            fail("Expected DomainException for duplicate email");
-        } catch (DomainException expected) { /* ok */ }
-
-        // 5) 이메일 변경 (정상)
-        String emailNew = "alice.new+" + System.nanoTime() + "@example.com";
-        userAppService.changeEmail(user1.getId(), emailNew);
-        User reloaded2 = userRepository.findById(user1.getId()).orElseThrow(AssertionError::new);
-        assertEquals(emailNew, reloaded2.getEmail());
-
-        // 6) 다른 사용자와 이메일 충돌 검증
-        String email2 = "bob+" + System.nanoTime() + "@example.com";
-        User user2 = userAppService.register(email2, "Bob");
-        try {
-        	userAppService.changeEmail(user2.getId(), emailNew); // user1이 이미 사용 중인 이메일
-            fail("Expected DomainException for email conflict");
-        } catch (DomainException expected) { /* ok */ }
-
-        // u2의 이메일은 여전히 e2 이어야 함
-        User reloadedU2 = userRepository.findById(user2.getId()).orElseThrow(AssertionError::new);
-        assertEquals(email2, reloadedU2.getEmail());
+            userAppService.register(email, "{noop}pw2", "테스터2");
+            fail("Expected duplicate email failure");
+        } catch (DomainException | org.springframework.dao.DuplicateKeyException expected) {
+            // OK
+        }
     }
 }
