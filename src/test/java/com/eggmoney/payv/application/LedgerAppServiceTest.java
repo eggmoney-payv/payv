@@ -6,6 +6,7 @@ import javax.annotation.Resource;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.annotation.Transactional;
@@ -29,11 +30,14 @@ public class LedgerAppServiceTest {
 	@Resource
 	UserRepository userRepository;
 	
+	@Resource
+	PasswordEncoder passwordEncoder;
+	
     @Test
     public void ledgerAppServiceTest() {
     	
     	// --- 준비: 도메인 서비스 조립 (순수 도메인) ---
-        UserAppService userService   = new UserAppService(userRepository);
+        UserAppService userService   = new UserAppService(userRepository, passwordEncoder);
         LedgerAppService ledgerService = new LedgerAppService(ledgerRepository, userRepository);
 
         // --- 사용자 등록 ---
