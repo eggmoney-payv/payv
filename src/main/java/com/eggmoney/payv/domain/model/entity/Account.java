@@ -19,7 +19,6 @@ import lombok.Getter;
  * @author 정의탁
  */
 @Getter
-@AllArgsConstructor
 public class Account {
 
 	private final AccountId id;
@@ -34,7 +33,7 @@ public class Account {
     private final LocalDateTime createdAt;
     
 	private Account(AccountId id, LedgerId ledgerId, AccountType type, 
-			String name, Money currentBalance, boolean archived) {
+			String name, Money currentBalance, boolean archived, LocalDateTime createdAt) {
 		if (id == null)
 			throw new IllegalArgumentException("id is required");
 		if (ledgerId == null)
@@ -53,12 +52,12 @@ public class Account {
 			throw new DomainException("해당 자산 유형은 마이너스 값을 가질 수 없습니다: " + type);
 		}
 		this.archived = archived;
-		this.createdAt = LocalDateTime.now();
+		this.createdAt = createdAt;
 	}
 	
 	public static Account create(LedgerId ledgerId, AccountType type, String name, Money currentBalance) {
         return new Account(AccountId.of(EntityIdentifier.generateUuid()), ledgerId, type, 
-        		name, currentBalance, false);
+        		name, currentBalance, false, LocalDateTime.now());
     }
 	
 	// 인프라 복원용 (레코드 → 도메인)
@@ -67,8 +66,8 @@ public class Account {
         return new Account(id, ledgerId, type, name, currentBalance, archived, createdAt);
     }
     
-    /** 
-     * ---- 도메인 책임 (SSOT) ---- 
+    /**
+     * ----- 도메인 책임 (SSOT) -----
      */
     // 잔액 증가
     public void deposit(Money amount) {
@@ -118,9 +117,9 @@ public class Account {
 		if (archived) throw new DomainException("해당 자산은 잠겨 있습니다.(거래 불가)");
 	}
 
-	// 카드만 음수 허용(신용 사용)
+	// 카드와 기타(etc)는 음수 허용(신용 사용)
 	private static boolean allowsNegative(AccountType type) {
-		return type == AccountType.CARD; 
+		return type == AccountType.CARD || type == AccountType.ETC;
 	}
 
 	private static void requirePositive(Money money) {
@@ -128,10 +127,13 @@ public class Account {
 			throw new IllegalArgumentException("금액은 양수이어야 합니다.");
 	}
     
-	@Override
-	public boolean equals(Object o) {
-		return (o instanceof Account) && Objects.equals(id, ((Account) o).id);
-	}
+	@Override 
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Account)) return false;
+        Account other = (Account) o;
+        return id != null && id.equals(other.getId());
+    }
 
 	@Override
 	public int hashCode() {

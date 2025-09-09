@@ -17,35 +17,39 @@ public class User {
 
 	private UserId id;
 	private String email;
+	private String password;
 	private String name;
 	private LocalDateTime createdAt;
 	
-	@Builder
-	public User(UserId id, String email, String name, LocalDateTime createdAt) {
+	private User(UserId id, String email, String password, String name, LocalDateTime createdAt) {
+		if (id == null) throw new IllegalArgumentException("id is required");
+        if (email == null) throw new IllegalArgumentException("email is required");
+        if (password == null) throw new IllegalArgumentException("password is required");
+        if (name == null) throw new IllegalArgumentException("name is required");
+		
 		this.id = id;
 		this.email = email;
+		this.password = password;
 		this.name = name;
 		this.createdAt = createdAt;
+	}
+	
+	public static User create(String email, String password, String name){
+		return new User(UserId.of(EntityIdentifier.generateUuid()), 
+				email, password, name, LocalDateTime.now());
+	}
+	
+	// 인프라 복원용(레코드 → 도메인).
+	public static User reconstruct(UserId id, String email, String password, 
+			String name, LocalDateTime createdAt) {
+		
+		return new User(id, email, password, name, createdAt);
 	}
 	
 	// 가계부 생성.
 	public Ledger createLedger(String ledgerName) {
 		return Ledger.create(this.id, ledgerName);
-	}
-	
-	private User(UserId id, String email, String name) {
-		if (id == null) throw new IllegalArgumentException("id is required");
-        if (email == null) throw new IllegalArgumentException("email is required");
-
-        this.id = id;
-        this.email = email;
-        this.name = name;
-        this.createdAt = LocalDateTime.now();
-	}
-	
-	public static User create(String email, String name){
-		return new User(UserId.of(EntityIdentifier.generateUuid()), email, name);
-	}
+	}	
 	
 	// 이메일 변경.
 	public void changeEmail(String newEmail){

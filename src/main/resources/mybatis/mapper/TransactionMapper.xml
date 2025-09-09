@@ -1,0 +1,124 @@
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper
+	namespace="com.eggmoney.payv.infrastructure.mybatis.mapper.TransactionMapper">
+
+	<resultMap id="TransactionMap" type="com.eggmoney.payv.infrastructure.mybatis.record.TransactionRecord">
+		<id property="transactionId" column="TRANSACTION_ID" />
+		<result property="ledgerId" column="LEDGER_ID" />
+		<result property="accountId" column="ACCOUNT_ID" />
+		<result property="date" column="TRANSACTION_DATE" jdbcType="DATE" />
+		<result property="type" column="TYPE" />
+		<result property="amount" column="AMOUNT" />
+		<result property="categoryId" column="CATEGORY_ID" />
+		<result property="memo" column="MEMO" />
+		<result property="posted" column="POSTED" />
+		<result property="postedAt" column="POSTED_AT" jdbcType="TIMESTAMP" />
+		<result property="createdAt" column="CREATED_AT" jdbcType="TIMESTAMP" />
+	</resultMap>
+
+	<select id="selectById" parameterType="string" resultMap="TransactionMap">
+		SELECT 
+			TRANSACTION_ID, 
+			LEDGER_ID, 
+			ACCOUNT_ID, 
+			TRANSACTION_DATE, 
+			TYPE, 
+			AMOUNT, 
+			CATEGORY_ID, 
+			MEMO, 
+			POSTED, 
+			POSTED_AT, 
+			CREATED_AT
+		FROM 
+			TRANSACTION
+		WHERE TRANSACTION_ID = #{transactionId}
+		AND ROWNUM = 1
+	</select>
+
+	<insert id="insert" parameterType="com.eggmoney.payv.infrastructure.mybatis.record.TransactionRecord">
+		INSERT INTO TRANSACTION (
+			TRANSACTION_ID, 
+			LEDGER_ID, 
+			ACCOUNT_ID, 
+			TRANSACTION_DATE, 
+			TYPE, 
+			AMOUNT, 
+			CATEGORY_ID, 
+			MEMO,
+			POSTED, 
+			POSTED_AT, 
+			CREATED_AT
+		) VALUES (
+			#{transactionId}, 
+			#{ledgerId}, 
+			#{accountId}, 
+			#{date}, 
+			#{type}, 
+			#{amount},
+			#{categoryId}, 
+			#{memo, jdbcType=VARCHAR}, 
+			NVL(#{posted}, 'N'), 
+			#{postedAt, jdbcType=TIMESTAMP}, 
+			NVL(#{createdAt}, SYSTIMESTAMP)
+		)
+	</insert>
+
+	<update id="update" parameterType="com.eggmoney.payv.infrastructure.mybatis.record.TransactionRecord">
+		UPDATE TRANSACTION SET 
+			LEDGER_ID = #{ledgerId},
+			ACCOUNT_ID = #{accountId},
+			TRANSACTION_DATE = #{date},
+			TYPE = #{type},
+			AMOUNT = #{amount},
+			CATEGORY_ID= #{categoryId},
+			MEMO = #{memo, jdbcType=VARCHAR}, 
+			POSTED = NVL(#{posted}, 'N'),
+			POSTED_AT = #{postedAt, jdbcType=TIMESTAMP}
+		WHERE 
+			TRANSACTION_ID = #{transactionId}
+	</update>
+
+	<delete id="delete" parameterType="string">
+		DELETE FROM TRANSACTION 
+		WHERE TRANSACTION_ID = #{transactionId}
+	</delete>
+
+	<!-- 거래 내역 조회(페이징) -->
+	<select id="selectByLedgerAndDateRange" resultMap="TransactionMap">
+		SELECT * 
+		FROM (
+			SELECT 
+				t.*, 
+				ROWNUM rn 
+			FROM (
+				SELECT 
+					TRANSACTION_ID, 
+					LEDGER_ID, 
+					ACCOUNT_ID, 
+					TRANSACTION_DATE, 
+					TYPE, 
+					AMOUNT, 
+					CATEGORY_ID, 
+					MEMO, 
+					POSTED, 
+					POSTED_AT, 
+					CREATED_AT
+				FROM 
+					TRANSACTION
+				WHERE 
+					LEDGER_ID = #{ledgerId}
+		<![CDATA[
+				AND TRANSACTION_DATE >= #{from}
+				AND TRANSACTION_DATE < #{to}
+				ORDER BY 
+					TRANSACTION_DATE DESC, TRANSACTION_ID DESC
+			) t
+			WHERE 
+				ROWNUM <= (#{offset} + #{limit})
+		)
+		WHERE rn > #{offset}
+		]]>
+	</select>
+
+</mapper>

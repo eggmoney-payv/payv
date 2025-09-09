@@ -9,6 +9,10 @@ import com.eggmoney.payv.domain.shared.error.DomainException;
 
 import lombok.RequiredArgsConstructor;
 
+/**
+ * 사용자 애플리케이션 서비스
+ * @author 정의탁
+ */
 @Service
 @RequiredArgsConstructor
 public class UserAppService {
@@ -16,11 +20,11 @@ public class UserAppService {
 	private final UserRepository userRepository;
 	
 	// 이메일 유일성 보장 하에 새 사용자 등록.
-    public User register(String email, String name){
+    public User register(String email, String password, String name){
         if (userRepository.findByEmail(email).isPresent()) {
             throw new DomainException("이미 사용중인 이메일 입니다. (" + email + ")");
         }
-        User user = User.create(email, name);
+        User user = User.create(email, password, name);
         userRepository.save(user);
         return user;
     }

@@ -1,7 +1,11 @@
 package com.eggmoney.payv.application.service;
 
-import org.springframework.stereotype.Service;
+import java.util.List;
 
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.eggmoney.payv.domain.model.entity.Account;
 import com.eggmoney.payv.domain.model.entity.Ledger;
 import com.eggmoney.payv.domain.model.entity.User;
 import com.eggmoney.payv.domain.model.repository.LedgerRepository;
@@ -12,6 +16,10 @@ import com.eggmoney.payv.domain.shared.error.DomainException;
 
 import lombok.RequiredArgsConstructor;
 
+/**
+ * 가계부 애플리케이션 서비스
+ * @author 정의탁
+ */
 @Service
 @RequiredArgsConstructor
 public class LedgerAppService {
@@ -20,13 +28,13 @@ public class LedgerAppService {
     private final UserRepository userRepository;
     
     // 가계부 생성.
-    public Ledger createLedger(User owner, String name){
+    public Ledger createLedger(UserId ownerId, String name){
         // 소유자 존재 유무 확인.
-        userRepository.findById(owner.getId())
-            .orElseThrow(() -> new DomainException("owner not found"));
+        User owner = userRepository.findById(ownerId)
+        		.orElseThrow(() -> new DomainException("owner not found"));
 
         // 가계부 이름 중복 확인.
-        if (ledgerRepository.existsByOwnerAndName(owner.getId(), name)) {
+        if (ledgerRepository.existsByOwnerAndName(ownerId, name)) {
             throw new DomainException("동일한 이름의 가계부가 존재합니다.");
         }
 
@@ -56,5 +64,11 @@ public class LedgerAppService {
         ledgerRepository.save(ledger);
         
         return ledger;
+    }
+    
+    // 사용자 소유 가계부 목록 조회.
+    @Transactional(readOnly = true)
+    public List<Ledger> listByOwner(UserId onwerId) {
+        return ledgerRepository.findListByOwner(onwerId);
     }
 }

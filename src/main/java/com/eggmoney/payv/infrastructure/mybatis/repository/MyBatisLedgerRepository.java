@@ -51,12 +51,8 @@ public class MyBatisLedgerRepository implements LedgerRepository {
     }
 
     private Ledger toDomain(LedgerRecord ledgerRecord) {        
-        return Ledger.builder()
-        		.id(LedgerId.of(ledgerRecord.getLedgerId()))
-        		.ownerId(UserId.of(ledgerRecord.getOwnerId()))
-        		.name(ledgerRecord.getName())
-        		.createdAt(ledgerRecord.getCreatedAt())
-        		.build();
+        return Ledger.reconstruct(LedgerId.of(ledgerRecord.getLedgerId()), 
+        		UserId.of(ledgerRecord.getOwnerId()), ledgerRecord.getName(), ledgerRecord.getCreatedAt());
     }
 
     private LedgerRecord toRecord(Ledger ledger) {

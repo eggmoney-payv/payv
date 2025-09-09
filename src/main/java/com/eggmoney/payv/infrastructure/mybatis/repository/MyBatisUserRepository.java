@@ -41,19 +41,19 @@ public class MyBatisUserRepository implements UserRepository {
         }
     }
 
-    private User toDomain(UserRecord r) {
-    	return User.builder()
-    			.id(UserId.of(r.getUserId()))
-    			.email(r.getEmail())
-    			.name(r.getName())
-    			.createdAt(r.getCreatedAt())
-    			.build();
+    private User toDomain(UserRecord record) {
+    	return User.reconstruct(UserId.of(record.getUserId()), 
+    			record.getEmail(), 
+    			record.getPassword(), 
+    			record.getName(), 
+    			record.getCreatedAt());
     }
 
     private UserRecord toRecord(User user) {
         return UserRecord.builder()
         		.userId(user.getId().value())
         		.email(user.getEmail())
+        		.password(user.getPassword())
         		.name(user.getName())
         		.createdAt(user.getCreatedAt())
         		.build();
