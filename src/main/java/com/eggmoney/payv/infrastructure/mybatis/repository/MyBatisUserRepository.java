@@ -17,6 +17,7 @@ import lombok.RequiredArgsConstructor;
 
 /**
  * UserRepository MyBatis 구현체
+ * LocalDateTime 직접 사용 (TypeHandler에 의존)
  * 
  * @author 정의탁, 강기범
  */
@@ -30,10 +31,8 @@ public class MyBatisUserRepository implements UserRepository {
 	public void save(User user) {
 		UserRecord existing = userMapper.selectUserById(user.getId().value());
 		if (existing == null) {
-			// 새 사용자 삽입
 			userMapper.insertUser(toRecord(user));
 		} else {
-			// 기존 사용자 업데이트
 			userMapper.updateUser(toRecord(user));
 		}
 	}
@@ -57,7 +56,6 @@ public class MyBatisUserRepository implements UserRepository {
 
 	@Override
 	public List<User> findByRole(UserRole role) {
-		// DB에 role 컬럼이 없으므로 모든 사용자를 조회하고 메모리에서 필터링
 		return userMapper.selectUserList().stream()
 				.map(this::toDomain)
 				.filter(user -> user.getRole().equals(role))
@@ -87,7 +85,6 @@ public class MyBatisUserRepository implements UserRepository {
 
 	@Override
 	public long countByRole(UserRole role) {
-		// DB에 role 컬럼이 없으므로 모든 사용자를 조회하고 메모리에서 카운트
 		return userMapper.selectUserList().stream()
 				.map(this::toDomain)
 				.filter(user -> user.getRole().equals(role))
@@ -95,7 +92,7 @@ public class MyBatisUserRepository implements UserRepository {
 	}
 
 	/**
-	 * Record를 Domain으로 변환 (role은 기본값 USER로 설정)
+	 * Record를 Domain으로 변환
 	 */
 	private User toDomain(UserRecord record) {
 		return User.builder()
@@ -103,13 +100,13 @@ public class MyBatisUserRepository implements UserRepository {
 				.email(record.getEmail())
 				.name(record.getName())
 				.password(record.getPassword())
-				.role(UserRole.USER)  // DB에 role 컬럼이 없으므로 기본값으로 USER 설정
-				.createdAt(record.getCreateAt())  // createAt 사용
+				.role(UserRole.USER)
+				.createdAt(record.getCreateAt())  // LocalDateTime 직접 사용
 				.build();
 	}
 
 	/**
-	 * Domain을 Record로 변환 (role 정보는 저장하지 않음)
+	 * Domain을 Record로 변환
 	 */
 	private UserRecord toRecord(User user) {
 		return UserRecord.builder()
@@ -117,7 +114,7 @@ public class MyBatisUserRepository implements UserRepository {
 				.email(user.getEmail())
 				.name(user.getName())
 				.password(user.getPassword())
-				.createAt(user.getCreatedAt())  // createAt 사용
+				.createAt(user.getCreatedAt())  // LocalDateTime 직접 사용
 				.build();
 	}
 }

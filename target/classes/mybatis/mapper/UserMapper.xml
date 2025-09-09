@@ -4,13 +4,14 @@
 
 <mapper namespace="com.eggmoney.payv.infrastructure.mybatis.mapper.UserMapper">
 
-    <!-- ResultMap 정의 -->
+    <!-- ResultMap 정의 - 커스텀 TypeHandler 사용 -->
     <resultMap id="userResultMap" type="com.eggmoney.payv.infrastructure.mybatis.record.UserRecord">
         <id property="userId" column="user_id" />
         <result property="email" column="email" />
         <result property="name" column="name" />
         <result property="password" column="password" />
-        <result property="createAt" column="create_at" javaType="java.time.LocalDateTime" />
+        <result property="createAt" column="create_at" 
+                typeHandler="com.eggmoney.payv.infrastructure.mybatis.typehandler.OracleLocalDateTimeTypeHandler" />
     </resultMap>
 
     <!-- Create -->
@@ -20,9 +21,9 @@
         ) VALUES (
             #{userId},
             #{email},
-            #{name},
+            #{name, jdbcType=VARCHAR},
             #{password},
-            #{createAt}
+            #{createAt, typeHandler=com.eggmoney.payv.infrastructure.mybatis.typehandler.OracleLocalDateTimeTypeHandler}
         )
     </insert>
 
