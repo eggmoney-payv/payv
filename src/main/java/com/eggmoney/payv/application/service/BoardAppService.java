@@ -68,7 +68,8 @@ public class BoardAppService {
 
 	// 단건 조회
 	public Board getBoard(BoardId id) {
-		return boardRepository.findById(id).orElseThrow(() -> new DomainException("board not found"));
+		return boardRepository.findById(id)
+				.orElseThrow(() -> new DomainException("board not found"));
 	}
 
 	// 전체 조회
@@ -85,6 +86,21 @@ public class BoardAppService {
 	public List<Board> getBoardsByPage(int offset, int limit) {
 	    return boardRepository.findByPage(offset, limit);
 	}
+	
+	// 검색된 게시글 목록
+	public List<Board> getBoardsBySearch(String keyword, String searchType, int offset, int limit) {
+	    List<Board> boards = boardRepository.findBySearch(keyword, searchType, offset, limit);
+	    if (boards.isEmpty()) {
+	    	 return boards; // 검색된 게시글이 없으면 빈 리스트 반환
+	    }
+	    return boards;
+	}
+
+
+    // 검색된 게시글 수
+    public int getBoardsCountBySearch(String keyword, String searchType) {
+        return boardRepository.countBySearch(keyword, searchType);
+    }
 
 
 	// 특정 유저 게시글 조회
