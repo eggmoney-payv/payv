@@ -1,4 +1,4 @@
-package com.eggmoney.payv.web.auth.form;
+package com.eggmoney.payv.presentation.form;
 
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
@@ -9,7 +9,7 @@ import lombok.Data;
 /**
  * 회원가입 폼 데이터
  * 
- * @author 팀원명
+ * @author 강기범
  */
 @Data
 public class SignupForm {
