@@ -132,11 +132,14 @@
 			#{spentAmount, jdbcType=NUMERIC}
 		)
 	</insert>
-
-	<!-- 예산 금액 변경만 허용(카테고리 이동 x) -->
+	
 	<update id="update" parameterType="com.eggmoney.payv.infrastructure.mybatis.record.BudgetRecord">
 		UPDATE BUDGET SET 
-			LIMIT_AMOUNT = #{limitAmount, jdbcType=NUMERIC}
+			LEDGER_ID = #{ledgerId},
+			CATEGORY_ID = #{categoryId},
+			YEAR_MONTH = #{yearMonth},
+			LIMIT_AMOUNT = #{limitAmount, jdbcType=NUMERIC},
+			SPENT_AMOUNT = #{spentAmount, jdbcType=NUMERIC}
 		WHERE 
 			BUDGET_ID = #{budgetId}
 	</update>

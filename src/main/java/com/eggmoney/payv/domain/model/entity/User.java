@@ -58,8 +58,4 @@ public class User {
         }
         this.email = newEmail;
     }
-	
-	public static User of(UserId id) {
-        return new User(id, null, null);
-    }
 }

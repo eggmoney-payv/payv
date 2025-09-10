@@ -121,4 +121,87 @@
 		]]>
 	</select>
 
+	<!-- 자산별 조회(페이징) -->
+	<select id="selectByLedgerAndAccount" resultMap="TransactionMap">
+		SELECT *
+		FROM (
+			SELECT t.*, ROWNUM rn
+			FROM (
+				SELECT 
+					TRANSACTION_ID, 
+					LEDGER_ID, 
+					ACCOUNT_ID, 
+					TRANSACTION_DATE, 
+					TYPE,
+					AMOUNT, 
+					CATEGORY_ID, 
+					MEMO, 
+					POSTED, 
+					POSTED_AT, 
+					CREATED_AT
+				FROM 
+					TRANSACTION
+				WHERE 
+					LEDGER_ID = #{ledgerId} AND 
+					ACCOUNT_ID = #{accountId}
+				ORDER BY 
+					TRANSACTION_DATE DESC, TRANSACTION_ID DESC
+			) t
+			<![CDATA[
+			WHERE 
+				ROWNUM <= (#{offset} + #{limit})
+		)
+		WHERE 
+			rn > #{offset}
+		]]>
+	</select>
+
+	<!-- 카테고리 집합 조회(페이징) -->
+	<select id="selectByLedgerAndCategoryIds" resultMap="TransactionMap">
+		<choose>
+			<when test="categoryIds != null and categoryIds.size() > 0">
+				SELECT *
+				FROM (
+					SELECT t.*, ROWNUM rn
+					FROM (
+						SELECT 
+							TRANSACTION_ID, 
+							LEDGER_ID, 
+							ACCOUNT_ID, 
+							TRANSACTION_DATE, 
+							TYPE, 
+							AMOUNT, 
+							CATEGORY_ID, 
+							MEMO, 
+							POSTED, 
+							POSTED_AT, 
+							CREATED_AT
+						FROM 
+							TRANSACTION
+						WHERE 
+							LEDGER_ID = #{ledgerId} AND 
+							CATEGORY_ID IN
+							<foreach collection="categoryIds" item="cid" open="(" separator="," close=")">
+								#{cid}
+							</foreach>
+						ORDER BY 
+							TRANSACTION_DATE DESC, TRANSACTION_ID DESC
+					) t
+					<![CDATA[
+					WHERE 
+						ROWNUM <= (#{offset} + #{limit})
+				)
+				WHERE rn > #{offset}
+				]]>
+			</when>
+			<otherwise>
+				<!-- 카테고리 목록이 비면 결과 없음 -->
+				SELECT 
+					TRANSACTION_ID, LEDGER_ID, ACCOUNT_ID, TRANSACTION_DATE,
+					TYPE, AMOUNT, CATEGORY_ID, MEMO, POSTED, POSTED_AT, CREATED_AT
+				FROM TRANSACTION
+				WHERE 1 = 0
+			</otherwise>
+		</choose>
+	</select>
 </mapper>

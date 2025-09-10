@@ -25,4 +25,15 @@ public interface TransactionMapper {
             @Param("limit") int limit
     );
 
+    // 자산별 거래 내역 조회.
+    List<TransactionRecord> selectByLedgerAndAccount(@Param("ledgerId") String ledgerId,
+                                                     @Param("accountId") String accountId,
+                                                     @Param("limit") int limit,
+                                                     @Param("offset") int offset);
+
+    // 카테고리별(하위 카테고리 포함) 거래 내역 조회.
+    List<TransactionRecord> selectByLedgerAndCategoryIds(@Param("ledgerId") String ledgerId,
+                                                         @Param("categoryIds") List<String> categoryIds,
+                                                         @Param("limit") int limit,
+                                                         @Param("offset") int offset);
 }

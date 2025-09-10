@@ -16,6 +16,7 @@ public class AccountRecord {
     private String name;
     private BigDecimal currentBalance;
     private String archived;			// 자산 잠금: 'Y'/'N'
+    private String isDeleted;			// 'Y' / 'N'
     private LocalDateTime createdAt;
     
 }

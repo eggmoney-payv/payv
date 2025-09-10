@@ -20,7 +20,7 @@ import com.eggmoney.payv.domain.shared.error.DomainException;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = "classpath*:spring/root-context.xml")
-@Transactional
+// @Transactional
 public class UserAppServiceTest {
 
 	@Resource 

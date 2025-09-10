@@ -1,17 +1,22 @@
 package com.eggmoney.payv.application.service;
 
 import java.time.LocalDate;
+import java.time.YearMonth;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.eggmoney.payv.domain.model.entity.Account;
+import com.eggmoney.payv.domain.model.entity.Budget;
 import com.eggmoney.payv.domain.model.entity.Category;
 import com.eggmoney.payv.domain.model.entity.Transaction;
 import com.eggmoney.payv.domain.model.entity.TransactionType;
 import com.eggmoney.payv.domain.model.repository.AccountRepository;
+import com.eggmoney.payv.domain.model.repository.BudgetRepository;
 import com.eggmoney.payv.domain.model.repository.CategoryRepository;
 import com.eggmoney.payv.domain.model.repository.TransactionRepository;
 import com.eggmoney.payv.domain.model.vo.AccountId;
@@ -30,6 +35,7 @@ public class TransactionAppService {
 	private final TransactionRepository transactionRepository;
     private final AccountRepository accountRepository;
     private final CategoryRepository categoryRepository;
+    private final BudgetRepository budgetRepository;
     
     // 생성.
     @Transactional
@@ -67,6 +73,7 @@ public class TransactionAppService {
         
         // 도메인 규칙에 따라 자산/가계부 일치 여부는 Transaction.post() 내부에서 재검증.
         transaction.post(account);
+        applyBudgetOnPost(transaction);
         
         transactionRepository.save(transaction);
         accountRepository.save(account); // 잔액 SSOT 반영
@@ -82,6 +89,7 @@ public class TransactionAppService {
                 .orElseThrow(() -> new DomainException("account not found"));
         
         transaction.unpost(account);
+        applyBudgetOnUnpost(transaction);
         
         transactionRepository.save(transaction);
         accountRepository.save(account);
@@ -95,6 +103,10 @@ public class TransactionAppService {
         Transaction transaction = transactionRepository.findById(transactionId)
         		.orElseThrow(() -> new DomainException("transaction not found"));
 
+        if (transaction.isPosted()) {
+            throw new DomainException("게시된 거래 내역을 수정할 수 없습니다. 게시 취소를 먼저 해주세요.");
+        }
+        
         // 자산 이동 시, 가계부(Ledger) 일치 검증.
         if (newAccountId != null && !newAccountId.equals(transaction.getAccountId())) {
             
@@ -172,6 +184,7 @@ public class TransactionAppService {
 
  		// Account 잔액 반영 (지출이면 withdraw, 수입이면 deposit).
  		transaction.post(account);
+ 		applyBudgetOnPost(transaction);	// 예산 반영.
  		transactionRepository.save(transaction); // 게시 상태로 저장.
  		accountRepository.save(account); // 변경된 잔액 저장.
  		
@@ -224,6 +237,7 @@ public class TransactionAppService {
  	    // 게시되어 있었다면 먼저 원복.( 멱등 )
  	    if (transaction.isPosted()) {
  	    	transaction.unpost(oldAccount);		// 기존 자산 잔액 되돌림.
+ 	    	applyBudgetOnUnpost(transaction);	// 기존 예산 잔액 되돌림.
  	        accountRepository.save(oldAccount);	// SSOT 저장.
  	    }
 
@@ -237,6 +251,7 @@ public class TransactionAppService {
 
  	    // 재게시(repost).
         transaction.post(targetAccount);
+        applyBudgetOnPost(transaction);
         accountRepository.save(targetAccount);
         transactionRepository.save(transaction);
  	    
@@ -254,12 +269,57 @@ public class TransactionAppService {
 
 		// 게시되어 있었다면 먼저 원복.( 멱등 )
 		if (transaction.isPosted()) {
-			transaction.unpost(account); // 기존 자산 잔액 되돌림.
+			transaction.unpost(account); 		// 기존 자산 잔액 되돌림.
+			applyBudgetOnUnpost(transaction);	// 기존 예산 잔액 되돌림.
 			accountRepository.save(account);
 		}
 		
 		transactionRepository.delete(transactionId);
 	}
+	
+	/**
+	 * <예산 연동 유틸>
+	 * - 거래 내역(Transaction) 게시(post) 시, 
+	 * - 자산(Account)에 지출 내역 반영 책임은 도메인 객체(엔티티)에 할당. 반면에, 
+	 * - 예산(Budget)에 지출 내역 반영 책임은 애플리케이션 서비스 객체에서 수행.
+	 */
+	private void applyBudgetOnPost(Transaction transaction) {
+        if (transaction.getType() != TransactionType.EXPENSE) return;
+
+        YearMonth ym = YearMonth.from(transaction.getDate());
+        Budget budget = resolveBudgetFor(transaction.getLedgerId(), transaction.getCategoryId(), ym);
+        if (budget != null) {
+            budget.registerExpense(transaction.getAmount());
+            budgetRepository.save(budget);
+        }
+    }
+
+    private void applyBudgetOnUnpost(Transaction transaction) {
+        if (transaction.getType() != TransactionType.EXPENSE) return;
+
+        YearMonth ym = YearMonth.from(transaction.getDate());
+        Budget budget = resolveBudgetFor(transaction.getLedgerId(), transaction.getCategoryId(), ym);
+        if (budget != null) {
+            budget.releaseExpense(transaction.getAmount());
+            budgetRepository.save(budget);
+        }
+    }
+
+    /**
+     * 해당 거래의 월/카테고리에 대응하는 예산을 찾습니다.
+     * - 정확히 일치하는 카테고리 예산 우선 찾음.
+     * - 없다면, 해당 카테고리가 자식이면 부모(루트) 예산을 대체로 사용.
+     * - 그래도 없으면, null (예산 미설정)
+     */
+    private Budget resolveBudgetFor(LedgerId ledgerId, CategoryId categoryId, YearMonth ym) {
+        return budgetRepository.findOne(ledgerId, categoryId, ym)
+                .orElseGet(() -> {
+                    // 부모(루트) 확인.
+                    Category cat = categoryRepository.findById(categoryId).orElse(null);
+                    if (cat == null || cat.isRoot()) return null;
+                    return budgetRepository.findOne(ledgerId, cat.getParentId(), ym).orElse(null);
+                });
+    }
 
     // ---- 조회 ----
     @Transactional(readOnly = true)
@@ -273,4 +333,51 @@ public class TransactionAppService {
         return transactionRepository.findById(transactionId)
         		.orElseThrow(() -> new DomainException("transaction not found"));
     }
+    
+	// 월별 조회.
+	@Transactional(readOnly = true)
+	public List<Transaction> listByMonth(LedgerId ledgerId, YearMonth month, int limit, int offset) {
+		return transactionRepository.findByLedgerAndMonth(ledgerId, month, limit, offset);
+	}
+
+	// 자산별 조회.
+	@Transactional(readOnly = true)
+	public List<Transaction> listByAccount(LedgerId ledgerId, AccountId accountId, int limit, int offset) {
+		// 자산 검증.
+        Account account = accountRepository.findById(accountId)
+                .orElseThrow(() -> new DomainException("account not found"));
+        if (!account.getLedgerId().equals(ledgerId)) {
+            throw new DomainException("해당 자산은 현재 가계부에 포함되어 있지 않습니다.");
+        }
+        
+		return transactionRepository.findByLedgerAndAccount(ledgerId, accountId, limit, offset);
+	}
+
+	// 카테고리별 조회( 상위 선택 시 하위 포함 ).
+	@Transactional(readOnly = true)
+	public List<Transaction> listByCategory(LedgerId ledgerId, CategoryId categoryId, boolean includeChildren,
+			int limit, int offset) {
+		
+		Category category = categoryRepository.findById(categoryId)
+				.orElseThrow(() -> new DomainException("category not found"));
+		if (!category.getLedgerId().equals(ledgerId)) {
+			throw new DomainException("해당 카테고리는 현재 가계부에 포함되어 있지 않습니다.");
+		}
+
+		List<CategoryId> ids = new ArrayList<>();
+		ids.add(categoryId);
+
+		if (includeChildren && category.isRoot()) {
+			// 활성 카테고리만 포함(정책).
+			ids.addAll(categoryRepository.findListByLedger(ledgerId).stream()
+					.filter(c -> c.getParentId() != null && c.getParentId().equals(categoryId))
+					.map(Category::getId)
+					.collect(Collectors.toList()));
+		}
+
+		return transactionRepository.findByLedgerAndCategoryIds(ledgerId, ids, limit, offset);
+	}
+	
+	// (달)월별 거래 내역 총 건수 조회.
+	
 }

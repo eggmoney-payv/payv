@@ -29,8 +29,9 @@ public class AccountAppService {
     
     // 가계부 내 자산 개설
     @Transactional
-    public Account createAccount(LedgerId ledgerId, AccountType type, String name, Money openingBalance) {
-        // 가계부 존재 검증.
+    public Account createAccount(LedgerId ledgerId, AccountType type, String name, Money openingBalance) {    	
+    	ensureUniqueName(ledgerId, name);
+    	// 가계부 존재 검증.
         ledgerRepository.findById(ledgerId).orElseThrow(() -> new DomainException("ledger not found"));
         
         Account account = Account.create(ledgerId, type, name, openingBalance);
@@ -41,6 +42,7 @@ public class AccountAppService {
     // 자산 display name 변경.
     @Transactional
     public void rename(AccountId accountId, LedgerId ledgerId, String newName) {
+    	ensureUniqueName(ledgerId, newName);
         Account account = loadAndCheckLedger(accountId, ledgerId);
         account.rename(newName);
         accountRepository.save(account);
@@ -60,6 +62,19 @@ public class AccountAppService {
         Account account = loadAndCheckLedger(accountId, ledgerId);
         account.reopen();
         accountRepository.save(account);
+    }
+    
+    // 자산 (소프트)삭제.
+    @Transactional
+    public void delete(LedgerId ledgerId, AccountId accountId) {
+    	Account account = accountRepository.findById(accountId)
+    			.orElseThrow(() -> new DomainException("account not found"));
+    	
+    	if (!account.getLedgerId().equals(ledgerId)) {
+    		throw new DomainException("ledger mismatch");
+    	}
+    	
+    	accountRepository.delete(accountId);
     }
 
     // ---------- 금액 변경(SSOT: Account) ----------
@@ -112,5 +127,11 @@ public class AccountAppService {
         }
         
         return account;
+    }
+    
+    private void ensureUniqueName(LedgerId ledgerId, String name) {
+    	accountRepository.findByLedgerAndName(ledgerId, name.trim()).ifPresent(x -> {
+            throw new DomainException("동일한 자산 이름이 이미 존재합니다.");
+        });
     }
 }

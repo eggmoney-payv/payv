@@ -91,7 +91,7 @@
 			NAME = #{name},
 			IS_SYSTEM_CATEGORY = NVL(#{isSystemCategory}, 'N'),
 			PARENT_ID = #{parentId, jdbcType=VARCHAR},
-			SORT_ORDER = NVL(#{sortOrder}, 0)
+			SORT_ORDER = NVL(#{sortOrder}, 0),
 			IS_DELETED = NVL(#{isDeleted}, 'N')
 		WHERE 
 			CATEGORY_ID = #{categoryId}

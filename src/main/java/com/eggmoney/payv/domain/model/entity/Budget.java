@@ -48,9 +48,9 @@ public class Budget {
 		this.limit = requireNonNegative(limit, "limit");
 		this.spent = requireNonNegative(spent, "spent");	// 초과 허용: limit < spent 가능
 		
-		if (lt(this.limit, this.spent)) {
-			throw new DomainException("limit cannot be less than spent");
-		}
+//		if (lt(this.limit, this.spent)) {
+//			throw new DomainException("limit cannot be less than spent");
+//		}
 		
 		this.createdAt = (createdAt == null) ? LocalDateTime.now() : createdAt;
 	}

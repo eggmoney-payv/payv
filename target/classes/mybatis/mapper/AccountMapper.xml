@@ -9,6 +9,7 @@
 		<result property="name" column="NAME" />
 		<result property="currentBalance" column="CURRENT_BALANCE" />
 		<result property="archived" column="ARCHIVED" />
+		<result property="isDeleted" column="IS_DELETED" />
 		<result property="createdAt" column="CREATED_AT" jdbcType="TIMESTAMP" />
 	</resultMap>
 
@@ -20,12 +21,32 @@
 			NAME, 
 			CURRENT_BALANCE, 
 			ARCHIVED,
+			IS_DELETED,
 			CREATED_AT
 		FROM 
 			ACCOUNT
 		WHERE 
 			ACCOUNT_ID = #{id}
 		AND ROWNUM = 1
+	</select>
+	
+	<select id="selectByLedgerAndName" resultMap="AccountMap">
+		SELECT 
+			ACCOUNT_ID, 
+			LEDGER_ID, 
+			TYPE, 
+			NAME, 
+			CURRENT_BALANCE, 
+			ARCHIVED,
+			IS_DELETED,
+			CREATED_AT
+		FROM 
+			ACCOUNT
+		WHERE 
+			LEDGER_ID = #{ledgerId} AND 
+			NAME = #{name} AND
+			IS_DELETED = 'N' AND 
+			ROWNUM = 1
 	</select>
 	
 	<select id="selectListByLedger" parameterType="string" resultMap="AccountMap">
@@ -36,11 +57,13 @@
 			NAME, 
 			CURRENT_BALANCE,
 			ARCHIVED,
+			IS_DELETED,
 			CREATED_AT
 		FROM 
 			ACCOUNT
 		WHERE 
-			LEDGER_ID = #{ledgerId}
+			LEDGER_ID = #{ledgerId} AND
+			IS_DELETED = 'N'
 		ORDER BY 
 			ARCHIVED ASC, ACCOUNT_ID DESC, NAME ASC
 	</select>
@@ -52,7 +75,8 @@
 			TYPE, 
 			NAME, 
 			CURRENT_BALANCE, 
-			ARCHIVED, 
+			ARCHIVED,
+			IS_DELETED,
 			CREATED_AT
 		)
 		VALUES (
@@ -62,6 +86,7 @@
 			#{name}, 
 			#{currentBalance}, 
 			NVL(#{archived}, 'N'), 
+			NVL(#{isDeleted}, 'N'), 
 			NVL(#{createdAt}, SYSTIMESTAMP)
 		)
 	</insert>
@@ -72,9 +97,17 @@
 			TYPE = #{type},
 			NAME = #{name},
 			CURRENT_BALANCE = #{currentBalance},
+			IS_DELETED = NVL(#{isDeleted}, 'N'),
 			ARCHIVED = NVL(#{archived}, 'N')
 		WHERE 
 			ACCOUNT_ID = #{accountId}
 	</update>
 
+	<!-- 소프트 삭제: IS_DELETED='Y' -->
+	<update id="delete" parameterType="string">
+		UPDATE ACCOUNT SET 
+			IS_DELETED = 'Y' 
+		WHERE 
+			ACCOUNT_ID = #{id}
+	</update>
 </mapper>

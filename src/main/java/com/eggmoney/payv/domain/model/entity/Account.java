@@ -30,10 +30,11 @@ public class Account {
     // 자산 잠금 (true: 거래 불가).
     private boolean archived;
     
+    private boolean isDeleted;
     private final LocalDateTime createdAt;
     
 	private Account(AccountId id, LedgerId ledgerId, AccountType type, 
-			String name, Money currentBalance, boolean archived, LocalDateTime createdAt) {
+			String name, Money currentBalance, boolean archived, boolean isDeleted,LocalDateTime createdAt) {
 		if (id == null)
 			throw new IllegalArgumentException("id is required");
 		if (ledgerId == null)
@@ -52,18 +53,19 @@ public class Account {
 			throw new DomainException("해당 자산 유형은 마이너스 값을 가질 수 없습니다: " + type);
 		}
 		this.archived = archived;
+		this.isDeleted = isDeleted;
 		this.createdAt = createdAt;
 	}
 	
 	public static Account create(LedgerId ledgerId, AccountType type, String name, Money currentBalance) {
         return new Account(AccountId.of(EntityIdentifier.generateUuid()), ledgerId, type, 
-        		name, currentBalance, false, LocalDateTime.now());
+        		name, currentBalance, false, false, LocalDateTime.now());
     }
 	
 	// 인프라 복원용 (레코드 → 도메인)
     public static Account reconstruct(AccountId id, LedgerId ledgerId, AccountType type, String name,
-                                      Money currentBalance, boolean archived, LocalDateTime createdAt) {
-        return new Account(id, ledgerId, type, name, currentBalance, archived, createdAt);
+                                      Money currentBalance, boolean archived, boolean isDeleted, LocalDateTime createdAt) {
+        return new Account(id, ledgerId, type, name, currentBalance, archived, isDeleted, createdAt);
     }
     
     /**
@@ -109,6 +111,7 @@ public class Account {
 
     public void archive() { this.archived = true; }
     public void reopen()  { this.archived = false; }
+    public void delete() { this.isDeleted = true; }
 
     /**
      * ---- 내부 규칙/유틸 ----

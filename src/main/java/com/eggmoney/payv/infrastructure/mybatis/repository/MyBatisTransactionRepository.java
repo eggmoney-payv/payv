@@ -1,7 +1,7 @@
 package com.eggmoney.payv.infrastructure.mybatis.repository;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
+import java.time.YearMonth;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -56,6 +56,27 @@ public class MyBatisTransactionRepository  implements TransactionRepository {
         return mapper.selectByLedgerAndDateRange(ledgerId.value(), from, to, offset, limit)
                 .stream().map(this::toDomain).collect(Collectors.toList());
     }
+    
+	@Override
+	public List<Transaction> findByLedgerAndMonth(LedgerId ledgerId, YearMonth month, int limit, int offset) {
+		LocalDate from = month.atDay(1);
+		LocalDate to = month.plusMonths(1).atDay(1);
+		return findByLedgerAndDateRange(ledgerId, from, to, limit, offset);
+	}
+
+	@Override
+	public List<Transaction> findByLedgerAndAccount(LedgerId ledgerId, AccountId accountId, int limit, int offset) {
+		return mapper.selectByLedgerAndAccount(ledgerId.value(), accountId.value(), limit, offset)
+				.stream().map(this::toDomain).collect(Collectors.toList());
+	}
+
+	@Override
+	public List<Transaction> findByLedgerAndCategoryIds(LedgerId ledgerId, List<CategoryId> categoryIds, int limit, int offset) {
+		List<String> ids = categoryIds.stream().map(CategoryId::value).collect(Collectors.toList());
+		return mapper.selectByLedgerAndCategoryIds(ledgerId.value(), ids, limit, offset)
+				.stream().map(this::toDomain).collect(Collectors.toList());
+	}
+    
 
     // ---- 변환부 ----
     private Transaction toDomain(TransactionRecord record) {

@@ -5,8 +5,10 @@ import java.util.List;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.eggmoney.payv.domain.model.entity.Budget;
 import com.eggmoney.payv.domain.model.entity.Category;
 import com.eggmoney.payv.domain.model.repository.CategoryRepository;
+import com.eggmoney.payv.domain.model.vo.BudgetId;
 import com.eggmoney.payv.domain.model.vo.CategoryId;
 import com.eggmoney.payv.domain.model.vo.LedgerId;
 import com.eggmoney.payv.domain.shared.error.DomainException;
@@ -91,6 +93,13 @@ public class CategoryAppService {
     @Transactional(readOnly = true)
     public List<Category> listByLedger(LedgerId ledgerId) {
     	return categoryRepository.findListByLedger(ledgerId);
+    }
+    
+    // 카테고리 상세 조회.
+    @Transactional
+	public Category getDetails(CategoryId categoryId) {
+        return categoryRepository.findById(categoryId)
+                .orElseThrow(() -> new DomainException("category not found"));
     }
     
     // ----

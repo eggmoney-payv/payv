@@ -18,6 +18,7 @@
   const toInt = (el) => parseInt(el.textContent.trim().replace(/[^0-9\-]/g, ''), 10) || 0;
   const setInt = (el, v) => { el.textContent = String(v); };
 
+  /*
   async function likeOnServer(id) {
     // 준비된 서버라면 여기서 실제 호출
     const res = await fetch(`/boards/${id}/like`, { method: 'POST' });
@@ -27,6 +28,7 @@
     const res = await fetch(`/boards/${id}/like`, { method: 'DELETE' });
     if (!res.ok) throw new Error('unlike failed');
   }
+  
 
   likeBtn.addEventListener('click', async () => {
     const isPressed = likeBtn.getAttribute('aria-pressed') === 'true';
@@ -51,4 +53,5 @@
       }
     }
   });
+  */
 })();

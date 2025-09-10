@@ -9,12 +9,15 @@ import org.springframework.stereotype.Repository;
 
 import com.eggmoney.payv.domain.model.entity.Account;
 import com.eggmoney.payv.domain.model.entity.AccountType;
+import com.eggmoney.payv.domain.model.entity.Category;
 import com.eggmoney.payv.domain.model.repository.AccountRepository;
 import com.eggmoney.payv.domain.model.vo.AccountId;
+import com.eggmoney.payv.domain.model.vo.CategoryId;
 import com.eggmoney.payv.domain.model.vo.LedgerId;
 import com.eggmoney.payv.domain.model.vo.Money;
 import com.eggmoney.payv.infrastructure.mybatis.mapper.AccountMapper;
 import com.eggmoney.payv.infrastructure.mybatis.record.AccountRecord;
+import com.eggmoney.payv.infrastructure.mybatis.record.CategoryRecord;
 
 import lombok.RequiredArgsConstructor;
 
@@ -28,6 +31,12 @@ public class MyBatisAccountRepository implements AccountRepository {
     public Optional<Account> findById(AccountId id) {
         AccountRecord r = mapper.selectById(id.value());
         return Optional.ofNullable(r).map(this::toDomain);
+    }
+	
+	@Override
+    public Optional<Account> findByLedgerAndName(LedgerId ledgerId, String name) {
+		AccountRecord accountRecord = mapper.selectByLedgerAndName(ledgerId.value(), name);
+        return Optional.ofNullable(accountRecord).map(this::toDomain);
     }
 	
 	@Override
@@ -48,6 +57,11 @@ public class MyBatisAccountRepository implements AccountRepository {
             mapper.update(rec);
         }
     }
+    
+    @Override
+    public void delete(AccountId id) {
+        mapper.delete(id.value());
+    }
 
     // ---------- 변환부 ----------
     private Account toDomain(AccountRecord record) {
@@ -58,6 +72,7 @@ public class MyBatisAccountRepository implements AccountRepository {
                 record.getName(),
                 Money.of(record.getCurrentBalance()),	// KRW scale=0
                 "Y".equals(record.getArchived()),
+                "Y".equals(record.getIsDeleted()),
                 record.getCreatedAt() != null ? record.getCreatedAt() : LocalDateTime.now()
         );
     }
@@ -70,6 +85,7 @@ public class MyBatisAccountRepository implements AccountRepository {
         		.name(account.getName())
         		.currentBalance(account.getCurrentBalance().toBigDecimal())
         		.archived(account.isArchived() ? "Y" : "N")
+        		.isDeleted(account.isDeleted() ? "Y" : "N")
         		.createdAt(account.getCreatedAt())
         		.build();
     }
