@@ -19,17 +19,17 @@ import org.springframework.transaction.annotation.Transactional;
 import com.eggmoney.payv.application.service.UserAppService;
 import com.eggmoney.payv.domain.model.entity.User;
 import com.eggmoney.payv.domain.model.repository.UserRepository;
+import com.eggmoney.payv.domain.model.vo.UserId;
 import com.eggmoney.payv.domain.shared.error.DomainException;
+import com.eggmoney.payv.domain.shared.util.EntityIdentifier;
 
 /**
- * 향상된 UserAppService 통합 테스트 비밀번호 암호화, 개인정보 변경 등의 기능 테스트
+ * 향상된 UserAppService 통합 테스트 비밀번호 암호화, 개인정보 변경, 로그인, 입력 검증 등의 기능 테스트
  * 
- * @author 정의탁
+ * @author 정의탁, 강기범
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations = { "classpath:spring/root-context.xml"
-		// security-context.xml 제거! (root-context.xml에서 이미 import함)
-})
+@ContextConfiguration(locations = { "classpath:spring/root-context.xml" })
 @Transactional
 public class UserAppServiceTest {
 
@@ -43,6 +43,16 @@ public class UserAppServiceTest {
 		return "test" + System.nanoTime() + "@example.com";
 	}
 
+	// Java 8 호환 문자열 반복 메서드
+	private String repeatString(String str, int count) {
+		StringBuilder sb = new StringBuilder();
+		for (int i = 0; i < count; i++) {
+			sb.append(str);
+		}
+		return sb.toString();
+	}
+
+	// 기존 테스트들 (그대로 유지)
 	@Test
 	public void 회원가입_비밀번호_암호화_테스트() {
 		// given
@@ -58,8 +68,6 @@ public class UserAppServiceTest {
 		assertNotNull(user.getId());
 		assertEquals(email, user.getEmail());
 		assertEquals(name, user.getName());
-
-		// 비밀번호가 암호화되었는지 확인
 		assertNotEquals(rawPassword, user.getPassword());
 		assertTrue("암호화된 비밀번호가 원본과 매치되어야 함", passwordEncoder.matches(rawPassword, user.getPassword()));
 	}
@@ -79,7 +87,6 @@ public class UserAppServiceTest {
 		// then
 		assertEquals(newEmail, updatedUser.getEmail());
 
-		// DB에서 다시 조회해서 확인
 		User reloadedUser = userRepository.findById(user.getId()).orElse(null);
 		assertNotNull(reloadedUser);
 		assertEquals(newEmail, reloadedUser.getEmail());
@@ -139,7 +146,6 @@ public class UserAppServiceTest {
 		// then
 		assertEquals(newName, updatedUser.getName());
 
-		// DB에서 다시 조회해서 확인
 		User reloadedUser = userRepository.findById(user.getId()).orElse(null);
 		assertNotNull(reloadedUser);
 		assertEquals(newName, reloadedUser.getName());
@@ -175,5 +181,187 @@ public class UserAppServiceTest {
 		assertNotNull(foundUser);
 		assertEquals(user.getId(), foundUser.getId());
 		assertEquals(email, foundUser.getEmail());
+	}
+
+	// 새로 추가된 테스트들
+	@Test
+	public void 로그인_성공_테스트() {
+		// given
+		UserAppService userAppService = new UserAppService(userRepository, passwordEncoder);
+		String email = generateUniqueEmail();
+		String password = "password123";
+		User user = userAppService.register(email, "사용자", password);
+
+		// when
+		User authenticatedUser = userAppService.authenticate(email, password);
+
+		// then
+		assertNotNull(authenticatedUser);
+		assertEquals(user.getId(), authenticatedUser.getId());
+		assertEquals(email, authenticatedUser.getEmail());
+	}
+
+	@Test
+	public void 로그인_실패_잘못된_비밀번호_테스트() {
+		// given
+		UserAppService userAppService = new UserAppService(userRepository, passwordEncoder);
+		String email = generateUniqueEmail();
+		String correctPassword = "password123";
+		String wrongPassword = "wrongPassword";
+		userAppService.register(email, "사용자", correctPassword);
+
+		// when & then
+		try {
+			userAppService.authenticate(email, wrongPassword);
+			fail("잘못된 비밀번호로 인한 예외가 발생해야 함");
+		} catch (DomainException e) {
+			assertTrue(e.getMessage().contains("이메일 또는 비밀번호가 올바르지 않습니다"));
+		}
+	}
+
+	@Test
+	public void 로그인_실패_존재하지_않는_사용자_테스트() {
+		// given
+		UserAppService userAppService = new UserAppService(userRepository, passwordEncoder);
+		String nonExistentEmail = "nonexistent@example.com";
+		String password = "password123";
+
+		// when & then
+		try {
+			userAppService.authenticate(nonExistentEmail, password);
+			fail("존재하지 않는 사용자로 인한 예외가 발생해야 함");
+		} catch (DomainException e) {
+			assertTrue(e.getMessage().contains("이메일 또는 비밀번호가 올바르지 않습니다"));
+		}
+	}
+
+	@Test
+	public void 회원가입_입력_검증_테스트() {
+		// given
+		UserAppService userAppService = new UserAppService(userRepository, passwordEncoder);
+
+		// when & then - 잘못된 이메일 형식
+		try {
+			userAppService.register("invalid-email", "사용자", "password123");
+			fail("잘못된 이메일 형식으로 인한 예외가 발생해야 함");
+		} catch (IllegalArgumentException e) {
+			assertTrue(e.getMessage().contains("올바른 이메일 형식이 아닙니다"));
+		}
+
+		// when & then - 짧은 비밀번호
+		try {
+			userAppService.register("test@example.com", "사용자", "123");
+			fail("짧은 비밀번호로 인한 예외가 발생해야 함");
+		} catch (IllegalArgumentException e) {
+			assertTrue(e.getMessage().contains("비밀번호는 최소"));
+		}
+
+		// when & then - 빈 이름
+		try {
+			userAppService.register("test@example.com", "", "password123");
+			fail("빈 이름으로 인한 예외가 발생해야 함");
+		} catch (IllegalArgumentException e) {
+			assertTrue(e.getMessage().contains("이름은 필수입니다"));
+		}
+	}
+
+	@Test
+	public void 존재하지_않는_사용자_조회_테스트() {
+		// given
+		UserAppService userAppService = new UserAppService(userRepository, passwordEncoder);
+		UserId nonExistentUserId = UserId.of(EntityIdentifier.generateUuid());
+
+		// when & then
+		try {
+			userAppService.findByIdOrThrow(nonExistentUserId);
+			fail("존재하지 않는 사용자 조회 시 예외가 발생해야 함");
+		} catch (DomainException e) {
+			assertTrue(e.getMessage().contains("사용자를 찾을 수 없습니다"));
+		}
+	}
+
+	@Test
+	public void 긴_이메일_검증_테스트() {
+		// given
+		UserAppService userAppService = new UserAppService(userRepository, passwordEncoder);
+		String longEmail = repeatString("a", 95) + "@test.com"; // 100자 초과
+
+		// when & then
+		try {
+			userAppService.register(longEmail, "사용자", "password123");
+			fail("긴 이메일로 인한 예외가 발생해야 함");
+		} catch (IllegalArgumentException e) {
+			assertTrue(e.getMessage().contains("이메일은 100자를 초과할 수 없습니다"));
+		}
+	}
+
+	@Test
+	public void 긴_이름_검증_테스트() {
+		// given
+		UserAppService userAppService = new UserAppService(userRepository, passwordEncoder);
+		String email = generateUniqueEmail();
+		String longName = repeatString("가", 51); // 50자 초과
+
+		// when & then
+		try {
+			userAppService.register(email, longName, "password123");
+			fail("긴 이름으로 인한 예외가 발생해야 함");
+		} catch (IllegalArgumentException e) {
+			assertTrue(e.getMessage().contains("이름은 50자를 초과할 수 없습니다"));
+		}
+	}
+
+	@Test
+	public void 긴_비밀번호_검증_테스트() {
+		// given
+		UserAppService userAppService = new UserAppService(userRepository, passwordEncoder);
+		String email = generateUniqueEmail();
+		String longPassword = repeatString("a", 101); // 100자 초과
+
+		// when & then
+		try {
+			userAppService.register(email, "사용자", longPassword);
+			fail("긴 비밀번호로 인한 예외가 발생해야 함");
+		} catch (IllegalArgumentException e) {
+			assertTrue(e.getMessage().contains("비밀번호는 100자를 초과할 수 없습니다"));
+		}
+	}
+
+	@Test
+	public void 전체_플로우_통합_테스트() {
+		// given
+		UserAppService userAppService = new UserAppService(userRepository, passwordEncoder);
+		String email = generateUniqueEmail();
+		String password = "password123";
+		String name = "통합테스트사용자";
+
+		// 1. 회원가입
+		User registeredUser = userAppService.register(email, name, password);
+		assertNotNull("회원가입 성공", registeredUser);
+		assertTrue("비밀번호 암호화 확인", passwordEncoder.matches(password, registeredUser.getPassword()));
+
+		// 2. 로그인
+		User authenticatedUser = userAppService.authenticate(email, password);
+		assertEquals("로그인 성공", registeredUser.getId(), authenticatedUser.getId());
+
+		// 3. 이메일 변경
+		String newEmail = "new" + generateUniqueEmail();
+		User emailChangedUser = userAppService.changeEmail(registeredUser.getId(), newEmail);
+		assertEquals("이메일 변경 성공", newEmail, emailChangedUser.getEmail());
+
+		// 4. 이름 변경
+		String newName = "변경된이름";
+		User nameChangedUser = userAppService.changeName(registeredUser.getId(), newName);
+		assertEquals("이름 변경 성공", newName, nameChangedUser.getName());
+
+		// 5. 비밀번호 변경
+		String newPassword = "newPassword456";
+		User passwordChangedUser = userAppService.changePassword(registeredUser.getId(), password, newPassword);
+		assertTrue("새 비밀번호 적용 확인", passwordEncoder.matches(newPassword, passwordChangedUser.getPassword()));
+
+		// 6. 새 정보로 로그인
+		User reAuthenticatedUser = userAppService.authenticate(newEmail, newPassword);
+		assertNotNull("새 정보로 로그인 성공", reAuthenticatedUser);
+		assertEquals("사용자 ID 일치", registeredUser.getId(), reAuthenticatedUser.getId());
 	}
 }

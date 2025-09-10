@@ -1,5 +1,13 @@
 package com.eggmoney.payv.domain.shared.error;
 
 public class DomainException extends RuntimeException {
-	public DomainException(String message) { super(message); }
+	private static final long serialVersionUID = 1L;
+
+	public DomainException(String message) {
+		super(message);
+	}
+
+	public DomainException(String message, Throwable cause) {
+		super(message, cause);
+	}
 }
