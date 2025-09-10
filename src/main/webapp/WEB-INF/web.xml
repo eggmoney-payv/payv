@@ -10,12 +10,12 @@
 	<!-- 1. Spring Root Context 설정 -->
 	<!-- ====================================== -->
 
-	<!-- Spring 설정 파일 위치 - 기존 classpath* 패턴 유지 + security 추가 -->
+	<!-- Spring 설정 파일 위치 - root-context.xml만 로드 (security-context.xml은 root-context.xml에서 
+		import) -->
 	<context-param>
 		<param-name>contextConfigLocation</param-name>
 		<param-value>
 			classpath*:spring/root-context.xml
-			classpath*:spring/security-context.xml
 		</param-value>
 	</context-param>
 
@@ -82,6 +82,7 @@
 		<servlet-name>dispatcher</servlet-name>
 		<url-pattern>/</url-pattern>
 	</servlet-mapping>
+
 
 	<!-- ====================================== -->
 	<!-- 5. 세션 설정 -->

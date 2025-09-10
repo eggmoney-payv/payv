@@ -17,8 +17,12 @@
 		<!-- CSRF 비활성화 (개발 단계) -->
 		<security:csrf disabled="true" />
 
-		<!-- URL별 접근 권한 설정 -->
-		<!-- 정적 리소스는 모든 사용자 허용 -->
+		<!-- ====================================================== -->
+		<!-- URL별 접근 권한 설정 (순서가 매우 중요!) -->
+		<!-- 더 구체적인 패턴부터 먼저 정의해야 함 -->
+		<!-- ====================================================== -->
+
+		<!-- 1. 정적 리소스는 모든 사용자 허용 (구체적 패턴) -->
 		<security:intercept-url pattern="/resources/**"
 			access="permitAll" />
 		<security:intercept-url pattern="/css/**"
@@ -30,38 +34,48 @@
 		<security:intercept-url pattern="/favicon.ico"
 			access="permitAll" />
 
-		<!-- 인증 불필요 페이지 -->
-		<security:intercept-url pattern="/"
-			access="permitAll" />
-		<security:intercept-url pattern="/home"
-			access="permitAll" />
-		<security:intercept-url pattern="/signup"
-			access="permitAll" />
-		<security:intercept-url pattern="/signup/**"
-			access="permitAll" />
-		<security:intercept-url pattern="/login"
-			access="permitAll" />
-		<security:intercept-url pattern="/login/**"
-			access="permitAll" />
-		<security:intercept-url pattern="/error/**"
-			access="permitAll" />
-
-		<!-- API 엔드포인트 -->
+		<!-- 2. API 엔드포인트 (구체적 패턴) -->
 		<security:intercept-url
 			pattern="/api/public/**" access="permitAll" />
 		<security:intercept-url pattern="/api/auth/**"
 			access="permitAll" />
 
-		<!-- 개발용 임시 경로 -->
+		<!-- 3. 인증/회원가입 관련 페이지 (구체적 패턴) -->
+		<security:intercept-url pattern="/signup/**"
+			access="permitAll" />
+		<security:intercept-url pattern="/login/**"
+			access="permitAll" />
+		<security:intercept-url pattern="/login"
+			access="permitAll" />
+		<security:intercept-url pattern="/signup"
+			access="permitAll" />
+
+		<!-- 4. 에러 페이지 -->
+		<security:intercept-url pattern="/error/**"
+			access="permitAll" />
+
+		<!-- 5. 개발용 임시 경로 -->
 		<security:intercept-url pattern="/dev/**"
 			access="permitAll" />
 
-		<!-- 향후 추가할 보안 규칙 (현재 주석 처리) -->
-		<!-- <security:intercept-url pattern="/admin/**" access="hasRole('ADMIN')"/> 
-			<security:intercept-url pattern="/premium/**" access="hasAnyRole('PREMIUM','ADMIN')"/> 
-			<security:intercept-url pattern="/ledger/**" access="hasAnyRole('STANDARD','PREMIUM','ADMIN')"/> -->
+		<!-- 6. 홈페이지 및 메인 페이지 -->
+		<security:intercept-url pattern="/"
+			access="permitAll" />
+		<security:intercept-url pattern="/home"
+			access="permitAll" />
 
-		<!-- 현재는 개발 편의상 모든 요청 허용 -->
+		<!-- 7. 향후 추가할 보안 규칙들 (주석 해제하여 사용) -->
+		<!-- 관리자 전용 페이지 -->
+		<!-- <security:intercept-url pattern="/admin/**" access="hasRole('ADMIN')"/> -->
+		<!-- 프리미엄 사용자 전용 -->
+		<!-- <security:intercept-url pattern="/premium/**" access="hasAnyRole('PREMIUM','ADMIN')"/> -->
+		<!-- 가계부 기능 (로그인 필요) -->
+		<!-- <security:intercept-url pattern="/ledger/**" access="hasAnyRole('STANDARD','PREMIUM','ADMIN')"/> -->
+		<!-- 게시판 기능 (로그인 필요) -->
+		<!-- <security:intercept-url pattern="/board/**" access="hasAnyRole('STANDARD','PREMIUM','ADMIN')"/> -->
+
+		<!-- 8. 마지막에 범용 패턴 배치 - 현재는 개발 편의상 모든 요청 허용 -->
+		<!-- 실제 운영 시에는 isAuthenticated()로 변경 -->
 		<security:intercept-url pattern="/**"
 			access="permitAll" />
 
