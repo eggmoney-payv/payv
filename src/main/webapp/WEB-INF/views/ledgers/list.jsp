@@ -1,37 +1,57 @@
-<%@ page contentType="text/html;charset=UTF-8"%>
-<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
-<%@ include file="/WEB-INF/views/common/header.jsp"%>
+<%@ page contentType="text/html;charset=UTF-8" %>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ include file="/WEB-INF/views/common/header.jsp" %>
+<%@ include file="/WEB-INF/views/common/aside.jsp" %>
 
 <html>
 <head>
-<title>가계부 목록</title>
-<link rel="stylesheet" href="<c:url value='/resources/css/common.css'/>" />
-<script src="<c:url value='/resources/js/common.js'/>" defer></script>
+    <title>가계부 목록</title>
+    <link rel="stylesheet" href="<c:url value='/resources/css/common.css'/>" />
+    <link rel="stylesheet" href="<c:url value='/resources/css/ledger.css'/>" />
+    <script src="<c:url value='/resources/js/common.js'/>" defer></script>
 </head>
 <body>
-<main>
-	<h1>가계부 목록</h1>
+<main class="ledger-main">
+    <h1 class="ledger-title">가계부 목록</h1>
 
-	<p><a href="<c:url value='/ledgers/new'/>">+ 새 가계부</a></p>
+    <!-- 가계부 선택 드롭다운 -->
+    <div class="ledger-select">
+        <label for="ledgerSelect">가계부 선택</label>
+        <select id="ledgerSelect" name="ledger" class="ledger-dropdown">
+            <c:forEach var="l" items="${ledgers}">
+                <option value="${l.id}">${l.name}</option>
+            </c:forEach>
+        </select>
+    </div>
 
-	<table border="1" cellpadding="6">
-		<thead>
-			<tr>
-				<th>ID</th>
-				<th>이름</th>
-				<th>보기</th>
-			</tr>
-		</thead>
-		<tbody>
-			<c:forEach var="l" items="${ledgers}">
-				<tr>
-					<td>${l.id}</td>
-					<td>${l.name}</td>
-					<td><a href="<c:url value='/ledgers/${l.id}'/>">열기</a></td>
-				</tr>
-			</c:forEach>
-		</tbody>
-	</table>
+    <!-- 새 가계부 추가 버튼 -->
+    <p class="new-ledger-btn">
+        <a href="<c:url value='/ledgers/new'/>" class="btn-create">+ 새 가계부</a>
+    </p>
+
+    <!-- 가계부 목록 테이블 -->
+    <table class="ledger-table">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>이름</th>
+                <th>보기</th>
+                <th>자산 설정</th>
+                <th>예산 설정</th>
+            </tr>
+        </thead>
+        <tbody>
+            <c:forEach var="l" items="${ledgers}">
+                <tr>
+                    <td>${l.id}</td>
+                    <td>${l.name}</td>
+                    <td><a href="<c:url value='/ledgers/${l.id}'/>" class="btn-open">열기</a></td>
+                    <td><a href="<c:url value='/ledgers/${l.id}/accounts'/>" class="btn-asset-settings">자산 설정</a></td>
+                    <td><a href="<c:url value='/ledgers/${l.id}/budgets'/>" class="btn-budget-settings">예산 설정</a></td>
+                </tr>
+            </c:forEach>
+        </tbody>
+    </table>
 </main>
 </body>
 </html>
