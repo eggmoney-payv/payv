@@ -5,8 +5,8 @@ document.addEventListener("DOMContentLoaded", function() {
     const mypageBtn = document.getElementById("mypage-button");
     
     menuBtn.addEventListener("click", () => {
-        aside.classList.toggle("show");
-        mainContent.classList.toggle("shifted");
+    	aside.classList.toggle("hide");
+        mainContent.classList.toggle("shrink");
     });
     
     mypageBtn.addEventListener("click", () => {
