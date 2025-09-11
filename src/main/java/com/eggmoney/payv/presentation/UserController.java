@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.eggmoney.payv.application.service.UserAppService;
@@ -42,6 +43,22 @@ import lombok.extern.slf4j.Slf4j;
 public class UserController {
 
 	private final UserAppService userAppService;
+
+	@PostMapping("/signup-test")
+	@ResponseBody
+	public String signupTest(@RequestParam String email, @RequestParam String name, @RequestParam String password) {
+		log.info("=== 회원가입 테스트 요청 ===");
+		log.info("이메일: {}", email);
+		log.info("이름: {}", name);
+		log.info("비밀번호: {}", password);
+
+		try {
+			User newUser = userAppService.register(email, name, password);
+			return "회원가입 성공! 사용자 ID: " + newUser.getId().value();
+		} catch (Exception e) {
+			return "회원가입 실패: " + e.getMessage();
+		}
+	}
 
 	// ========== 인증 관련 메서드들 ==========
 
