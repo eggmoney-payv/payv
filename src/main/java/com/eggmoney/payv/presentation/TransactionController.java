@@ -43,10 +43,13 @@ import com.eggmoney.payv.domain.model.vo.Money;
 import com.eggmoney.payv.domain.model.vo.TransactionId;
 import com.eggmoney.payv.domain.shared.error.DomainException;
 import com.eggmoney.payv.presentation.dto.CategoryOptionDto;
+import com.eggmoney.payv.presentation.dto.PageRequestDto;
+import com.eggmoney.payv.presentation.dto.PageResultDto;
 import com.eggmoney.payv.presentation.dto.TransactionCalendarDayDto;
 import com.eggmoney.payv.presentation.dto.TransactionCalendarWeekDto;
 import com.eggmoney.payv.presentation.dto.TransactionCreateDto;
 import com.eggmoney.payv.presentation.dto.TransactionListItemDto;
+import com.eggmoney.payv.presentation.dto.TransactionSearchCondition;
 import com.eggmoney.payv.presentation.dto.TransactionUpdateDto;
 
 import lombok.RequiredArgsConstructor;
@@ -72,43 +75,99 @@ public class TransactionController {
 
 	// 거래 내역 목록 조회.
 	@GetMapping
-	public String list(@PathVariable String ledgerId, 
-					   @RequestParam(value = "month", required = false) String month,
-					   @ModelAttribute("message") String message, 
-					   @ModelAttribute("error") String error, Model model) {
+	public String list(@PathVariable String ledgerId,
+	                   @ModelAttribute TransactionSearchCondition cond,
+	                   @ModelAttribute PageRequestDto page, 
+	                   Model model, 
+	                   @ModelAttribute("message") String message,
+	                   @ModelAttribute("error") String error) {
 
-		YearMonth ym = (month == null || month.trim().isEmpty()) ? 
-				YearMonth.now() : YearMonth.parse(month.trim()); // "YYYY-MM"
+	    LedgerId lId = LedgerId.of(ledgerId);
 
-		LedgerId lId = LedgerId.of(ledgerId);
+	    // 1) 기본값 보정 (이번 달)
+	    YearMonth ym = YearMonth.now();
+	    if (cond.getStart() == null) cond.setStart(ym.atDay(1));
+	    if (cond.getEnd()   == null) cond.setEnd(ym.atEndOfMonth());
+	    
+	    if (cond.getEnd().isBefore(cond.getStart())) {
+	        LocalDate tmp = cond.getStart();
+	        cond.setStart(cond.getEnd());
+	        cond.setEnd(tmp);
+	    }
+	    
+	    if (page.getSize() <= 0) page.setSize(20);
+	    if (page.getPage() <= 0) page.setPage(1);
 
-		// TODO: 페이징 적용되도록 변경.
-		List<Transaction> transactionList = transactionAppService.listByMonth(lId, ym, Integer.MAX_VALUE, 0);
+	    // 2) 필터 바 표시용 데이터
+	    List<Account> accounts = accountAppService.listByLedger(lId);
+	    List<Category> roots   = categoryAppService.rootCategoryListByLedger(lId);
 
-		// 뷰 표시를 위한 자산/카테고리 이름 맵 구성
-		Map<String, String> accountNameMap = accountAppService.listByLedger(lId).stream().collect(
-				Collectors.toMap(a -> a.getId().toString(), Account::getName, (a, b) -> a, LinkedHashMap::new));
+	    // 3) 카테고리 해석(하위 포함 집합 구하기)
+	    if (cond.getCategoryId() != null && !cond.getCategoryId().trim().isEmpty()) {
+	        cond.setResolvedCategoryIds(Collections.singletonList(cond.getCategoryId().trim()));
+	    } else if (cond.getRootCategoryId() != null && !cond.getRootCategoryId().trim().isEmpty()) {
+	        CategoryId parentId = CategoryId.of(cond.getRootCategoryId().trim());
+	        List<Category> children = categoryAppService
+	                .subCategoryListByLedgerAndParentCategory(lId, parentId);
+	        List<String> ids = new ArrayList<>();
+	        ids.add(parentId.toString()); // 상위 포함
+	        for (Category c : children) {
+	        	ids.add(c.getId().toString());
+	        }
+	        cond.setResolvedCategoryIds(ids);
+	    } else {
+	        cond.setResolvedCategoryIds(null); // 전체
+	    }
 
-		Map<String, String> categoryNameMap = categoryAppService.listByLedger(lId).stream().collect(
-				Collectors.toMap(c -> c.getId().toString(), Category::getName, (a, b) -> a, LinkedHashMap::new));
+	    // 4) 서비스 호출 (페이지 결과) : search() -> findListByCondition
+	    PageResultDto<Transaction> pr = transactionAppService.search(lId, cond, page);
 
-		List<TransactionListItemDto> items = transactionList.stream().map(t -> {
-			TransactionListItemDto d = new TransactionListItemDto();
-			d.setId(t.getId().toString());
-			d.setDate(t.getDate().toString());
-			d.setAccountName(accountNameMap.getOrDefault(t.getAccountId().toString(), t.getAccountId().toString()));
-			d.setCategoryName(categoryNameMap.getOrDefault(t.getCategoryId().toString(), t.getCategoryId().toString()));
-			d.setType(t.getType().name());
-			d.setAmount(String.valueOf(t.getAmount())); // Money.toString()
-			d.setMemo(t.getMemo());
-			return d;
-		}).collect(Collectors.toList());
+	    System.out.println("- - - - - - - - - - - -");
+	    for(Transaction t : pr.getContent()) {
+	    	System.out.println(t.getMemo());
+	    }
+	    System.out.println("- - - - - - - - - - - -");
+	    
+	    // 5) 표시용 이름 맵( {id : name} )
+	    Map<String, String> accountNameMap = accounts.stream()
+	            .collect(Collectors.toMap(a -> a.getId().toString(), Account::getName, (a,b)->a, LinkedHashMap::new));
+	    Map<String, String> categoryNameMap = categoryAppService.listByLedger(lId).stream()
+	            .collect(Collectors.toMap(c -> c.getId().toString(), Category::getName, (a,b)->a, LinkedHashMap::new));
 
-		model.addAttribute("ledgerId", ledgerId);
-		model.addAttribute("month", ym.toString()); // yyyy-MM
-		model.addAttribute("transaction", items);
-		return "transactions/list";
+	    List<TransactionListItemDto> items = pr.getContent().stream().map(t -> {
+	        TransactionListItemDto d = new TransactionListItemDto();
+	        d.setId(t.getId().toString());
+	        d.setDate(t.getDate().toString());
+	        d.setAccountName(accountNameMap.getOrDefault(t.getAccountId().toString(), t.getAccountId().toString()));
+	        d.setCategoryName(categoryNameMap.getOrDefault(t.getCategoryId().toString(), t.getCategoryId().toString()));
+	        d.setType(t.getType().name());
+	        d.setAmount(String.valueOf(t.getAmount()));
+	        d.setMemo(t.getMemo());
+	        return d;
+	    }).collect(Collectors.toList());
+
+	    // 6) 모델
+	    model.addAttribute("ledgerId", ledgerId);
+	    model.addAttribute("accounts", accounts);
+	    model.addAttribute("rootCategories", roots);
+
+	    // 필터 값 바인딩(폼 name은 DTO 필드명과 동일하게)
+	    model.addAttribute("cond", cond);
+
+	    // 목록/페이징
+	    model.addAttribute("txns", items);
+	    model.addAttribute("page", page.getPage());
+	    model.addAttribute("size", page.getSize());
+	    model.addAttribute("total", pr.getTotal());
+	    model.addAttribute("totalPages", pr.totalPages());
+	    model.addAttribute("startPage", Math.max(1, page.getPage() - 2));
+	    model.addAttribute("endPage", Math.min(pr.totalPages(), Math.max(1, page.getPage() - 2) + 4));
+	    model.addAttribute("hasPrev", page.getPage() > 1);
+	    model.addAttribute("hasNext", page.getPage() < pr.totalPages());
+
+	    return "transactions/list";
 	}
+
 	
 	// 거래 내역 달력 조회.
 	@GetMapping("/calendar")

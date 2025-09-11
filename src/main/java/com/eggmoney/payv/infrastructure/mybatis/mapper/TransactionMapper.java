@@ -6,7 +6,9 @@ import java.util.List;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
+import com.eggmoney.payv.domain.model.entity.Transaction;
 import com.eggmoney.payv.infrastructure.mybatis.record.TransactionRecord;
+import com.eggmoney.payv.presentation.dto.TransactionSearchCondition;
 
 @Mapper
 public interface TransactionMapper {
@@ -24,6 +26,13 @@ public interface TransactionMapper {
             @Param("offset") int offset,
             @Param("limit") int limit
     );
+    
+    long countByCond(@Param("ledgerId") String ledgerId, @Param("cond") TransactionSearchCondition cond);
+    
+    List<TransactionRecord> listByCond(@Param("ledgerId") String ledgerId,
+                        @Param("cond") TransactionSearchCondition cond,
+                        @Param("offset") int offset,
+                        @Param("limit") int limit);
 
     // 자산별 거래 내역 조회.
     List<TransactionRecord> selectByLedgerAndAccount(@Param("ledgerId") String ledgerId,

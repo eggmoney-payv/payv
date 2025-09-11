@@ -10,6 +10,9 @@ import com.eggmoney.payv.domain.model.vo.AccountId;
 import com.eggmoney.payv.domain.model.vo.CategoryId;
 import com.eggmoney.payv.domain.model.vo.LedgerId;
 import com.eggmoney.payv.domain.model.vo.TransactionId;
+import com.eggmoney.payv.presentation.dto.PageRequestDto;
+import com.eggmoney.payv.presentation.dto.PageResultDto;
+import com.eggmoney.payv.presentation.dto.TransactionSearchCondition;
 
 /**
  * 거래 내역 레포지토리
@@ -26,8 +29,11 @@ public interface TransactionRepository {
 	// 게시되지 않은 거래만 삭제 가능(규칙은 서비스에서 검사)
 	void delete(TransactionId id);
 
-	// 조회 유틸: 가계부/기간 기준 페이징
+	// 조회 유틸: 가계부/기간 기준
 	List<Transaction> findByLedgerAndDateRange(LedgerId ledgerId, LocalDate from, LocalDate to, int limit, int offset);
+	
+	// 조회 유틸: 필터링 검색 + 페이징
+	PageResultDto<Transaction> search(LedgerId ledgerId, TransactionSearchCondition cond, PageRequestDto page);
 
 	// 조회 유틸: 월 단위 편의 조회.
 	default List<Transaction> findByLedgerAndMonth(LedgerId ledgerId, YearMonth month, int limit, int offset) {

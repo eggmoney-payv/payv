@@ -25,6 +25,9 @@ import com.eggmoney.payv.domain.model.vo.LedgerId;
 import com.eggmoney.payv.domain.model.vo.Money;
 import com.eggmoney.payv.domain.model.vo.TransactionId;
 import com.eggmoney.payv.domain.shared.error.DomainException;
+import com.eggmoney.payv.presentation.dto.PageRequestDto;
+import com.eggmoney.payv.presentation.dto.PageResultDto;
+import com.eggmoney.payv.presentation.dto.TransactionSearchCondition;
 
 import lombok.RequiredArgsConstructor;
 
@@ -327,6 +330,15 @@ public class TransactionAppService {
                                                    int limit, int offset) {
         return transactionRepository.findByLedgerAndDateRange(ledgerId, from, to, limit, offset);
     }
+    
+    
+    
+    @Transactional(readOnly = true)
+    public PageResultDto<Transaction> search(LedgerId ledgerId, TransactionSearchCondition cond, PageRequestDto page) {
+    	return transactionRepository.search(ledgerId, cond, page);
+    }
+    
+    
 
     @Transactional(readOnly = true)
     public Transaction getDetails(TransactionId transactionId) {
@@ -339,7 +351,7 @@ public class TransactionAppService {
 	public List<Transaction> listByMonth(LedgerId ledgerId, YearMonth month, int limit, int offset) {
 		return transactionRepository.findByLedgerAndMonth(ledgerId, month, limit, offset);
 	}
-
+	
 	// 자산별 조회.
 	@Transactional(readOnly = true)
 	public List<Transaction> listByAccount(LedgerId ledgerId, AccountId accountId, int limit, int offset) {

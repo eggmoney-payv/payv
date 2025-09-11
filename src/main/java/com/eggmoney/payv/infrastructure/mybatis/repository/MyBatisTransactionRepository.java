@@ -2,12 +2,14 @@ package com.eggmoney.payv.infrastructure.mybatis.repository;
 
 import java.time.LocalDate;
 import java.time.YearMonth;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Repository;
 
+import com.eggmoney.payv.domain.model.entity.Category;
 import com.eggmoney.payv.domain.model.entity.Transaction;
 import com.eggmoney.payv.domain.model.entity.TransactionType;
 import com.eggmoney.payv.domain.model.repository.TransactionRepository;
@@ -18,6 +20,9 @@ import com.eggmoney.payv.domain.model.vo.Money;
 import com.eggmoney.payv.domain.model.vo.TransactionId;
 import com.eggmoney.payv.infrastructure.mybatis.mapper.TransactionMapper;
 import com.eggmoney.payv.infrastructure.mybatis.record.TransactionRecord;
+import com.eggmoney.payv.presentation.dto.PageRequestDto;
+import com.eggmoney.payv.presentation.dto.PageResultDto;
+import com.eggmoney.payv.presentation.dto.TransactionSearchCondition;
 
 import lombok.RequiredArgsConstructor;
 
@@ -77,6 +82,25 @@ public class MyBatisTransactionRepository  implements TransactionRepository {
 				.stream().map(this::toDomain).collect(Collectors.toList());
 	}
     
+	
+	@Override
+	public PageResultDto<Transaction> search(LedgerId ledgerId, 
+											 TransactionSearchCondition cond, 
+											 PageRequestDto page) {		
+
+		// ---------- 3) 총건수/목록 조회 ----------
+		long total = mapper.countByCond(ledgerId.toString(), cond);
+
+		// (요청 페이지가 범위를 벗어나면 마지막 페이지로 조정하는 로직이 필요하면 여기서 보정 가능)
+		List<Transaction> content = mapper.listByCond(ledgerId.toString(), cond, page.offset(), page.limit())
+				.stream().map(this::toDomain).collect(Collectors.toList());
+
+		// ---------- 4) 페이지 결과 조립 ----------
+		return new PageResultDto<>(total, page.getPage(), page.getSize(), content);
+	}
+	
+	
+	
 
     // ---- 변환부 ----
     private Transaction toDomain(TransactionRecord record) {

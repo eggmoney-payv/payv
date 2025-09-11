@@ -26,13 +26,64 @@
 
 		<a class="btn" href="<c:url value='/ledgers/${ledgerId}/transaction/new'/>" style="margin-left: 8px;">+ 거래 내역 추가</a>
 		<a class="btn" href="<c:url value='/ledgers/${ledgerId}'/>" style="margin-left: 8px;">← 가계부 홈</a>
-			
-		<form method="get" action="<c:url value='/ledgers/${ledgerId}/transaction'/>" style="margin-bottom: 12px;">
-			<label>월 선택: 
-				<input type="month" name="month" value="${month}" />
-			</label>
+
+
+		<form id="filterForm" method="get"
+			action="<c:url value='/ledgers/${ledgerId}/transaction'/>"
+			style="display: flex; gap: 8px; flex-wrap: wrap; align-items: flex-end; margin-bottom: 12px;">
+			<div>
+				<label>시작일 <input type="date" name="cond.start"
+					value="${cond.start}" />
+				</label>
+			</div>
+			<div>
+				<label>종료일 <input type="date" name="cond.end"
+					value="${cond.end}" />
+				</label>
+			</div>
+			<div>
+				<label>자산 <select name="cond.accountId">
+						<option value="">(전체)</option>
+						<c:forEach var="a" items="${accounts}">
+							<option value="${a.id}"
+								<c:if test="${a.id == cond.accountId}">selected</c:if>>${a.name}</option>
+						</c:forEach>
+				</select>
+				</label>
+			</div>
+			<div>
+				<label>카테고리(상위) <select id="rootCategoryId"
+					name="cond.rootCategoryId">
+						<option value="">(전체)</option>
+						<c:forEach var="r" items="${rootCategories}">
+							<option value="${r.id}"
+								<c:if test="${r.id == cond.rootCategoryId}">selected</c:if>>${r.name}</option>
+						</c:forEach>
+				</select>
+				</label>
+			</div>
+			<div>
+				<label>카테고리(하위) <select id="childCategoryId"
+					name="cond.categoryId">
+						<option value="">(전체/미선택)</option>
+						<!-- JS로 채움 & 선택 복원: selectedChildId = cond.categoryId -->
+				</select>
+				</label>
+			</div>
+
+			<div>
+				<label>페이지 크기 <select name="page.size">
+						<option value="10" <c:if test="${size==10}">selected</c:if>>10</option>
+						<option value="20" <c:if test="${size==20}">selected</c:if>>20</option>
+						<option value="50" <c:if test="${size==50}">selected</c:if>>50</option>
+						<option value="100" <c:if test="${size==100}">selected</c:if>>100</option>
+				</select>
+				</label>
+			</div>
+
 			<button class="btn" type="submit">조회</button>
 		</form>
+
 
 		<table class="table" style="width: 100%; border-collapse: collapse;">
 			<thead>
