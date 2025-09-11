@@ -24,7 +24,7 @@ import com.eggmoney.payv.domain.shared.error.DomainException;
 import com.eggmoney.payv.domain.shared.util.EntityIdentifier;
 
 /**
- * 향상된 UserAppService 통합 테스트 비밀번호 암호화, 개인정보 변경, 로그인, 입력 검증 등의 기능 테스트
+ * UserAppService 통합 테스트 - 수정된 버전 실제 UserAppService의 검증 로직에 맞춘 테스트
  * 
  * @author 정의탁, 강기범
  */
@@ -38,6 +38,12 @@ public class UserAppServiceTest {
 
 	@Resource
 	PasswordEncoder passwordEncoder;
+
+	// 실제 UserAppService의 제약 조건에 맞춰 수정
+	private static final int MAX_EMAIL_LENGTH = 50; // UserAppService.MAX_EMAIL_LENGTH
+	private static final int MAX_NAME_LENGTH = 20; // UserAppService.MAX_NAME_LENGTH
+	private static final int MIN_PASSWORD_LENGTH = 8; // UserAppService.MIN_PASSWORD_LENGTH
+	private static final int MAX_PASSWORD_LENGTH = 100; // UserAppService.MAX_PASSWORD_LENGTH
 
 	private String generateUniqueEmail() {
 		return "test" + System.nanoTime() + "@example.com";
@@ -284,14 +290,16 @@ public class UserAppServiceTest {
 	public void 긴_이메일_검증_테스트() {
 		// given
 		UserAppService userAppService = new UserAppService(userRepository, passwordEncoder);
-		String longEmail = repeatString("a", 95) + "@test.com"; // 100자 초과
+		// MAX_EMAIL_LENGTH(50)을 초과하는 이메일 생성
+		String longEmailPrefix = repeatString("a", MAX_EMAIL_LENGTH - "@test.com".length() + 1);
+		String longEmail = longEmailPrefix + "@test.com";
 
 		// when & then
 		try {
 			userAppService.register(longEmail, "사용자", "password123");
 			fail("긴 이메일로 인한 예외가 발생해야 함");
 		} catch (IllegalArgumentException e) {
-			assertTrue(e.getMessage().contains("이메일은 100자를 초과할 수 없습니다"));
+			assertTrue(e.getMessage().contains("이메일은 " + MAX_EMAIL_LENGTH + "자를 초과할 수 없습니다"));
 		}
 	}
 
@@ -300,14 +308,15 @@ public class UserAppServiceTest {
 		// given
 		UserAppService userAppService = new UserAppService(userRepository, passwordEncoder);
 		String email = generateUniqueEmail();
-		String longName = repeatString("가", 51); // 50자 초과
+		// MAX_NAME_LENGTH(20)을 초과하는 이름 생성
+		String longName = repeatString("가", MAX_NAME_LENGTH + 1);
 
 		// when & then
 		try {
 			userAppService.register(email, longName, "password123");
 			fail("긴 이름으로 인한 예외가 발생해야 함");
 		} catch (IllegalArgumentException e) {
-			assertTrue(e.getMessage().contains("이름은 50자를 초과할 수 없습니다"));
+			assertTrue(e.getMessage().contains("이름은 " + MAX_NAME_LENGTH + "자를 초과할 수 없습니다"));
 		}
 	}
 
@@ -316,14 +325,15 @@ public class UserAppServiceTest {
 		// given
 		UserAppService userAppService = new UserAppService(userRepository, passwordEncoder);
 		String email = generateUniqueEmail();
-		String longPassword = repeatString("a", 101); // 100자 초과
+		// MAX_PASSWORD_LENGTH(100)을 초과하는 비밀번호 생성
+		String longPassword = repeatString("a", MAX_PASSWORD_LENGTH + 1);
 
 		// when & then
 		try {
 			userAppService.register(email, "사용자", longPassword);
 			fail("긴 비밀번호로 인한 예외가 발생해야 함");
 		} catch (IllegalArgumentException e) {
-			assertTrue(e.getMessage().contains("비밀번호는 100자를 초과할 수 없습니다"));
+			assertTrue(e.getMessage().contains("비밀번호는 " + MAX_PASSWORD_LENGTH + "자를 초과할 수 없습니다"));
 		}
 	}
 

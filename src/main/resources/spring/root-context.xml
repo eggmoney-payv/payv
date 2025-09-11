@@ -6,7 +6,8 @@
 	xsi:schemaLocation="
          http://www.springframework.org/schema/beans   http://www.springframework.org/schema/beans/spring-beans.xsd
          http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
-         http://www.springframework.org/schema/tx      http://www.springframework.org/schema/tx/spring-tx.xsd">
+         http://www.springframework.org/schema/tx      http://www.springframework.org/schema/tx/spring-tx.xsd
+         http://mybatis.org/schema/mybatis-spring      http://mybatis.org/schema/mybatis-spring-1.2.xsd">
 
 
 	<!-- 1) 컴포넌트 스캔: 도메인/애플리케이션/인프라 빈들 -->

@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+
+	<!-- 심플한 콘솔 출력 -->
+	<appender name="CONSOLE"
+		class="ch.qos.logback.core.ConsoleAppender">
+		<encoder>
+			<pattern>%d{HH:mm:ss} %-5level %logger{30} - %msg%n</pattern>
+			<charset>UTF-8</charset>
+		</encoder>
+	</appender>
+
+	<!-- PayV 애플리케이션만 DEBUG 레벨로 -->
+	<logger name="com.eggmoney.payv" level="DEBUG"
+		additivity="false">
+		<appender-ref ref="CONSOLE" />
+	</logger>
+
+	<!-- Spring Security 중요 로그만 -->
+	<logger name="org.springframework.security.web.authentication"
+		level="INFO" additivity="false">
+		<appender-ref ref="CONSOLE" />
+	</logger>
+
+	<!-- 불필요한 로그 줄이기 -->
+	<logger name="org.springframework.security" level="WARN" />
+	<logger name="org.apache.catalina" level="WARN" />
+	<logger name="org.apache.jasper" level="WARN" />
+	<logger name="org.springframework" level="WARN" />
+	<logger name="org.apache.tomcat" level="WARN" />
+
+	<!-- 루트 로거 -->
+	<root level="INFO">
+		<appender-ref ref="CONSOLE" />
+	</root>
+
+</configuration>

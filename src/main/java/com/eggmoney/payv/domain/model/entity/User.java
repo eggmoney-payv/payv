@@ -10,7 +10,8 @@ import lombok.Builder;
 import lombok.Getter;
 
 /**
- * 사용자 엔티티 - 사용자 식별(로그인 주체), 기본 속성(email) 보관, 소유자/작성자 기준 키 제공.
+ * 사용자 엔티티 - 사용자 식별(로그인 주체), 기본 속성(email) 보관, 소유자/작성자 기준 키 제공. DB에 ROLE 컬럼이 없으므로
+ * 기본적으로 USER role로 설정
  * 
  * @author 정의탁, 강기범
  */
@@ -21,7 +22,7 @@ public class User {
 	private String email;
 	private String name;
 	private String password; // 암호화된 비밀번호
-	private UserRole role;   // VO 패키지의 UserRole 사용
+	private UserRole role; // DB에 저장되지 않음, 메모리상에서만 사용
 	private LocalDateTime createdAt;
 
 	@Builder
@@ -30,7 +31,7 @@ public class User {
 		this.email = email;
 		this.name = name;
 		this.password = password;
-		this.role = role;
+		this.role = role != null ? role : UserRole.USER; // null이면 기본값 USER
 		this.createdAt = createdAt;
 	}
 
@@ -46,28 +47,26 @@ public class User {
 			throw new IllegalArgumentException("email is required");
 		if (password == null || password.trim().isEmpty())
 			throw new IllegalArgumentException("password is required");
-		if (role == null)
-			throw new IllegalArgumentException("role is required");
 
 		this.id = id;
 		this.email = email.trim();
 		this.name = name != null ? name.trim() : null;
 		this.password = password;
-		this.role = role;
+		this.role = role != null ? role : UserRole.USER; // 기본값 USER
 		this.createdAt = LocalDateTime.now();
 	}
 
-	// 일반유저 회원가입
+	// 일반유저 회원가입 - DB에 ROLE이 없으므로 모두 USER로 생성
 	public static User create(String email, String name, String encodedPassword) {
 		return new User(UserId.of(EntityIdentifier.generateUuid()), email, name, encodedPassword, UserRole.USER);
 	}
 
-	// 관리자 생성
+	// 관리자 생성 - 메모리상에서만 ADMIN으로 설정 (DB에는 저장되지 않음)
 	public static User createAdmin(String email, String name, String encodedPassword) {
 		return new User(UserId.of(EntityIdentifier.generateUuid()), email, name, encodedPassword, UserRole.ADMIN);
 	}
 
-	// 프리미엄 사용자 생성
+	// 프리미엄 사용자 생성 - 메모리상에서만 PREMIUM으로 설정 (DB에는 저장되지 않음)
 	public static User createPremium(String email, String name, String encodedPassword) {
 		return new User(UserId.of(EntityIdentifier.generateUuid()), email, name, encodedPassword, UserRole.PREMIUM);
 	}
@@ -93,7 +92,7 @@ public class User {
 		this.name = newName != null ? newName.trim() : null;
 	}
 
-	// 역할 변경 (관리자용)
+	// 역할 변경 - 메모리상에서만 변경됨 (DB에는 저장되지 않음)
 	public void changeRole(UserRole newRole) {
 		if (newRole == null) {
 			throw new IllegalArgumentException("role is required");
@@ -101,57 +100,23 @@ public class User {
 		this.role = newRole;
 	}
 
-	// === 도메인 비즈니스 로직 ===
-	
-	/**
-	 * 관리자 권한 확인 (정확히 ADMIN인지)
-	 */
-	public boolean isAdmin() {
-		return role.isAdmin();
+	// 권한 확인 메서드들 - DB에 role이 없으므로 기본적으로 모든 사용자는 USER
+	public boolean hasAuthorityOf(UserRole requiredRole) {
+		// DB에서 조회된 사용자는 항상 USER role이므로
+		if (requiredRole == UserRole.USER) {
+			return true;
+		}
+		// 메모리상에서 role이 설정된 경우에만 추가 권한 확인
+		if (this.role == UserRole.ADMIN) {
+			return true; // 관리자는 모든 권한을 가짐
+		}
+		if (this.role == UserRole.PREMIUM && requiredRole == UserRole.USER) {
+			return true; // 프리미엄은 일반 사용자 권한도 가짐
+		}
+		return this.role == requiredRole;
 	}
 
-	/**
-	 * 프리미엄 사용자 확인 (정확히 PREMIUM인지)
-	 */
-	public boolean isPremium() {
-		return role.isPremium();
-	}
-	
-	/**
-	 * 일반 사용자 확인 (정확히 USER인지)
-	 */
-	public boolean isUser() {
-		return role.isUser();
-	}
-	
-	/**
-	 * 프리미엄 이상의 권한인지 확인 (PREMIUM 또는 ADMIN)
-	 */
-	public boolean hasPremiumOrAbove() {
-		return role.isPremiumOrAbove();
-	}
-	
-	/**
-	 * 특정 권한 이상인지 확인
-	 */
-	public boolean hasAuthorityOf(UserRole requiredRole) {
-		return role.hasAuthorityOf(requiredRole);
-	}
-	
-	/**
-	 * 다른 사용자에 대한 권한 변경 가능 여부
-	 */
 	public boolean canChangeRoleOf(User targetUser) {
-		// 관리자만 다른 사용자의 권한 변경 가능
-		// 단, 자기 자신의 관리자 권한은 해제할 수 없음
-		return this.isAdmin() && !targetUser.getId().equals(this.getId());
-	}
-	
-	/**
-	 * 특정 가계부에 대한 접근 권한이 있는지 확인
-	 */
-	public boolean canAccessLedger(Ledger ledger) {
-		// 소유자이거나 관리자인 경우 접근 가능
-		return ledger.getOwnerId().equals(this.id) || this.isAdmin();
+		return this.role == UserRole.ADMIN && !this.id.equals(targetUser.getId());
 	}
 }

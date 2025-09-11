@@ -16,8 +16,7 @@ import com.eggmoney.payv.infrastructure.mybatis.record.UserRecord;
 import lombok.RequiredArgsConstructor;
 
 /**
- * UserRepository MyBatis 구현체
- * LocalDateTime 직접 사용 (TypeHandler에 의존)
+ * UserRepository MyBatis 구현체 DB에 ROLE 컬럼이 없으므로 모든 사용자는 기본적으로 USER role로 설정
  * 
  * @author 정의탁, 강기범
  */
@@ -56,10 +55,12 @@ public class MyBatisUserRepository implements UserRepository {
 
 	@Override
 	public List<User> findByRole(UserRole role) {
-		return userMapper.selectUserList().stream()
-				.map(this::toDomain)
-				.filter(user -> user.getRole().equals(role))
-				.collect(Collectors.toList());
+		// DB에 role이 없으므로 모든 사용자가 USER role
+		if (role == UserRole.USER) {
+			return findAll();
+		} else {
+			return java.util.Collections.emptyList(); // Java 8 호환
+		}
 	}
 
 	@Override
@@ -85,36 +86,28 @@ public class MyBatisUserRepository implements UserRepository {
 
 	@Override
 	public long countByRole(UserRole role) {
-		return userMapper.selectUserList().stream()
-				.map(this::toDomain)
-				.filter(user -> user.getRole().equals(role))
-				.count();
+		// DB에 role이 없으므로 USER role의 경우 전체 사용자 수를 반환
+		if (role == UserRole.USER) {
+			return userMapper.selectUserList().size();
+		} else {
+			return 0;
+		}
 	}
 
 	/**
-	 * Record를 Domain으로 변환
+	 * Record를 Domain으로 변환 DB에 role이 없으므로 기본값 USER로 설정
 	 */
 	private User toDomain(UserRecord record) {
-		return User.builder()
-				.id(UserId.of(record.getUserId()))
-				.email(record.getEmail())
-				.name(record.getName())
-				.password(record.getPassword())
-				.role(UserRole.USER)
-				.createdAt(record.getCreateAt())  // LocalDateTime 직접 사용
-				.build();
+		return User.builder().id(UserId.of(record.getUserId())).email(record.getEmail()).name(record.getName())
+				.password(record.getPassword()).role(UserRole.USER) // DB에 role이 없으므로 기본값 USER
+				.createdAt(record.getCreateAt()).build();
 	}
 
 	/**
-	 * Domain을 Record로 변환
+	 * Domain을 Record로 변환 role 정보는 DB에 저장되지 않음
 	 */
 	private UserRecord toRecord(User user) {
-		return UserRecord.builder()
-				.userId(user.getId().value())
-				.email(user.getEmail())
-				.name(user.getName())
-				.password(user.getPassword())
-				.createAt(user.getCreatedAt())  // LocalDateTime 직접 사용
-				.build();
+		return UserRecord.builder().userId(user.getId().value()).email(user.getEmail()).name(user.getName())
+				.password(user.getPassword()).createAt(user.getCreatedAt()).build();
 	}
 }

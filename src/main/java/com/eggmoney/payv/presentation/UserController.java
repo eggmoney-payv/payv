@@ -30,7 +30,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * 사용자 인증 및 프로필 관리 컨트롤러 - 회원가입, 로그인, 로그아웃, 마이페이지, 프로필 수정, 비밀번호 변경
+ * 사용자 인증 및 프로필 관리 컨트롤러 회원가입, 로그인, 로그아웃, 마이페이지, 프로필 수정, 비밀번호 변경
  * 
  * @author 정의탁, 강기범
  */
@@ -70,7 +70,7 @@ public class UserController {
 			model.addAttribute("signupMessage", "회원가입이 완료되었습니다. 로그인해주세요.");
 		}
 
-		return "user/login"; // /WEB-INF/views/user/login.jsp
+		return "user/login";
 	}
 
 	/**
@@ -80,7 +80,7 @@ public class UserController {
 	public String signupForm(Model model) {
 		log.info("회원가입 페이지 요청");
 		model.addAttribute("signupForm", new SignupForm());
-		return "user/signup"; // /WEB-INF/views/user/signup.jsp
+		return "user/signup";
 	}
 
 	/**
@@ -88,56 +88,60 @@ public class UserController {
 	 */
 	@PostMapping("/signup")
 	public String signup(@Valid @ModelAttribute SignupForm signupForm, BindingResult bindingResult,
-			RedirectAttributes redirectAttributes) {
+			RedirectAttributes redirectAttributes, Model model) {
 
-		log.info("회원가입 시도: {}", signupForm.getEmail());
+		log.info("회원가입 처리 요청: email={}, name={}", signupForm.getEmail(), signupForm.getName());
 
-		// 유효성 검사 실패
+		// 기본 유효성 검사 오류가 있으면 회원가입 페이지로 돌아감
 		if (bindingResult.hasErrors()) {
 			log.warn("회원가입 유효성 검사 실패: {}", bindingResult.getAllErrors());
 			return "user/signup";
 		}
 
-		// 비밀번호 확인
+		// 비밀번호 확인 검사
 		if (!signupForm.getPassword().equals(signupForm.getConfirmPassword())) {
-			bindingResult.rejectValue("confirmPassword", "password.mismatch", "비밀번호가 일치하지 않습니다.");
+			bindingResult.rejectValue("confirmPassword", "signup.password.mismatch", "비밀번호가 일치하지 않습니다.");
 			return "user/signup";
 		}
 
 		try {
-			// 회원가입 처리
 			userAppService.register(signupForm.getEmail(), signupForm.getName(), signupForm.getPassword());
-
-			log.info("회원가입 성공: {}", signupForm.getEmail());
-			redirectAttributes.addFlashAttribute("message", "회원가입이 완료되었습니다. 로그인해주세요.");
+			log.info("회원가입 성공: email={}", signupForm.getEmail());
+			redirectAttributes.addFlashAttribute("message", "회원가입이 완료되었습니다.");
 			return "redirect:/login?signup=success";
 
 		} catch (DomainException e) {
 			log.warn("회원가입 실패: {}", e.getMessage());
 
+			// 이메일 중복 등의 도메인 오류는 email 필드 오류로 처리
 			if (e.getMessage().contains("이메일")) {
-				bindingResult.rejectValue("email", "email.duplicate", e.getMessage());
+				bindingResult.rejectValue("email", "signup.email.duplicate", e.getMessage());
 			} else {
-				bindingResult.reject("signup.failed", e.getMessage());
+				model.addAttribute("errorMessage", e.getMessage());
 			}
 			return "user/signup";
 
 		} catch (IllegalArgumentException e) {
-			log.warn("회원가입 입력 오류: {}", e.getMessage());
-			bindingResult.reject("validation.failed", e.getMessage());
+			log.warn("회원가입 입력값 오류: {}", e.getMessage());
+			model.addAttribute("errorMessage", e.getMessage());
+			return "user/signup";
+
+		} catch (Exception e) {
+			log.error("회원가입 중 예상치 못한 오류 발생", e);
+			model.addAttribute("errorMessage", "회원가입 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.");
 			return "user/signup";
 		}
 	}
 
 	/**
-	 * 로그아웃 처리
+	 * 로그아웃 처리 (GET 방식)
 	 */
 	@GetMapping("/logout")
 	public String logout(HttpServletRequest request, HttpServletResponse response) {
-		log.info("로그아웃 요청");
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 		if (auth != null) {
 			new SecurityContextLogoutHandler().logout(request, response, auth);
+			log.info("사용자 로그아웃: {}", auth.getName());
 		}
 		return "redirect:/login?logout";
 	}
@@ -149,148 +153,159 @@ public class UserController {
 	 */
 	@GetMapping("/user/profile")
 	public String profile(Principal principal, Model model) {
-		log.info("마이페이지 요청: userId={}", principal.getName());
+		log.info("마이페이지 요청: principal={}", principal.getName());
 
-		UserId userId = UserId.of(principal.getName());
-		User user = userAppService.findByIdOrThrow(userId);
+		try {
+			User user = getCurrentUser(principal);
 
-		// 프로필 폼 초기화
-		UserProfileForm profileForm = new UserProfileForm();
-		profileForm.setEmail(user.getEmail());
-		profileForm.setName(user.getName());
+			UserProfileForm profileForm = new UserProfileForm();
+			profileForm.setEmail(user.getEmail());
+			profileForm.setName(user.getName());
 
-		model.addAttribute("user", user);
-		model.addAttribute("profileForm", profileForm);
-		model.addAttribute("passwordForm", new ChangePasswordForm());
-		model.addAttribute("pageTitle", "마이페이지");
-		model.addAttribute("contentPage", "/WEB-INF/views/user/profile.jsp");
+			model.addAttribute("user", user);
+			model.addAttribute("profileForm", profileForm);
 
-		return "common/layout"; // 공통 레이아웃 사용
+			return "user/profile";
+
+		} catch (Exception e) {
+			log.error("마이페이지 조회 중 오류 발생", e);
+			model.addAttribute("errorMessage", "사용자 정보를 불러오는 중 오류가 발생했습니다.");
+			return "user/profile";
+		}
 	}
 
 	/**
-	 * 개인정보 수정 처리
+	 * 프로필 수정 처리
 	 */
 	@PostMapping("/user/profile")
-	public String updateProfile(@Valid @ModelAttribute UserProfileForm profileForm, BindingResult profileBindingResult,
-			Principal principal, Model model, RedirectAttributes redirectAttributes) {
+	public String updateProfile(@Valid @ModelAttribute UserProfileForm profileForm, BindingResult bindingResult,
+			Principal principal, RedirectAttributes redirectAttributes, Model model) {
 
-		log.info("개인정보 수정 요청: userId={}", principal.getName());
-
-		UserId userId = UserId.of(principal.getName());
-		User user = userAppService.findByIdOrThrow(userId);
-
-		// 유효성 검사 실패
-		if (profileBindingResult.hasErrors()) {
-			log.warn("개인정보 수정 유효성 검사 실패: {}", profileBindingResult.getAllErrors());
-
-			model.addAttribute("user", user);
-			model.addAttribute("passwordForm", new ChangePasswordForm());
-			model.addAttribute("pageTitle", "마이페이지");
-			model.addAttribute("contentPage", "/WEB-INF/views/user/profile.jsp");
-			return "common/layout";
-		}
+		log.info("프로필 수정 요청: principal={}", principal.getName());
 
 		try {
-			// 이름 변경 (기존과 다른 경우에만)
-			if (!user.getName().equals(profileForm.getName())) {
-				userAppService.changeName(userId, profileForm.getName());
+			User user = getCurrentUser(principal);
+
+			if (bindingResult.hasErrors()) {
+				log.warn("프로필 수정 유효성 검사 실패: {}", bindingResult.getAllErrors());
+				model.addAttribute("user", user);
+				return "user/profile";
 			}
 
-			// 이메일 변경 (기존과 다른 경우에만)
+			// 이메일 변경
 			if (!user.getEmail().equals(profileForm.getEmail())) {
-				userAppService.changeEmail(userId, profileForm.getEmail());
+				userAppService.changeEmail(user.getId(), profileForm.getEmail());
 			}
 
-			log.info("개인정보 수정 성공: userId={}", userId);
-			redirectAttributes.addFlashAttribute("message", "개인정보가 성공적으로 수정되었습니다.");
+			// 이름 변경
+			if (!user.getName().equals(profileForm.getName())) {
+				userAppService.changeName(user.getId(), profileForm.getName());
+			}
+
+			log.info("프로필 수정 성공: userId={}", user.getId());
+			redirectAttributes.addFlashAttribute("successMessage", "프로필이 성공적으로 수정되었습니다.");
 			return "redirect:/user/profile";
 
 		} catch (DomainException e) {
-			log.warn("개인정보 수정 실패: {}", e.getMessage());
+			log.warn("프로필 수정 실패: {}", e.getMessage());
 
 			if (e.getMessage().contains("이메일")) {
-				profileBindingResult.rejectValue("email", "email.duplicate", e.getMessage());
+				bindingResult.rejectValue("email", "profile.email.error", e.getMessage());
 			} else {
-				profileBindingResult.reject("profile.update.failed", e.getMessage());
+				model.addAttribute("errorMessage", e.getMessage());
 			}
 
-			// 에러 발생 시 모델 설정하고 폼 페이지로 돌아가기
-			model.addAttribute("user", user);
-			model.addAttribute("passwordForm", new ChangePasswordForm());
-			model.addAttribute("pageTitle", "마이페이지");
-			model.addAttribute("contentPage", "/WEB-INF/views/user/profile.jsp");
-			return "common/layout";
+			try {
+				User user = getCurrentUser(principal);
+				model.addAttribute("user", user);
+			} catch (Exception ex) {
+				log.error("사용자 조회 실패", ex);
+			}
+			return "user/profile";
+
+		} catch (Exception e) {
+			log.error("프로필 수정 중 예상치 못한 오류 발생", e);
+			model.addAttribute("errorMessage", "프로필 수정 중 오류가 발생했습니다.");
+
+			try {
+				User user = getCurrentUser(principal);
+				model.addAttribute("user", user);
+			} catch (Exception ex) {
+				log.error("사용자 조회 실패", ex);
+			}
+			return "user/profile";
 		}
+	}
+
+	/**
+	 * 비밀번호 변경 페이지 표시
+	 */
+	@GetMapping("/user/change-password")
+	public String changePasswordForm(Model model) {
+		log.info("비밀번호 변경 페이지 요청");
+		model.addAttribute("changePasswordForm", new ChangePasswordForm());
+		return "user/change-password";
 	}
 
 	/**
 	 * 비밀번호 변경 처리
 	 */
-	@PostMapping("/user/password")
-	public String changePassword(@Valid @ModelAttribute ChangePasswordForm passwordForm,
-			BindingResult passwordBindingResult, Principal principal, Model model,
-			RedirectAttributes redirectAttributes) {
+	@PostMapping("/user/change-password")
+	public String changePassword(@Valid @ModelAttribute ChangePasswordForm changePasswordForm,
+			BindingResult bindingResult, Principal principal, RedirectAttributes redirectAttributes, Model model) {
 
-		log.info("비밀번호 변경 요청: userId={}", principal.getName());
+		log.info("비밀번호 변경 요청: principal={}", principal.getName());
 
-		UserId userId = UserId.of(principal.getName());
-		User user = userAppService.findByIdOrThrow(userId);
-
-		// 유효성 검사 실패
-		if (passwordBindingResult.hasErrors()) {
-			log.warn("비밀번호 변경 유효성 검사 실패: {}", passwordBindingResult.getAllErrors());
-
-			// 프로필 폼 초기화
-			UserProfileForm profileForm = new UserProfileForm();
-			profileForm.setEmail(user.getEmail());
-			profileForm.setName(user.getName());
-
-			model.addAttribute("user", user);
-			model.addAttribute("profileForm", profileForm);
-			model.addAttribute("pageTitle", "마이페이지");
-			model.addAttribute("contentPage", "/WEB-INF/views/user/profile.jsp");
-			return "common/layout";
+		if (bindingResult.hasErrors()) {
+			log.warn("비밀번호 변경 유효성 검사 실패: {}", bindingResult.getAllErrors());
+			return "user/change-password";
 		}
 
-		// 비밀번호 확인 검증
-		if (!passwordForm.getNewPassword().equals(passwordForm.getConfirmPassword())) {
-			passwordBindingResult.rejectValue("confirmPassword", "password.mismatch", "새 비밀번호가 일치하지 않습니다.");
-
-			// 프로필 폼 초기화
-			UserProfileForm profileForm = new UserProfileForm();
-			profileForm.setEmail(user.getEmail());
-			profileForm.setName(user.getName());
-
-			model.addAttribute("user", user);
-			model.addAttribute("profileForm", profileForm);
-			model.addAttribute("pageTitle", "마이페이지");
-			model.addAttribute("contentPage", "/WEB-INF/views/user/profile.jsp");
-			return "common/layout";
+		// 새 비밀번호 확인
+		if (!changePasswordForm.getNewPassword().equals(changePasswordForm.getConfirmPassword())) {
+			bindingResult.rejectValue("confirmPassword", "password.mismatch", "새 비밀번호가 일치하지 않습니다.");
+			return "user/change-password";
 		}
 
 		try {
-			userAppService.changePassword(userId, passwordForm.getCurrentPassword(), passwordForm.getNewPassword());
+			User user = getCurrentUser(principal);
 
-			log.info("비밀번호 변경 성공: userId={}", userId);
-			redirectAttributes.addFlashAttribute("message", "비밀번호가 성공적으로 변경되었습니다.");
+			userAppService.changePassword(user.getId(), changePasswordForm.getCurrentPassword(),
+					changePasswordForm.getNewPassword());
+
+			log.info("비밀번호 변경 성공: userId={}", user.getId());
+			redirectAttributes.addFlashAttribute("successMessage", "비밀번호가 성공적으로 변경되었습니다.");
 			return "redirect:/user/profile";
 
 		} catch (DomainException e) {
 			log.warn("비밀번호 변경 실패: {}", e.getMessage());
 
-			passwordBindingResult.rejectValue("currentPassword", "password.invalid", e.getMessage());
+			if (e.getMessage().contains("현재 비밀번호")) {
+				bindingResult.rejectValue("currentPassword", "password.current.invalid", e.getMessage());
+			} else {
+				model.addAttribute("errorMessage", e.getMessage());
+			}
+			return "user/change-password";
 
-			// 프로필 폼 초기화
-			UserProfileForm profileForm = new UserProfileForm();
-			profileForm.setEmail(user.getEmail());
-			profileForm.setName(user.getName());
+		} catch (Exception e) {
+			log.error("비밀번호 변경 중 예상치 못한 오류 발생", e);
+			model.addAttribute("errorMessage", "비밀번호 변경 중 오류가 발생했습니다.");
+			return "user/change-password";
+		}
+	}
 
-			model.addAttribute("user", user);
-			model.addAttribute("profileForm", profileForm);
-			model.addAttribute("pageTitle", "마이페이지");
-			model.addAttribute("contentPage", "/WEB-INF/views/user/profile.jsp");
-			return "common/layout";
+	/**
+	 * Principal에서 현재 사용자 조회 Spring Security 설정에 따라 email 또는 userId를 사용
+	 */
+	private User getCurrentUser(Principal principal) {
+		String principalName = principal.getName();
+
+		// email 형식인지 확인
+		if (principalName.contains("@")) {
+			return userAppService.findByEmail(principalName).orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다"));
+		} else {
+			// UserId 형식으로 간주
+			return userAppService.findByIdOrThrow(UserId.of(principalName));
 		}
 	}
 }

@@ -7,9 +7,9 @@ import org.junit.Test;
 import com.eggmoney.payv.domain.model.vo.UserRole;
 
 /**
- * User 도메인 엔티티 단위 테스트
+ * User 도메인 엔티티 단위 테스트 - 수정된 버전 실제 User 클래스의 권한 체계에 맞춰 테스트 수정
  * 
- * @author 정의탁
+ * @author 정의탁, 강기범
  */
 public class UserTest {
 
@@ -32,11 +32,10 @@ public class UserTest {
 		assertEquals(UserRole.USER, user.getRole());
 		assertNotNull(user.getCreatedAt());
 
-		// 권한 확인
-		assertTrue(user.isUser());
-		assertFalse(user.isPremium());
-		assertFalse(user.isAdmin());
-		assertFalse(user.hasPremiumOrAbove());
+		// 실제 User 클래스의 hasAuthorityOf 메서드에 맞춘 권한 확인
+		assertTrue("USER는 USER 권한을 가져야 함", user.hasAuthorityOf(UserRole.USER));
+		assertFalse("USER는 PREMIUM 권한을 가지지 않아야 함", user.hasAuthorityOf(UserRole.PREMIUM));
+		assertFalse("USER는 ADMIN 권한을 가지지 않아야 함", user.hasAuthorityOf(UserRole.ADMIN));
 	}
 
 	@Test
@@ -53,11 +52,10 @@ public class UserTest {
 		assertNotNull(admin);
 		assertEquals(UserRole.ADMIN, admin.getRole());
 
-		// 권한 확인 - 정확히 구분
-		assertFalse(admin.isUser()); // ADMIN은 USER가 아님
-		assertFalse(admin.isPremium()); // ADMIN은 PREMIUM이 아님
-		assertTrue(admin.isAdmin()); // ADMIN은 ADMIN임
-		assertTrue(admin.hasPremiumOrAbove()); // ADMIN은 PREMIUM 이상의 권한
+		// 실제 hasAuthorityOf 메서드 동작: ADMIN은 모든 권한을 가짐
+		assertTrue("ADMIN은 USER 권한을 가져야 함", admin.hasAuthorityOf(UserRole.USER));
+		assertTrue("ADMIN은 PREMIUM 권한을 가져야 함", admin.hasAuthorityOf(UserRole.PREMIUM));
+		assertTrue("ADMIN은 ADMIN 권한을 가져야 함", admin.hasAuthorityOf(UserRole.ADMIN));
 	}
 
 	@Test
@@ -74,11 +72,10 @@ public class UserTest {
 		assertNotNull(premium);
 		assertEquals(UserRole.PREMIUM, premium.getRole());
 
-		// 권한 확인
-		assertFalse(premium.isUser()); // PREMIUM은 USER가 아님
-		assertTrue(premium.isPremium()); // PREMIUM은 PREMIUM임
-		assertFalse(premium.isAdmin()); // PREMIUM은 ADMIN이 아님
-		assertTrue(premium.hasPremiumOrAbove()); // PREMIUM은 PREMIUM 이상의 권한
+		// 실제 hasAuthorityOf 메서드 동작: PREMIUM은 USER 권한도 가짐
+		assertTrue("PREMIUM은 USER 권한을 가져야 함", premium.hasAuthorityOf(UserRole.USER));
+		assertTrue("PREMIUM은 PREMIUM 권한을 가져야 함", premium.hasAuthorityOf(UserRole.PREMIUM));
+		assertFalse("PREMIUM은 ADMIN 권한을 가지지 않아야 함", premium.hasAuthorityOf(UserRole.ADMIN));
 	}
 
 	@Test(expected = IllegalArgumentException.class)
@@ -192,9 +189,9 @@ public class UserTest {
 
 		// then
 		assertEquals(UserRole.PREMIUM, user.getRole());
-		assertTrue(user.isPremium());
-		assertFalse(user.isAdmin());
-		assertFalse(user.isUser());
+		assertTrue("PREMIUM으로 변경 후 PREMIUM 권한 확인", user.hasAuthorityOf(UserRole.PREMIUM));
+		assertTrue("PREMIUM으로 변경 후 USER 권한도 확인", user.hasAuthorityOf(UserRole.USER));
+		assertFalse("PREMIUM으로 변경 후 ADMIN 권한은 없어야 함", user.hasAuthorityOf(UserRole.ADMIN));
 	}
 
 	@Test(expected = IllegalArgumentException.class)
@@ -210,18 +207,20 @@ public class UserTest {
 		User premiumUser = User.createPremium("premium@example.com", "premium", "password");
 		User adminUser = User.createAdmin("admin@example.com", "admin", "password");
 
-		// 권한 확인
-		assertTrue(normalUser.hasAuthorityOf(UserRole.USER));
-		assertFalse(normalUser.hasAuthorityOf(UserRole.PREMIUM));
-		assertFalse(normalUser.hasAuthorityOf(UserRole.ADMIN));
+		// USER 권한 체계 확인
+		assertTrue("일반 사용자는 USER 권한을 가져야 함", normalUser.hasAuthorityOf(UserRole.USER));
+		assertFalse("일반 사용자는 PREMIUM 권한을 가지지 않아야 함", normalUser.hasAuthorityOf(UserRole.PREMIUM));
+		assertFalse("일반 사용자는 ADMIN 권한을 가지지 않아야 함", normalUser.hasAuthorityOf(UserRole.ADMIN));
 
-		assertTrue(premiumUser.hasAuthorityOf(UserRole.USER));
-		assertTrue(premiumUser.hasAuthorityOf(UserRole.PREMIUM));
-		assertFalse(premiumUser.hasAuthorityOf(UserRole.ADMIN));
+		// PREMIUM 권한 체계 확인
+		assertTrue("프리미엄 사용자는 USER 권한을 가져야 함", premiumUser.hasAuthorityOf(UserRole.USER));
+		assertTrue("프리미엄 사용자는 PREMIUM 권한을 가져야 함", premiumUser.hasAuthorityOf(UserRole.PREMIUM));
+		assertFalse("프리미엄 사용자는 ADMIN 권한을 가지지 않아야 함", premiumUser.hasAuthorityOf(UserRole.ADMIN));
 
-		assertTrue(adminUser.hasAuthorityOf(UserRole.USER));
-		assertTrue(adminUser.hasAuthorityOf(UserRole.PREMIUM));
-		assertTrue(adminUser.hasAuthorityOf(UserRole.ADMIN));
+		// ADMIN 권한 체계 확인
+		assertTrue("관리자는 USER 권한을 가져야 함", adminUser.hasAuthorityOf(UserRole.USER));
+		assertTrue("관리자는 PREMIUM 권한을 가져야 함", adminUser.hasAuthorityOf(UserRole.PREMIUM));
+		assertTrue("관리자는 ADMIN 권한을 가져야 함", adminUser.hasAuthorityOf(UserRole.ADMIN));
 	}
 
 	@Test
@@ -232,12 +231,12 @@ public class UserTest {
 		User otherAdmin = User.createAdmin("admin2@example.com", "admin2", "password");
 
 		// then
-		assertTrue(admin.canChangeRoleOf(normalUser)); // 관리자는 일반 사용자 권한 변경 가능
-		assertFalse(admin.canChangeRoleOf(admin)); // 자기 자신의 권한은 변경할 수 없음
-		assertTrue(admin.canChangeRoleOf(otherAdmin)); // 다른 관리자의 권한은 변경 가능
+		assertTrue("관리자는 일반 사용자 권한 변경 가능", admin.canChangeRoleOf(normalUser));
+		assertFalse("자기 자신의 권한은 변경할 수 없음", admin.canChangeRoleOf(admin));
+		assertTrue("다른 관리자의 권한은 변경 가능", admin.canChangeRoleOf(otherAdmin));
 
-		assertFalse(normalUser.canChangeRoleOf(admin)); // 일반 사용자는 관리자 권한 변경 불가
-		assertFalse(normalUser.canChangeRoleOf(normalUser)); // 자기 자신도 변경 불가 (관리자가 아니므로)
+		assertFalse("일반 사용자는 관리자 권한 변경 불가", normalUser.canChangeRoleOf(admin));
+		assertFalse("일반 사용자는 자기 자신도 변경 불가 (관리자가 아니므로)", normalUser.canChangeRoleOf(normalUser));
 	}
 
 	@Test

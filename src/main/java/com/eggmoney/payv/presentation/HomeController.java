@@ -1,23 +1,48 @@
 package com.eggmoney.payv.presentation;
 
+import java.security.Principal;
+
 import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 
-import com.eggmoney.payv.infrastructure.mybatis.mapper.TimeMapper;
+import lombok.extern.slf4j.Slf4j;
 
-import lombok.RequiredArgsConstructor;
-
+/**
+ * 홈페이지 관련 컨트롤러 루트 경로 및 메인 페이지 처리
+ * 
+ * @author 정의탁, 강기범
+ */
 @Controller
-@RequiredArgsConstructor
+@Slf4j
 public class HomeController {
 
-	private final TimeMapper timeMapper;
-	
+	/**
+	 * 루트 경로 처리 로그인된 사용자는 대시보드로, 비로그인 사용자는 로그인 페이지로 리다이렉트
+	 */
 	@GetMapping("/")
-    public String home(Model model) {
-        model.addAttribute("msg", "Payv 가동 OK");
-        model.addAttribute("time", timeMapper.now());
-        return "home";
-    }
+	public String home(Principal principal) {
+		log.info("홈페이지 요청: principal={}", principal != null ? principal.getName() : "비로그인");
+
+		if (principal != null) {
+			// 로그인된 사용자는 대시보드로
+			return "redirect:/dashboard";
+		} else {
+			// 비로그인 사용자는 로그인 페이지로
+			return "redirect:/login";
+		}
+	}
+
+	/**
+	 * 홈 페이지 (선택적)
+	 */
+	@GetMapping("/home")
+	public String homePage(Principal principal) {
+		log.info("홈페이지 직접 요청: principal={}", principal != null ? principal.getName() : "비로그인");
+
+		if (principal != null) {
+			return "redirect:/dashboard";
+		} else {
+			return "redirect:/login";
+		}
+	}
 }

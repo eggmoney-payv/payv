@@ -4,23 +4,25 @@ import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
 
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
 /**
- * 회원가입 폼 데이터
+ * 회원가입 폼 데이터를 담는 클래스
  * 
  * @author 강기범
  */
-@Data
+@Getter
+@Setter
 public class SignupForm {
 
 	@NotBlank(message = "이메일은 필수입니다.")
 	@Email(message = "올바른 이메일 형식이 아닙니다.")
-	@Size(max = 100, message = "이메일은 100자를 초과할 수 없습니다.")
+	@Size(max = 50, message = "이메일은 50자를 초과할 수 없습니다.")
 	private String email;
 
 	@NotBlank(message = "이름은 필수입니다.")
-	@Size(max = 50, message = "이름은 50자를 초과할 수 없습니다.")
+	@Size(max = 20, message = "이름은 20자를 초과할 수 없습니다.")
 	private String name;
 
 	@NotBlank(message = "비밀번호는 필수입니다.")
