@@ -16,9 +16,26 @@
 		<appender-ref ref="CONSOLE" />
 	</logger>
 
-	<!-- Spring Security 중요 로그만 -->
-	<logger name="org.springframework.security.web.authentication"
-		level="INFO" additivity="false">
+	<!-- ⭐ MyBatis SQL 로깅 추가 -->
+	<logger name="com.eggmoney.payv.infrastructure.mybatis.mapper"
+		level="DEBUG" additivity="false">
+		<appender-ref ref="CONSOLE" />
+	</logger>
+
+	<!-- ⭐ JDBC SQL 로깅 추가 -->
+	<logger name="jdbc.sqlonly" level="DEBUG" additivity="false">
+		<appender-ref ref="CONSOLE" />
+	</logger>
+
+	<!-- Spring Security 인증 로깅 -->
+	<logger name="com.eggmoney.payv.infrastructure.security"
+		level="DEBUG" additivity="false">
+		<appender-ref ref="CONSOLE" />
+	</logger>
+
+	<!-- Spring Security 인증 과정 상세 로깅 -->
+	<logger name="org.springframework.security.authentication"
+		level="DEBUG" additivity="false">
 		<appender-ref ref="CONSOLE" />
 	</logger>
 

@@ -29,7 +29,11 @@
 		<security:intercept-url pattern="/favicon.ico"
 			access="permitAll" />
 
-		<!-- 2. 인증/회원가입 관련 페이지 -->
+		<!-- 2. 테스트용 경로 추가 ⭐ -->
+		<security:intercept-url pattern="/test/**"
+			access="permitAll" />
+
+		<!-- 3. 인증/회원가입 관련 페이지 -->
 		<security:intercept-url pattern="/signup/**"
 			access="permitAll" />
 		<security:intercept-url pattern="/login/**"
@@ -39,19 +43,21 @@
 		<security:intercept-url pattern="/signup"
 			access="permitAll" />
 
-		<!-- 3. 에러 페이지 -->
+		<!-- 4. 에러 페이지 -->
 		<security:intercept-url pattern="/error/**"
 			access="permitAll" />
 
-		<!-- 4. 개발용 임시 경로 -->
+		<!-- 5. 개발용 임시 경로 -->
 		<security:intercept-url pattern="/dev/**"
 			access="permitAll" />
 
-		<!-- 5. 홈페이지 및 메인 페이지 -->
+		<!-- 6. 홈페이지 및 메인 페이지 -->
 		<security:intercept-url pattern="/"
 			access="permitAll" />
 		<security:intercept-url pattern="/home"
 			access="permitAll" />
+
+		<!-- 나머지는 그대로... -->
 
 		<!-- 6. 보안이 필요한 페이지들 (로그인 후 접근 가능) -->
 		<security:intercept-url pattern="/user/**"
@@ -75,7 +81,7 @@
 		<security:form-login login-page="/login"
 			login-processing-url="/perform_login" username-parameter="email"
 			password-parameter="password" default-target-url="/dashboard"
-			authentication-failure-url="/login?error"
+			authentication-failure-url="/login?error=true"
 			authentication-success-handler-ref="customAuthenticationSuccessHandler"
 			authentication-failure-handler-ref="customAuthenticationFailureHandler"
 			always-use-default-target="false" />

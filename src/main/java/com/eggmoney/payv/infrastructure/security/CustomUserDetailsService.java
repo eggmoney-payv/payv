@@ -14,6 +14,7 @@ import com.eggmoney.payv.domain.model.entity.User;
 import com.eggmoney.payv.domain.model.repository.UserRepository;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Spring Security UserDetailsService 구현체 DB에 ROLE 컬럼이 없으므로 모든 사용자에게 ROLE_USER
@@ -23,14 +24,24 @@ import lombok.RequiredArgsConstructor;
  */
 @Service
 @RequiredArgsConstructor
+@Slf4j // 추가
 public class CustomUserDetailsService implements UserDetailsService {
 
 	private final UserRepository userRepository;
 
 	@Override
 	public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-		User user = userRepository.findByEmail(email)
-				.orElseThrow(() -> new UsernameNotFoundException("사용자를 찾을 수 없습니다: " + email));
+
+		log.info("=== 사용자 인증 시도: email={} ===", email);
+
+		User user = userRepository.findByEmail(email).orElseThrow(() -> {
+			log.warn("사용자를 찾을 수 없음: {}", email);
+			return new UsernameNotFoundException("사용자를 찾을 수 없습니다: " + email);
+		});
+
+		log.info("DB에서 사용자 찾음: userId={}, email={}", user.getId(), user.getEmail());
+		log.info("DB 저장된 비밀번호 길이: {}", user.getPassword().length());
+		log.info("비밀번호가 $2a로 시작하는가? {}", user.getPassword().startsWith("$2a"));
 
 		List<GrantedAuthority> authorities = new ArrayList<>();
 		// DB에 role이 없으므로 모든 사용자에게 ROLE_USER 권한 부여
@@ -41,7 +52,12 @@ public class CustomUserDetailsService implements UserDetailsService {
 			authorities.add(new SimpleGrantedAuthority("ROLE_ADMIN"));
 		}
 
-		return new org.springframework.security.core.userdetails.User(user.getEmail(), // username으로 email 사용
-				user.getPassword(), authorities);
+		log.info("부여된 권한: {}", authorities);
+
+		org.springframework.security.core.userdetails.User springUser = new org.springframework.security.core.userdetails.User(
+				user.getEmail(), user.getPassword(), authorities);
+
+		log.info("Spring Security User 생성 완료");
+		return springUser;
 	}
 }

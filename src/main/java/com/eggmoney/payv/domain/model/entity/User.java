@@ -1,6 +1,6 @@
 package com.eggmoney.payv.domain.model.entity;
 
-import java.time.LocalDateTime;
+import java.sql.Timestamp;
 
 import com.eggmoney.payv.domain.model.vo.UserId;
 import com.eggmoney.payv.domain.model.vo.UserRole;
@@ -23,16 +23,16 @@ public class User {
 	private String name;
 	private String password; // 암호화된 비밀번호
 	private UserRole role; // DB에 저장되지 않음, 메모리상에서만 사용
-	private LocalDateTime createdAt;
+	private Timestamp createAt; // ⭐ 이미 Timestamp로 되어있음
 
 	@Builder
-	public User(UserId id, String email, String name, String password, UserRole role, LocalDateTime createdAt) {
+	public User(UserId id, String email, String name, String password, UserRole role, Timestamp createAt) {
 		this.id = id;
 		this.email = email;
 		this.name = name;
 		this.password = password;
 		this.role = role != null ? role : UserRole.USER; // null이면 기본값 USER
-		this.createdAt = createdAt;
+		this.createAt = createAt != null ? createAt : new Timestamp(System.currentTimeMillis()); // ⭐ null 체크 추가
 	}
 
 	// 가계부 생성.
@@ -53,7 +53,7 @@ public class User {
 		this.name = name != null ? name.trim() : null;
 		this.password = password;
 		this.role = role != null ? role : UserRole.USER; // 기본값 USER
-		this.createdAt = LocalDateTime.now();
+		this.createAt = new Timestamp(System.currentTimeMillis()); // ⭐ Timestamp로 수정
 	}
 
 	// 일반유저 회원가입 - DB에 ROLE이 없으므로 모두 USER로 생성

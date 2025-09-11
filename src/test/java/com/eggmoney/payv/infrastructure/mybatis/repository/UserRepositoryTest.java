@@ -257,12 +257,12 @@ public class UserRepositoryTest {
 		// then - 조회하여 CREATE_AT 컬럼이 정상적으로 매핑되는지 확인
 		Optional<User> foundUser = userRepository.findById(user.getId());
 		assertTrue("사용자가 조회되어야 함", foundUser.isPresent());
-		assertNotNull("CREATE_AT이 정상적으로 매핑되어야 함", foundUser.get().getCreatedAt());
+		assertNotNull("CREATE_AT이 정상적으로 매핑되어야 함", foundUser.get().getCreateAt());
 
 		// 이메일로 조회해도 시간 정보가 있어야 함
 		Optional<User> foundByEmail = userRepository.findByEmail(email);
 		assertTrue("이메일로 조회되어야 함", foundByEmail.isPresent());
-		assertNotNull("이메일 조회 시에도 CREATE_AT이 매핑되어야 함", foundByEmail.get().getCreatedAt());
+		assertNotNull("이메일 조회 시에도 CREATE_AT이 매핑되어야 함", foundByEmail.get().getCreateAt());
 	}
 
 	@Test

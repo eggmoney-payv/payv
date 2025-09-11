@@ -30,7 +30,7 @@ public class UserTest {
 		assertEquals(name, user.getName());
 		assertEquals(password, user.getPassword());
 		assertEquals(UserRole.USER, user.getRole());
-		assertNotNull(user.getCreatedAt());
+		assertNotNull(user.getCreateAt());
 
 		// 실제 User 클래스의 hasAuthorityOf 메서드에 맞춘 권한 확인
 		assertTrue("USER는 USER 권한을 가져야 함", user.hasAuthorityOf(UserRole.USER));

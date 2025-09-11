@@ -1,5 +1,6 @@
 package com.eggmoney.payv.infrastructure.mybatis.repository;
 
+import java.sql.Timestamp;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -100,7 +101,11 @@ public class MyBatisUserRepository implements UserRepository {
 	private User toDomain(UserRecord record) {
 		return User.builder().id(UserId.of(record.getUserId())).email(record.getEmail()).name(record.getName())
 				.password(record.getPassword()).role(UserRole.USER) // DB에 role이 없으므로 기본값 USER
-				.createdAt(record.getCreateAt()).build();
+				.createAt(
+						record.getCreateAt() != null ? record.getCreateAt() : new Timestamp(System.currentTimeMillis())) // ⭐
+																															// createAt으로
+																															// 수정
+				.build();
 	}
 
 	/**
@@ -108,6 +113,10 @@ public class MyBatisUserRepository implements UserRepository {
 	 */
 	private UserRecord toRecord(User user) {
 		return UserRecord.builder().userId(user.getId().value()).email(user.getEmail()).name(user.getName())
-				.password(user.getPassword()).createAt(user.getCreatedAt()).build();
+				.password(user.getPassword())
+				.createAt(user.getCreateAt() != null ? user.getCreateAt() : new Timestamp(System.currentTimeMillis())) // ⭐
+																														// createAt으로
+																														// 수정
+				.build();
 	}
 }

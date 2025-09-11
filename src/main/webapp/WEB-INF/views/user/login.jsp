@@ -44,23 +44,19 @@
 			<div class="alert alert-error">${expiredMessage}</div>
 		</c:if>
 
-		<!-- 로그인 폼 -->
+		<!-- ⭐ action을 Spring Security 처리 URL로 변경 -->
 		<form action="<c:url value='/perform_login'/>" method="post">
-			<div class="form-section">
-				<div class="input-group">
-					<label class="input-label" for="email">아이디</label> <input
-						type="email" id="email" name="email" class="input-field"
-						placeholder="이메일을 입력하세요" required>
-				</div>
-
-				<div class="input-group">
-					<label class="input-label" for="password">비밀번호</label> <input
-						type="password" id="password" name="password" class="input-field"
-						placeholder="비밀번호를 입력하세요" required>
-				</div>
-
-				<button type="submit" class="login-button">로그인</button>
+			<div class="input-group">
+				<label for="email">이메일</label> <input type="email" id="email"
+					name="email" required>
 			</div>
+
+			<div class="input-group">
+				<label for="password">비밀번호</label> <input type="password"
+					id="password" name="password" required>
+			</div>
+
+			<button type="submit" class="login-button">로그인</button>
 		</form>
 
 		<div class="signup-links">

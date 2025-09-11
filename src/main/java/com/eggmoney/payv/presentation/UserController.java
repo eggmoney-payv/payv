@@ -54,7 +54,7 @@ public class UserController {
 			@RequestParam(value = "expired", required = false) String expired,
 			@RequestParam(value = "signup", required = false) String signup, Model model) {
 
-		log.info("로그인 페이지 요청");
+		log.info("로그인 페이지 요청 - error: {}, logout: {}, expired: {}, signup: {}", error, logout, expired, signup);
 
 		if (error != null) {
 			model.addAttribute("errorMessage", "이메일 또는 비밀번호가 올바르지 않습니다.");
@@ -92,6 +92,7 @@ public class UserController {
 	public String signup(@Valid @ModelAttribute SignupForm signupForm, BindingResult bindingResult,
 			RedirectAttributes redirectAttributes, Model model) {
 
+		log.info("=== 회원가입 시작 ===");
 		log.info("회원가입 처리 요청: email={}, name={}", signupForm.getEmail(), signupForm.getName());
 
 		// 기본 유효성 검사 오류가 있으면 회원가입 페이지로 돌아감
@@ -102,18 +103,22 @@ public class UserController {
 
 		// 비밀번호 확인 검사
 		if (!signupForm.getPassword().equals(signupForm.getConfirmPassword())) {
+			log.warn("비밀번호 불일치");
 			bindingResult.rejectValue("confirmPassword", "signup.password.mismatch", "비밀번호가 일치하지 않습니다.");
 			return "user/signup";
 		}
 
 		try {
-			userAppService.register(signupForm.getEmail(), signupForm.getName(), signupForm.getPassword());
+			log.info("=== userAppService.register() 호출 전 ===");
+			User user = userAppService.register(signupForm.getEmail(), signupForm.getName(), signupForm.getPassword());
+			log.info("=== userAppService.register() 호출 후 - 생성된 사용자: {} ===", user.getId());
+
 			log.info("회원가입 성공: email={}", signupForm.getEmail());
 			redirectAttributes.addFlashAttribute("message", "회원가입이 완료되었습니다.");
 			return "redirect:/login?signup=success";
 
 		} catch (DomainException e) {
-			log.warn("회원가입 실패: {}", e.getMessage());
+			log.error("=== DomainException 발생: {} ===", e.getMessage(), e);
 
 			// 이메일 중복 등의 도메인 오류는 email 필드 오류로 처리
 			if (e.getMessage().contains("이메일")) {
@@ -124,12 +129,12 @@ public class UserController {
 			return "user/signup";
 
 		} catch (IllegalArgumentException e) {
-			log.warn("회원가입 입력값 오류: {}", e.getMessage());
+			log.error("=== IllegalArgumentException 발생: {} ===", e.getMessage(), e);
 			model.addAttribute("errorMessage", e.getMessage());
 			return "user/signup";
 
 		} catch (Exception e) {
-			log.error("회원가입 중 예상치 못한 오류 발생", e);
+			log.error("=== 예상치 못한 Exception 발생 ===", e);
 			model.addAttribute("errorMessage", "회원가입 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.");
 			return "user/signup";
 		}
