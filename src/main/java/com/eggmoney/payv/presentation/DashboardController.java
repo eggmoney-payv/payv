@@ -11,12 +11,14 @@ import com.eggmoney.payv.domain.model.entity.User;
 import com.eggmoney.payv.domain.model.vo.UserId;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
 
 /**
  * 대시보드 컨트롤러
  * 
  * @author 강기범
  */
+@Log4j2
 @Controller
 @RequiredArgsConstructor
 public class DashboardController {

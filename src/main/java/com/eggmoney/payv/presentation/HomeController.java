@@ -5,6 +5,7 @@ import java.security.Principal;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 
+import lombok.extern.log4j.Log4j2;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -14,11 +15,14 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Controller
 @Slf4j
+@Log4j2
 public class HomeController {
 
 	/**
 	 * 루트 경로 처리 로그인된 사용자는 대시보드로, 비로그인 사용자는 로그인 페이지로 리다이렉트
 	 */
+	
+	
 	@GetMapping("/")
 	public String home(Principal principal) {
 		log.info("홈페이지 요청: principal={}", principal != null ? principal.getName() : "비로그인");

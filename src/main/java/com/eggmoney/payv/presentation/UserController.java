@@ -27,6 +27,7 @@ import com.eggmoney.payv.presentation.form.SignupForm;
 import com.eggmoney.payv.presentation.form.UserProfileForm;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -36,6 +37,7 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Controller
 @Slf4j
+@Log4j2
 @RequiredArgsConstructor
 public class UserController {
 

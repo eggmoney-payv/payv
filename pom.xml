@@ -213,6 +213,21 @@
 			<artifactId>log4j-core</artifactId>
 			<version>${log4j2.version}</version>
 		</dependency>
+
+		<!-- SLF4J to Log4j2 Bridge -->
+		<dependency>
+			<groupId>org.apache.logging.log4j</groupId>
+			<artifactId>log4j-slf4j-impl</artifactId>
+			<version>${log4j2.version}</version>
+		</dependency>
+
+		<!-- Commons Logging to Log4j2 Bridge -->
+		<dependency>
+			<groupId>org.apache.logging.log4j</groupId>
+			<artifactId>log4j-jcl</artifactId>
+			<version>${log4j2.version}</version>
+		</dependency>
+
 		<!-- WAR/서블릿 컨테이너 수명주기 연동 -->
 		<dependency>
 			<groupId>org.apache.logging.log4j</groupId>

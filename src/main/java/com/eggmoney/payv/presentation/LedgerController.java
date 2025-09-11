@@ -1,27 +1,15 @@
 package com.eggmoney.payv.presentation;
 
-import java.util.List;
-
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.eggmoney.payv.application.service.LedgerAppService;
-import com.eggmoney.payv.domain.model.entity.Ledger;
-import com.eggmoney.payv.domain.model.vo.LedgerId;
-
 import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
 import lombok.extern.slf4j.Slf4j;
 
 @RestController
 @Slf4j
+@Log4j2
 @RequiredArgsConstructor
 @RequestMapping("/api/ledgers")
 public class LedgerController {
