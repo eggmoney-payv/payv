@@ -41,7 +41,7 @@ public class UserController {
 
 	private final UserAppService userAppService;
 
-	// ========== 기존 인증 관련 메서드들 ==========
+	// ========== 인증 관련 메서드들 ==========
 
 	/**
 	 * 로그인 페이지 표시
@@ -51,6 +51,8 @@ public class UserController {
 			@RequestParam(value = "logout", required = false) String logout,
 			@RequestParam(value = "expired", required = false) String expired,
 			@RequestParam(value = "signup", required = false) String signup, Model model) {
+
+		log.info("로그인 페이지 요청");
 
 		if (error != null) {
 			model.addAttribute("errorMessage", "이메일 또는 비밀번호가 올바르지 않습니다.");
@@ -68,7 +70,7 @@ public class UserController {
 			model.addAttribute("signupMessage", "회원가입이 완료되었습니다. 로그인해주세요.");
 		}
 
-		return "auth/login";
+		return "user/login"; // /WEB-INF/views/user/login.jsp
 	}
 
 	/**
@@ -76,8 +78,9 @@ public class UserController {
 	 */
 	@GetMapping("/signup")
 	public String signupForm(Model model) {
+		log.info("회원가입 페이지 요청");
 		model.addAttribute("signupForm", new SignupForm());
-		return "auth/signup";
+		return "user/signup"; // /WEB-INF/views/user/signup.jsp
 	}
 
 	/**
@@ -92,13 +95,13 @@ public class UserController {
 		// 유효성 검사 실패
 		if (bindingResult.hasErrors()) {
 			log.warn("회원가입 유효성 검사 실패: {}", bindingResult.getAllErrors());
-			return "auth/signup";
+			return "user/signup";
 		}
 
 		// 비밀번호 확인
 		if (!signupForm.getPassword().equals(signupForm.getConfirmPassword())) {
 			bindingResult.rejectValue("confirmPassword", "password.mismatch", "비밀번호가 일치하지 않습니다.");
-			return "auth/signup";
+			return "user/signup";
 		}
 
 		try {
@@ -117,12 +120,12 @@ public class UserController {
 			} else {
 				bindingResult.reject("signup.failed", e.getMessage());
 			}
-			return "auth/signup";
+			return "user/signup";
 
 		} catch (IllegalArgumentException e) {
 			log.warn("회원가입 입력 오류: {}", e.getMessage());
 			bindingResult.reject("validation.failed", e.getMessage());
-			return "auth/signup";
+			return "user/signup";
 		}
 	}
 
@@ -131,6 +134,7 @@ public class UserController {
 	 */
 	@GetMapping("/logout")
 	public String logout(HttpServletRequest request, HttpServletResponse response) {
+		log.info("로그아웃 요청");
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 		if (auth != null) {
 			new SecurityContextLogoutHandler().logout(request, response, auth);
@@ -138,7 +142,7 @@ public class UserController {
 		return "redirect:/login?logout";
 	}
 
-	// ========== 추가된 마이페이지 관련 메서드들 ==========
+	// ========== 마이페이지 관련 메서드들 ==========
 
 	/**
 	 * 마이페이지 표시
@@ -161,7 +165,7 @@ public class UserController {
 		model.addAttribute("pageTitle", "마이페이지");
 		model.addAttribute("contentPage", "/WEB-INF/views/user/profile.jsp");
 
-		return "common/layout";
+		return "common/layout"; // 공통 레이아웃 사용
 	}
 
 	/**
@@ -223,7 +227,7 @@ public class UserController {
 	/**
 	 * 비밀번호 변경 처리
 	 */
-	@PostMapping("/user/change-password")
+	@PostMapping("/user/password")
 	public String changePassword(@Valid @ModelAttribute ChangePasswordForm passwordForm,
 			BindingResult passwordBindingResult, Principal principal, Model model,
 			RedirectAttributes redirectAttributes) {

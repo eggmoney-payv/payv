@@ -37,9 +37,9 @@ import com.eggmoney.payv.domain.shared.error.DomainException;
 import com.eggmoney.payv.domain.shared.util.EntityIdentifier;
 
 /**
- * UserController 단위 테스트
+ * UserController 단위 테스트 - auth 폴더 제거, user 폴더로 통일
  * 
- * @author 팀원명
+ * @author 정의탁, 강기범
  */
 @RunWith(MockitoJUnitRunner.class)
 public class UserControllerTest {
@@ -58,25 +58,19 @@ public class UserControllerTest {
 	@Before
 	public void setUp() {
 		userController = new UserController(userAppService);
-		
+
 		// EL 의존성 없이 작동하는 Validator 설정
 		LocalValidatorFactoryBean validator = new LocalValidatorFactoryBean();
 		validator.setMessageInterpolator(new ParameterMessageInterpolator());
 		validator.afterPropertiesSet();
-		
+
 		// MockMvc에 validator 추가
-		mockMvc = MockMvcBuilders.standaloneSetup(userController)
-				.setValidator(validator)
-				.build();
+		mockMvc = MockMvcBuilders.standaloneSetup(userController).setValidator(validator).build();
 
 		// 테스트용 사용자 생성
 		userId = UserId.of(EntityIdentifier.generateUuid());
-		mockUser = User.builder()
-				.id(userId)
-				.email("test@example.com")
-				.name("테스트사용자")
-				.password("encoded_password")
-				.role(UserRole.USER)
+		mockUser = User.builder().id(userId).email("test@example.com").name("테스트사용자").password("encoded_password")
+				.role(UserRole.PREMIUM) // USER → STANDARD로 변경 (도메인 모델에 맞춤)
 				.build();
 
 		// Principal Mock 설정
@@ -88,26 +82,21 @@ public class UserControllerTest {
 	@Test
 	public void 회원가입_페이지_요청_테스트() throws Exception {
 		// when & then
-		mockMvc.perform(get("/signup"))
-				.andExpect(status().isOk())
-				.andExpect(view().name("auth/signup"))
+		mockMvc.perform(get("/signup")).andExpect(status().isOk()).andExpect(view().name("user/signup")) // auth/signup
+																											// →
+																											// user/signup
 				.andExpect(model().attributeExists("signupForm"));
 	}
 
 	@Test
 	public void 회원가입_성공_테스트() throws Exception {
 		// given
-		when(userAppService.register("test@example.com", "테스트사용자", "password123"))
-				.thenReturn(mockUser);
+		when(userAppService.register("test@example.com", "테스트사용자", "password123")).thenReturn(mockUser);
 
 		// when & then
-		mockMvc.perform(post("/signup")
-				.param("email", "test@example.com")
-				.param("name", "테스트사용자")
-				.param("password", "password123")
-				.param("confirmPassword", "password123"))
-				.andExpect(status().is3xxRedirection())
-				.andExpect(redirectedUrl("/login?signup=success"))
+		mockMvc.perform(post("/signup").param("email", "test@example.com").param("name", "테스트사용자")
+				.param("password", "password123").param("confirmPassword", "password123"))
+				.andExpect(status().is3xxRedirection()).andExpect(redirectedUrl("/login?signup=success"))
 				.andExpect(flash().attributeExists("message"));
 
 		verify(userAppService, times(1)).register("test@example.com", "테스트사용자", "password123");
@@ -116,13 +105,11 @@ public class UserControllerTest {
 	@Test
 	public void 회원가입_검증_실패_테스트() throws Exception {
 		// when & then
-		mockMvc.perform(post("/signup")
-				.param("email", "invalid-email") // 잘못된 이메일
+		mockMvc.perform(post("/signup").param("email", "invalid-email") // 잘못된 이메일
 				.param("name", "") // 빈 이름
 				.param("password", "123") // 짧은 비밀번호
 				.param("confirmPassword", "456")) // 비밀번호 불일치
-				.andExpect(status().isOk())
-				.andExpect(view().name("auth/signup"))
+				.andExpect(status().isOk()).andExpect(view().name("user/signup")) // auth/signup → user/signup
 				.andExpect(model().hasErrors());
 
 		verify(userAppService, never()).register(anyString(), anyString(), anyString());
@@ -131,13 +118,9 @@ public class UserControllerTest {
 	@Test
 	public void 회원가입_비밀번호_불일치_테스트() throws Exception {
 		// when & then
-		mockMvc.perform(post("/signup")
-				.param("email", "test@example.com")
-				.param("name", "사용자")
-				.param("password", "password123")
-				.param("confirmPassword", "different123"))
-				.andExpect(status().isOk())
-				.andExpect(view().name("auth/signup"))
+		mockMvc.perform(post("/signup").param("email", "test@example.com").param("name", "사용자")
+				.param("password", "password123").param("confirmPassword", "different123")).andExpect(status().isOk())
+				.andExpect(view().name("user/signup")) // auth/signup → user/signup
 				.andExpect(model().attributeHasFieldErrors("signupForm", "confirmPassword"));
 
 		verify(userAppService, never()).register(anyString(), anyString(), anyString());
@@ -150,13 +133,9 @@ public class UserControllerTest {
 				.thenThrow(new DomainException("이미 사용중인 이메일입니다"));
 
 		// when & then
-		mockMvc.perform(post("/signup")
-				.param("email", "duplicate@example.com")
-				.param("name", "사용자")
-				.param("password", "password123")
-				.param("confirmPassword", "password123"))
-				.andExpect(status().isOk())
-				.andExpect(view().name("auth/signup"))
+		mockMvc.perform(post("/signup").param("email", "duplicate@example.com").param("name", "사용자")
+				.param("password", "password123").param("confirmPassword", "password123")).andExpect(status().isOk())
+				.andExpect(view().name("user/signup")) // auth/signup → user/signup
 				.andExpect(model().attributeHasFieldErrors("signupForm", "email"));
 	}
 
@@ -165,35 +144,31 @@ public class UserControllerTest {
 	@Test
 	public void 로그인_페이지_요청_테스트() throws Exception {
 		// when & then
-		mockMvc.perform(get("/login"))
-				.andExpect(status().isOk())
-				.andExpect(view().name("auth/login"));
+		mockMvc.perform(get("/login")).andExpect(status().isOk()).andExpect(view().name("user/login")); // auth/login →
+																										// user/login
 	}
 
 	@Test
 	public void 로그인_페이지_회원가입_성공_메시지_테스트() throws Exception {
 		// when & then
-		mockMvc.perform(get("/login").param("signup", "success"))
-				.andExpect(status().isOk())
-				.andExpect(view().name("auth/login"))
+		mockMvc.perform(get("/login").param("signup", "success")).andExpect(status().isOk())
+				.andExpect(view().name("user/login")) // auth/login → user/login
 				.andExpect(model().attributeExists("signupMessage"));
 	}
 
 	@Test
 	public void 로그인_페이지_에러_메시지_테스트() throws Exception {
 		// when & then
-		mockMvc.perform(get("/login").param("error", "true"))
-				.andExpect(status().isOk())
-				.andExpect(view().name("auth/login"))
+		mockMvc.perform(get("/login").param("error", "true")).andExpect(status().isOk())
+				.andExpect(view().name("user/login")) // auth/login → user/login
 				.andExpect(model().attributeExists("errorMessage"));
 	}
 
 	@Test
 	public void 로그인_페이지_로그아웃_메시지_테스트() throws Exception {
 		// when & then
-		mockMvc.perform(get("/login").param("logout", "true"))
-				.andExpect(status().isOk())
-				.andExpect(view().name("auth/login"))
+		mockMvc.perform(get("/login").param("logout", "true")).andExpect(status().isOk())
+				.andExpect(view().name("user/login")) // auth/login → user/login
 				.andExpect(model().attributeExists("logoutMessage"));
 	}
 
@@ -205,13 +180,10 @@ public class UserControllerTest {
 		when(userAppService.findByIdOrThrow(userId)).thenReturn(mockUser);
 
 		// when & then
-		mockMvc.perform(get("/user/profile").principal(principal))
-				.andExpect(status().isOk())
-				.andExpect(view().name("common/layout"))
-				.andExpect(model().attribute("pageTitle", "마이페이지"))
+		mockMvc.perform(get("/user/profile").principal(principal)).andExpect(status().isOk())
+				.andExpect(view().name("common/layout")).andExpect(model().attribute("pageTitle", "마이페이지"))
 				.andExpect(model().attribute("contentPage", "/WEB-INF/views/user/profile.jsp"))
-				.andExpect(model().attributeExists("user"))
-				.andExpect(model().attributeExists("profileForm"))
+				.andExpect(model().attributeExists("user")).andExpect(model().attributeExists("profileForm"))
 				.andExpect(model().attributeExists("passwordForm"));
 
 		verify(userAppService, times(1)).findByIdOrThrow(userId);
@@ -227,11 +199,9 @@ public class UserControllerTest {
 		when(userAppService.changeEmail(userId, "new@example.com")).thenReturn(mockUser);
 
 		// when & then
-		mockMvc.perform(post("/user/profile").principal(principal)
-				.param("email", "new@example.com")
-				.param("name", "새이름"))
-				.andExpect(status().is3xxRedirection())
-				.andExpect(redirectedUrl("/user/profile"))
+		mockMvc.perform(
+				post("/user/profile").principal(principal).param("email", "new@example.com").param("name", "새이름"))
+				.andExpect(status().is3xxRedirection()).andExpect(redirectedUrl("/user/profile"))
 				.andExpect(flash().attributeExists("message"));
 
 		verify(userAppService, times(1)).changeName(userId, "새이름");
@@ -244,18 +214,14 @@ public class UserControllerTest {
 		when(userAppService.findByIdOrThrow(userId)).thenReturn(mockUser);
 
 		// when
-		MvcResult result = mockMvc.perform(post("/user/profile").principal(principal)
-				.param("email", "invalid-email")
-				.param("name", ""))
-				.andExpect(status().isOk())
-				.andExpect(view().name("common/layout"))
-				.andReturn();
+		MvcResult result = mockMvc
+				.perform(post("/user/profile").principal(principal).param("email", "invalid-email").param("name", ""))
+				.andExpect(status().isOk()).andExpect(view().name("common/layout")).andReturn();
 
 		// then
 		BindingResult profileBr = (BindingResult) result.getModelAndView().getModelMap()
 				.get("org.springframework.validation.BindingResult.profileForm");
-		assertTrue("프로필 폼 검증 실패 시 BindingResult에 에러가 있어야 한다 → 테스트 성공", 
-				profileBr != null && profileBr.hasErrors());
+		assertTrue("프로필 폼 검증 실패 시 BindingResult에 에러가 있어야 한다 → 테스트 성공", profileBr != null && profileBr.hasErrors());
 
 		verify(userAppService, never()).changeName(any(UserId.class), anyString());
 		verify(userAppService, never()).changeEmail(any(UserId.class), anyString());
@@ -269,11 +235,8 @@ public class UserControllerTest {
 		// 동일한 이메일이므로 changeEmail 호출되지 않음
 
 		// when & then
-		mockMvc.perform(post("/user/profile").principal(principal)
-				.param("email", "test@example.com") // 기존과 동일한 이메일
-				.param("name", "새이름"))
-				.andExpect(status().is3xxRedirection())
-				.andExpect(redirectedUrl("/user/profile"));
+		mockMvc.perform(post("/user/profile").principal(principal).param("email", "test@example.com") // 기존과 동일한 이메일
+				.param("name", "새이름")).andExpect(status().is3xxRedirection()).andExpect(redirectedUrl("/user/profile"));
 
 		verify(userAppService, times(1)).changeName(userId, "새이름");
 		verify(userAppService, never()).changeEmail(any(UserId.class), anyString());
@@ -287,12 +250,10 @@ public class UserControllerTest {
 				.thenThrow(new DomainException("이미 사용중인 이메일입니다"));
 
 		// when
-		MvcResult result = mockMvc.perform(post("/user/profile").principal(principal)
-				.param("email", "duplicate@example.com")
-				.param("name", "새이름"))
-				.andExpect(status().isOk())
-				.andExpect(view().name("common/layout"))
-				.andReturn();
+		MvcResult result = mockMvc
+				.perform(post("/user/profile").principal(principal).param("email", "duplicate@example.com")
+						.param("name", "새이름"))
+				.andExpect(status().isOk()).andExpect(view().name("common/layout")).andReturn();
 
 		// then
 		BindingResult profileBr = (BindingResult) result.getModelAndView().getModelMap()
@@ -310,12 +271,10 @@ public class UserControllerTest {
 		when(userAppService.changePassword(userId, "currentPassword", "newPassword123")).thenReturn(mockUser);
 
 		// when & then
-		mockMvc.perform(post("/user/change-password").principal(principal)
-				.param("currentPassword", "currentPassword")
-				.param("newPassword", "newPassword123")
-				.param("confirmPassword", "newPassword123"))
-				.andExpect(status().is3xxRedirection())
-				.andExpect(redirectedUrl("/user/profile"))
+		mockMvc.perform(post("/user/password").principal(principal) // change-password → password
+				.param("currentPassword", "currentPassword").param("newPassword", "newPassword123")
+				.param("confirmPassword", "newPassword123")) // confirmNewPassword → confirmPassword
+				.andExpect(status().is3xxRedirection()).andExpect(redirectedUrl("/user/profile"))
 				.andExpect(flash().attributeExists("message"));
 
 		verify(userAppService, times(1)).changePassword(userId, "currentPassword", "newPassword123");
@@ -327,13 +286,10 @@ public class UserControllerTest {
 		when(userAppService.findByIdOrThrow(userId)).thenReturn(mockUser);
 
 		// when
-		MvcResult result = mockMvc.perform(post("/user/change-password").principal(principal)
-				.param("currentPassword", "currentPassword")
-				.param("newPassword", "newPassword123")
-				.param("confirmPassword", "differentPassword"))
-				.andExpect(status().isOk())
-				.andExpect(view().name("common/layout"))
-				.andReturn();
+		MvcResult result = mockMvc.perform(post("/user/password").principal(principal) // change-password → password
+				.param("currentPassword", "currentPassword").param("newPassword", "newPassword123")
+				.param("confirmPassword", "differentPassword")) // confirmNewPassword → confirmPassword
+				.andExpect(status().isOk()).andExpect(view().name("common/layout")).andReturn();
 
 		// then
 		BindingResult pwBr = (BindingResult) result.getModelAndView().getModelMap()
@@ -352,13 +308,10 @@ public class UserControllerTest {
 				.thenThrow(new DomainException("현재 비밀번호가 일치하지 않습니다"));
 
 		// when
-		MvcResult result = mockMvc.perform(post("/user/change-password").principal(principal)
-				.param("currentPassword", "wrongPassword")
-				.param("newPassword", "newPassword123")
-				.param("confirmPassword", "newPassword123"))
-				.andExpect(status().isOk())
-				.andExpect(view().name("common/layout"))
-				.andReturn();
+		MvcResult result = mockMvc.perform(post("/user/password").principal(principal) // change-password → password
+				.param("currentPassword", "wrongPassword").param("newPassword", "newPassword123")
+				.param("confirmPassword", "newPassword123")) // confirmNewPassword → confirmPassword
+				.andExpect(status().isOk()).andExpect(view().name("common/layout")).andReturn();
 
 		// then
 		BindingResult pwBr = (BindingResult) result.getModelAndView().getModelMap()
@@ -373,19 +326,16 @@ public class UserControllerTest {
 		when(userAppService.findByIdOrThrow(userId)).thenReturn(mockUser);
 
 		// when
-		MvcResult result = mockMvc.perform(post("/user/change-password").principal(principal)
+		MvcResult result = mockMvc.perform(post("/user/password").principal(principal) // change-password → password
 				.param("currentPassword", "") // 빈 현재 비밀번호
 				.param("newPassword", "123") // 짧은 새 비밀번호
-				.param("confirmPassword", "123"))
-				.andExpect(status().isOk())
-				.andExpect(view().name("common/layout"))
-				.andReturn();
+				.param("confirmPassword", "123")) // confirmNewPassword → confirmPassword
+				.andExpect(status().isOk()).andExpect(view().name("common/layout")).andReturn();
 
 		// then
 		BindingResult pwBr = (BindingResult) result.getModelAndView().getModelMap()
 				.get("org.springframework.validation.BindingResult.passwordForm");
-		assertTrue("비밀번호 검증 실패 시 passwordForm에 에러가 있어야 한다 → 테스트 성공",
-				pwBr != null && pwBr.hasErrors());
+		assertTrue("비밀번호 검증 실패 시 passwordForm에 에러가 있어야 한다 → 테스트 성공", pwBr != null && pwBr.hasErrors());
 
 		verify(userAppService, never()).changePassword(any(UserId.class), anyString(), anyString());
 	}
