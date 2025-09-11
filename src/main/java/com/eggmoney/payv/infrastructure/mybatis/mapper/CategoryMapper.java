@@ -16,6 +16,10 @@ public interface CategoryMapper {
     CategoryRecord selectByLedgerAndName(@Param("ledgerId") String ledgerId, @Param("name") String name);
     
     List<CategoryRecord> selectListByLedger(@Param("ledgerId") String ledgerId);
+    List<CategoryRecord> selectRootCategoryListByLedger(@Param("ledgerId") String ledgerId);
+    List<CategoryRecord> selectSubCategoryListByLedgerAndParentCategory(@Param("ledgerId") String ledgerId,
+    													   				@Param("parentId") String parentId);
+    
 
     int insert(CategoryRecord rec);
     int update(CategoryRecord rec);

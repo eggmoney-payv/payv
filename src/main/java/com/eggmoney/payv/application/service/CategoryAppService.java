@@ -89,12 +89,6 @@ public class CategoryAppService {
     	categoryRepository.delete(ledgerId, categoryId);
     }
     
-    // 특정 가계부 내의 카테고리 목록 조회.
-    @Transactional(readOnly = true)
-    public List<Category> listByLedger(LedgerId ledgerId) {
-    	return categoryRepository.findListByLedger(ledgerId);
-    }
-    
     // 카테고리 상세 조회.
     @Transactional
 	public Category getDetails(CategoryId categoryId) {
@@ -102,7 +96,25 @@ public class CategoryAppService {
                 .orElseThrow(() -> new DomainException("category not found"));
     }
     
-    // ----
+    // 특정 가계부 내의 모든 카테고리 목록 조회.
+    @Transactional(readOnly = true)
+    public List<Category> listByLedger(LedgerId ledgerId) {
+    	return categoryRepository.findListByLedger(ledgerId);
+    }
+    
+    // 특정 가계부 내의 루트 카테고리 목록 조회.
+    @Transactional(readOnly = true)
+    public List<Category> rootCategoryListByLedger(LedgerId ledgerId) {
+    	return categoryRepository.findRootCategoryListByLedger(ledgerId);
+    }
+    
+    // 특정 카테고리의 하위 카테고리 목록 조회.
+    @Transactional(readOnly = true)
+    public List<Category> subCategoryListByLedgerAndParentCategory(LedgerId ledgerId, CategoryId parentId) {
+    	return categoryRepository.findSubCategoryListByLedgerAndParentCategory(ledgerId, parentId);
+    }
+    
+    // ---- 내부 유틸 ----
     private void ensureUniqueName(LedgerId ledgerId, String name) {
     	categoryRepository.findByLedgerAndName(ledgerId, name.trim()).ifPresent(x -> {
             throw new DomainException("동일한 카테고리 이름이 이미 존재합니다.");

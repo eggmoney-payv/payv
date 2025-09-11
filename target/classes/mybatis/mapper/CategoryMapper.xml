@@ -63,6 +63,44 @@
 		ORDER BY 
 			SORT_ORDER ASC, NAME ASC
 	</select>
+	
+	<select id="selectRootCategoryListByLedger" resultMap="CategoryMap">
+		SELECT 
+			CATEGORY_ID, 
+			LEDGER_ID, 
+			NAME, 
+			IS_SYSTEM_CATEGORY, 
+			PARENT_ID, 
+			SORT_ORDER, 
+			IS_DELETED
+		FROM 
+			CATEGORY
+		WHERE 
+			LEDGER_ID = #{ledgerId} AND 
+			PARENT_ID IS NULL AND
+			IS_DELETED = 'N'
+		ORDER BY 
+			SORT_ORDER ASC, NAME ASC
+	</select>
+	
+	<select id="selectSubCategoryListByLedgerAndParentCategory" resultMap="CategoryMap">
+		SELECT 
+			CATEGORY_ID, 
+			LEDGER_ID, 
+			NAME, 
+			IS_SYSTEM_CATEGORY, 
+			PARENT_ID, 
+			SORT_ORDER, 
+			IS_DELETED
+		FROM 
+			CATEGORY
+		WHERE 
+			LEDGER_ID = #{ledgerId} AND 
+			PARENT_ID = #{parentId} AND
+			IS_DELETED = 'N'
+		ORDER BY 
+			SORT_ORDER ASC, NAME ASC
+	</select>
 
 	<insert id="insert" parameterType="com.eggmoney.payv.infrastructure.mybatis.record.CategoryRecord">
 		INSERT INTO CATEGORY (

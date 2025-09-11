@@ -45,7 +45,6 @@ import lombok.RequiredArgsConstructor;
 
 /**
  * 거래 내역 컨트롤러
- * 
  * @author 정의탁
  */
 @Controller
@@ -108,12 +107,11 @@ public class TransactionController {
 	public String newForm(@PathVariable String ledgerId, Model model) {
 		LedgerId lId = LedgerId.of(ledgerId);
 		List<Account> accounts = accountAppService.listByLedger(lId);
-		List<Category> categories = categoryAppService.listByLedger(lId);
-		List<CategoryOptionDto> categoryOptions = toCategoryOptions(categories);
+		List<Category> rootCategories = categoryAppService.rootCategoryListByLedger(lId);
 
 		model.addAttribute("ledgerId", ledgerId);
 		model.addAttribute("accounts", accounts);
-		model.addAttribute("categoryOptions", categoryOptions);
+		model.addAttribute("rootCategories", rootCategories);
 		model.addAttribute("form", defaultCreateForm());
 		return "transactions/new";
 	}
@@ -159,23 +157,58 @@ public class TransactionController {
 	// ===== 수정 폼 =====
 	@GetMapping("/{txnId}/edit")
 	public String editForm(@PathVariable String ledgerId, @PathVariable String txnId, Model model) {
-		Transaction t = transactionAppService.getDetails(TransactionId.of(txnId));
+		// 거래 상세
+	    Transaction t = transactionAppService.getDetails(TransactionId.of(txnId));
 
-		LedgerId lId = LedgerId.of(ledgerId);
-		List<Account> accounts = accountAppService.listByLedger(lId);
-		List<Category> categories = categoryAppService.listByLedger(lId);
-		List<CategoryOptionDto> categoryOptions = toCategoryOptions(categories);
+	    LedgerId lId = LedgerId.of(ledgerId);
+	    List<Account> accounts = accountAppService.listByLedger(lId);
+	    List<Category> allCategoryList  = categoryAppService.listByLedger(lId);
 
-		TransactionUpdateDto form = new TransactionUpdateDto(t.getAccountId().toString(), t.getCategoryId().toString(),
-				t.getDate().toString(), t.getType().name(), String.valueOf(t.getAmount().toLong()), // Money → long
-				t.getMemo());
+	    // 1) 루트 카테고리 목록.
+	    Comparator<Category> cmp = Comparator
+	        .comparingInt(Category::getSortOrder)
+	        .thenComparing(Category::getName, String.CASE_INSENSITIVE_ORDER);
 
-		model.addAttribute("ledgerId", ledgerId);
-		model.addAttribute("transaction", t);
-		model.addAttribute("accounts", accounts);
-		model.addAttribute("categoryOptions", categoryOptions);
-		model.addAttribute("form", form);
-		return "transactions/edit";
+	    List<Category> rootCategories = allCategoryList.stream()
+	        .filter(c -> c.getParentId() == null)
+	        .sorted(cmp)
+	        .collect(Collectors.toList());
+
+	    // 2) 현재 거래의 카테고리로부터 (루트/하위) 결정.
+	    Category current = allCategoryList.stream()
+	        .filter(c -> c.getId().equals(t.getCategoryId()))
+	        .findFirst().orElse(null);
+
+	    String selectedRootId = "";
+	    String selectedChildId = "";
+	    if (current != null) {
+	        if (current.getParentId() == null) {
+	            selectedRootId = current.getId().toString();
+	        } else {
+	            selectedRootId = current.getParentId().toString();
+	            selectedChildId = current.getId().toString();
+	        }
+	    }
+
+	    // 3) 폼 DTO (hidden categoryId로 최종 전송)
+	    TransactionUpdateDto form = new TransactionUpdateDto(
+	        t.getAccountId().toString(),
+	        t.getCategoryId().toString(),
+	        t.getDate().toString(),
+	        t.getType().name(),
+	        String.valueOf(t.getAmount().toLong()), // Money → long (네 도메인에 맞춤)
+	        t.getMemo()
+	    );
+
+	    model.addAttribute("ledgerId", ledgerId);
+	    model.addAttribute("transaction", t);
+	    model.addAttribute("accounts", accounts);
+	    model.addAttribute("rootCategories", rootCategories);
+	    model.addAttribute("selectedRootId", selectedRootId);
+	    model.addAttribute("selectedChildId", selectedChildId);
+	    model.addAttribute("form", form);
+
+	    return "transactions/edit";
 	}
 
 	// ===== 수정 처리 =====

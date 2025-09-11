@@ -26,7 +26,7 @@ public class LedgerController {
 	
 	private final LedgerAppService ledgerAppService;
 	
-	private final UserId testUserId = UserId.of("27115898-3e6f-4a7e-9baa-87605398b5b9");
+	private final UserId testUserId = UserId.of("fb8ce380-49a6-479e-9b43-9fe74ef83486");
 	
 	@GetMapping
     public String list(Model model) {

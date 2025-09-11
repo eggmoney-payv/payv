@@ -41,6 +41,22 @@ public class MyBatisCategoryRepository implements CategoryRepository {
                 .map(this::toDomain)
                 .collect(Collectors.toList());
     }
+    
+    @Override
+    public List<Category> findRootCategoryListByLedger(LedgerId ledgerId) {
+    	return mapper.selectRootCategoryListByLedger(ledgerId.value())
+    			.stream()
+                .map(this::toDomain)
+                .collect(Collectors.toList());
+    }
+    
+    @Override
+    public List<Category> findSubCategoryListByLedgerAndParentCategory(LedgerId ledgerId, CategoryId parentId) {
+    	return mapper.selectSubCategoryListByLedgerAndParentCategory(ledgerId.value(), parentId.value())
+    			.stream()
+                .map(this::toDomain)
+                .collect(Collectors.toList());
+    }
 
     @Override
     public void save(Category category) {
