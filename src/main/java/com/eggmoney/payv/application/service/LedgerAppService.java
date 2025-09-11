@@ -71,4 +71,12 @@ public class LedgerAppService {
     public List<Ledger> listByOwner(UserId onwerId) {
         return ledgerRepository.findListByOwner(onwerId);
     }
+    
+    //(jw)
+    @Transactional(readOnly = true)
+    public Ledger getLedger(LedgerId ledgerId) {
+        return ledgerRepository.findById(ledgerId)
+                .orElseThrow(() -> new DomainException("ledger not found"));
+    }
+
 }

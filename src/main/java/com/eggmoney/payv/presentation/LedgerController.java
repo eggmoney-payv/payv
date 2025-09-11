@@ -40,11 +40,13 @@ public class LedgerController {
 
 		// 첫 번째 가계부를 현재 선택된 가계부로 설정 (여기서는 예시로 첫 번째 가계부를 사용)
 		if (!ledgers.isEmpty()) {
-			model.addAttribute("currentAccountName", ledgers.get(0).getName());
-		}
+	        Ledger first = ledgers.get(0);
+	        model.addAttribute("currentLedgerId", first.getId().toString());   // ✅ 추가
+	        model.addAttribute("currentAccountName", first.getName());
+	    }
 		// 가계부 목록을 모델에 추가
 		model.addAttribute("ledgers", ledgers);
-		// (jw)
+		// (/jw)
 		// TODO: 애플리케이션 서비스에 조회 기능이 없다면 Query용 리더(Mapper) 추가 권장
 		model.addAttribute("ledgers", ledgerAppService.listByOwner(testUserId));
 		return "ledgers/list";

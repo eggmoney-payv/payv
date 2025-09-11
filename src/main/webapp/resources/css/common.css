@@ -46,15 +46,14 @@ aside {
   border-right: 2px solid #967E76;
   padding: 20px;
   box-sizing: border-box;
-  transform: translateX(-100%);
+  transform: translateX(0);   /* ✅ 기본을 펼침 */
   transition: transform 0.3s ease;
   overflow-y: auto;
   z-index: 1000;
 }
 
-
-aside.show {
-  transform: translateX(0);
+aside.hide {
+  transform: translateX(-100%);  /* hide 붙으면 접힘 */
 }
 
 /* 선택한 가계부 표시 */
@@ -65,6 +64,16 @@ aside.show {
   font-size: 22px;
   font-weight: 600;
 }
+
+.disabled {
+  display: block;
+  padding: 10px 18px;
+  color: #aaa;
+  font-size: 18px;
+  cursor: not-allowed;
+  user-select: none;
+}
+
 
 .account-link {
   color: #1E1E1E;
@@ -135,16 +144,17 @@ aside nav ul li.active > a {
 /* 페이지마다 바뀌는 메인 영역 */
 main {
   margin-top: 100px; 
-  margin-left: 20px; 
+  margin-left: 400px; 
   margin-right: 20px; 
   padding: 20px;
+  
   transition: margin-left 0.3s ease;
   box-sizing: border-box;
   max-width: calc(100% - 420px); /* 380px(aside) + 20px*2(좌우마진) */
 }
 
-main.shifted {
-  margin-left: 380px; /* aside와 동일하게 */
+main.shrink  {
+  margin-left: 20px; /* aside와 동일하게 */
 }
 /* aside {
   position: fixed;

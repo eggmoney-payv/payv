@@ -18,8 +18,10 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.eggmoney.payv.application.service.AccountAppService;
+import com.eggmoney.payv.application.service.LedgerAppService;
 import com.eggmoney.payv.domain.model.entity.Account;
 import com.eggmoney.payv.domain.model.entity.AccountType;
+import com.eggmoney.payv.domain.model.entity.Ledger;
 import com.eggmoney.payv.domain.model.vo.AccountId;
 import com.eggmoney.payv.domain.model.vo.LedgerId;
 import com.eggmoney.payv.domain.model.vo.Money;
@@ -40,7 +42,8 @@ import lombok.RequiredArgsConstructor;
 public class AccountController {
 
 	private final AccountAppService accountAppService;
-
+//	private final LedgerAppService ledgerAppService;
+	
     // 공통: enum 목록을 모델에 노출 (폼에서 사용)
     @ModelAttribute("accountTypes")
     public AccountType[] accountTypes() {
@@ -63,6 +66,21 @@ public class AccountController {
 
         model.addAttribute("ledgerId", ledgerId);
         model.addAttribute("accounts", items);
+        
+        // (jw)
+        
+//        Ledger ledger = ledgerAppService.findById(LedgerId.of(ledgerId));
+        model.addAttribute("currentPage", "ledgers"); // 현재 페이지 정보를 모델에 전달(aside에 호버된 상태 표시하기 위함)
+//        model.addAttribute("currentLedgerId", ledgerId);
+////        model.addAttribute("currentAccountName", );
+//        
+//        // aside에 표시할 데이터
+//        Ledger ledger = ledgerAppService.getLedger(lId); // ledgerService에서 조회
+//        model.addAttribute("currentLedgerId", ledgerId);
+//        model.addAttribute("currentAccountName", ledger.getName());
+//        
+//        // (jw)
+//       
         return "accounts/list";
     }
 
