@@ -18,7 +18,7 @@
 <aside>
 	<!-- <div class="account-title">가계부1</div> -->
 	<div class="account-title">
-		<a href="/account-select" class="account-link">${currentAccountName}</a>
+		<a href="ledgers" class="account-link">${currentAccountName}</a>
 	</div>
 	<hr class="aside-divider">
 	<nav>
