@@ -18,7 +18,7 @@
 	gap: 6px;
 }
 
-/* combobox엔 적용 안되는 듯 (확인해보기) */
+/* combobox */
 .search-form select {
 	padding: 6px 10px;
 	border: 1px solid #967E76;

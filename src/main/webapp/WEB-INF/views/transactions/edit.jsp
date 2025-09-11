@@ -16,7 +16,7 @@
 		data-selected-root-id="${selectedRootId}"
 		data-selected-child-id="${selectedChildId}">
 	
-	<div class="container" style="padding: 16px;">
+	<div class="container">
 		<h2>거래 내역 수정</h2>
 
 		<c:if test="${not empty error}">

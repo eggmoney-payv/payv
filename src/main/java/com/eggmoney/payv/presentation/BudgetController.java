@@ -83,6 +83,7 @@ public class BudgetController {
 		model.addAttribute("ledgerId", ledgerId);
 		model.addAttribute("month", ym.toString());
 		model.addAttribute("budgets", items);
+		model.addAttribute("currentPage", "budgets"); // 현재 페이지 정보를 모델에 전달(aside에 호버된 상태 표시하기 위함)
 
 		return "budgets/list";
 	}
@@ -113,6 +114,7 @@ public class BudgetController {
 		form.setMonth(ym.toString());
 		form.setLimit("0");
 		model.addAttribute("form", form);
+		model.addAttribute("currentPage", "budgets"); // 현재 페이지 정보를 모델에 전달(aside에 호버된 상태 표시하기 위함)
 		return "budgets/new";
 	}
 
@@ -166,6 +168,7 @@ public class BudgetController {
 			model.addAttribute("budget", b);
 			model.addAttribute("categoryName", categoryName);
 			model.addAttribute("form", form);
+			model.addAttribute("currentPage", "budgets"); // 현재 페이지 정보를 모델에 전달(aside에 호버된 상태 표시하기 위함)
 			return "budgets/edit";
 		} catch (DomainException e) {
 			ra.addFlashAttribute("error", e.getMessage());

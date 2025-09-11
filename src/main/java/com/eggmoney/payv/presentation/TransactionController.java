@@ -107,6 +107,7 @@ public class TransactionController {
 		model.addAttribute("ledgerId", ledgerId);
 		model.addAttribute("month", ym.toString()); // yyyy-MM
 		model.addAttribute("transaction", items);
+		model.addAttribute("currentPage", "transaction"); // 현재 페이지 정보를 모델에 전달(aside에 호버된 상태 표시하기 위함)
 		return "transactions/list";
 	}
 	
@@ -197,6 +198,7 @@ public class TransactionController {
 		model.addAttribute("monthExpense", monthExpense);
 		model.addAttribute("prevMonth", prev.toString());
 		model.addAttribute("nextMonth", next.toString());
+		model.addAttribute("currentPage", "calendar"); // 현재 페이지 정보를 모델에 전달(aside에 호버된 상태 표시하기 위함)
 
 		return "transactions/calendar";
 	}
@@ -231,6 +233,7 @@ public class TransactionController {
 		model.addAttribute("accounts", accounts);
 		model.addAttribute("rootCategories", rootCategories);
 		model.addAttribute("form", form);
+		model.addAttribute("currentPage", "transaction"); // 현재 페이지 정보를 모델에 전달(aside에 호버된 상태 표시하기 위함)
 		return "transactions/new";
 	}
 
@@ -325,6 +328,7 @@ public class TransactionController {
 	    model.addAttribute("selectedRootId", selectedRootId);
 	    model.addAttribute("selectedChildId", selectedChildId);
 	    model.addAttribute("form", form);
+	    model.addAttribute("currentPage", "transaction"); // 현재 페이지 정보를 모델에 전달(aside에 호버된 상태 표시하기 위함)
 
 	    return "transactions/edit";
 	}

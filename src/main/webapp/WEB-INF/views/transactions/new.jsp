@@ -24,7 +24,7 @@
 		<!-- action 경로는 프로젝트 기존 경로를 유지하세요 -->
 		<form id="transaction-form" method="post"
 			action="<c:url value='/ledgers/${ledgerId}/transaction'/>"
-			class="card" style="padding: 16px;">
+			class="card">
 
 			<!-- 날짜 -->
 			<div style="margin-bottom: 10px;">

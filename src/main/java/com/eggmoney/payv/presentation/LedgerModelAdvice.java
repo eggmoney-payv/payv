@@ -22,7 +22,8 @@ import lombok.RequiredArgsConstructor;
         AccountController.class, 
         BudgetController.class, 
         CategoryController.class,
-//        ReportController.class, 
+        TransactionController.class, 
+        TransactionAnalyticsController.class,
 //        CalendarController.class
 })
 @RequiredArgsConstructor

@@ -58,6 +58,7 @@ public class CategoryController {
 
         model.addAttribute("ledgerId", ledgerId);
         model.addAttribute("roots", roots); // 루트 + 자식(최대 2-depth)
+        model.addAttribute("currentPage", "categories"); // 현재 페이지 정보를 모델에 전달(aside에 호버된 상태 표시하기 위함)
         return "categories/list";
     }
 
@@ -74,6 +75,7 @@ public class CategoryController {
         model.addAttribute("ledgerId", ledgerId);
         model.addAttribute("roots", roots);
         model.addAttribute("form", new CategoryCreateDto());
+        model.addAttribute("currentPage", "categories"); // 현재 페이지 정보를 모델에 전달(aside에 호버된 상태 표시하기 위함)
         return "categories/new";
     }
 
@@ -120,6 +122,7 @@ public class CategoryController {
         model.addAttribute("ledgerId", ledgerId);
         model.addAttribute("category", c);
         model.addAttribute("form", new CategoryUpdateDto(c.getName()));
+        model.addAttribute("currentPage", "categories"); // 현재 페이지 정보를 모델에 전달(aside에 호버된 상태 표시하기 위함)
         return "categories/edit";
     }
 

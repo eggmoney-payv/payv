@@ -69,18 +69,8 @@ public class AccountController {
         
         // (jw)
         
-//        Ledger ledger = ledgerAppService.findById(LedgerId.of(ledgerId));
-        model.addAttribute("currentPage", "ledgers"); // 현재 페이지 정보를 모델에 전달(aside에 호버된 상태 표시하기 위함)
-//        model.addAttribute("currentLedgerId", ledgerId);
-////        model.addAttribute("currentAccountName", );
-//        
-//        // aside에 표시할 데이터
-//        Ledger ledger = ledgerAppService.getLedger(lId); // ledgerService에서 조회
-//        model.addAttribute("currentLedgerId", ledgerId);
-//        model.addAttribute("currentAccountName", ledger.getName());
-//        
-//        // (jw)
-//       
+        model.addAttribute("currentPage", "accounts"); // 현재 페이지 정보를 모델에 전달(aside에 호버된 상태 표시하기 위함)
+        // (jw)
         return "accounts/list";
     }
 
@@ -89,6 +79,7 @@ public class AccountController {
     public String newForm(@PathVariable String ledgerId, Model model) {
         model.addAttribute("ledgerId", ledgerId);
         model.addAttribute("form", new AccountCreateDto());
+        model.addAttribute("currentPage", "accounts"); // 현재 페이지 정보를 모델에 전달(aside에 호버된 상태 표시하기 위함)
         return "accounts/new";
     }
 
@@ -137,6 +128,7 @@ public class AccountController {
         model.addAttribute("ledgerId", ledgerId);
         model.addAttribute("account", acc);
         model.addAttribute("form", new AccountUpdateDto(acc.getName()));
+        model.addAttribute("currentPage", "accounts"); // 현재 페이지 정보를 모델에 전달(aside에 호버된 상태 표시하기 위함)
         return "accounts/edit";
     }
 

@@ -85,7 +85,7 @@
 	<jsp:include page="/WEB-INF/views/common/aside.jsp" />
 
 	<main id="main" data-ledger-id="${ledgerId}">
-	<div class="container" style="padding: 16px;">
+	<div class="container">
 		<h2>월간 달력 (${month})</h2>
 
 		<div class="toolbar">
