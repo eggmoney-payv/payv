@@ -378,6 +378,4 @@ public class TransactionAppService {
 		return transactionRepository.findByLedgerAndCategoryIds(ledgerId, ids, limit, offset);
 	}
 	
-	// (달)월별 거래 내역 총 건수 조회.
-	
 }
