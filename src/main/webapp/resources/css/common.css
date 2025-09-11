@@ -1,160 +1,167 @@
 /* 공통 css */
 body, html {
-  margin: 0; padding: 0; font-family: 'Inter', sans-serif; background-color: #FFF8DE;
-  color: #1E1E1E;
+	margin: 0;
+	padding: 0;
+	font-family: 'Inter', sans-serif;
+	background-color: #FFF8DE;
+	color: #1E1E1E;
 }
 
 header {
-  height: 100px; /* header 높이 */
-  display: flex; 
-  align-items: center; 
-  justify-content: space-between;
-  padding: 0 24px; /* 좌우 동일 여백 */
-  background-color: #FFF8DE;
-  border-bottom: 2px solid #967E76;
-  position: fixed;
-  top: 0; left: 0; right: 0;
-  z-index: 2000; /* header를 가장 위로 */
-  box-sizing: border-box;
+	height: 100px; /* header 높이 */
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	padding: 0 24px; /* 좌우 동일 여백 */
+	background-color: #FFF8DE;
+	border-bottom: 2px solid #967E76;
+	position: fixed;
+	top: 0;
+	left: 0;
+	right: 0;
+	z-index: 4000; /* header를 가장 위로 */
+	box-sizing: border-box;
 }
 
-header .left-buttons,
-header .right-buttons {
-  display: flex; align-items: center; gap: 10px;
+header .left-buttons, header .right-buttons {
+	display: flex;
+	align-items: center;
+	gap: 10px;
 }
 
 header .logo {
-  display: flex; align-items: center; gap: 4px;
-  cursor: pointer;
+	display: flex;
+	align-items: center;
+	gap: 4px;
+	cursor: pointer;
 }
 
 header img {
-  height: 40px;
+	height: 40px;
 }
 
-header #logo-img{
-  height: 50px;
+header #logo-img {
+	height: 50px;
 }
 
 aside {
-  position: fixed;
-  top: 100px;        /* header 높이와 일치시켜야 함 */
-  left: 0;
-  width: 380px;      /* 원하는 사이드바 넓이 */
-  height: calc(100vh - 100px); /* header 높이만큼 계산 */
-  background: #FFF8DE;
-  border-right: 2px solid #967E76;
-  padding: 20px;
-  box-sizing: border-box;
-  transform: translateX(0);   /* ✅ 기본을 펼침 */
-  transition: transform 0.3s ease;
-  overflow-y: auto;
-  z-index: 1000;
+	position: fixed;
+	top: 100px; /* header 높이와 일치시켜야 함 */
+	left: 0;
+	width: 380px; /* 원하는 사이드바 넓이 */
+	height: calc(100vh - 100px); /* header 높이만큼 계산 */
+	background: #FFF8DE;
+	border-right: 2px solid #967E76;
+	padding: 20px;
+	box-sizing: border-box;
+	transform: translateX(0); /* 기본을 펼침 */
+	transition: transform 0.3s ease;
+	overflow-y: auto;
+	z-index: 3000; /* aside도 항상 차트보다 위로 */
 }
 
 aside.hide {
-  transform: translateX(-100%);  /* hide 붙으면 접힘 */
+	transform: translateX(-100%); /* hide 붙으면 접힘 */
 }
 
 /* 선택한 가계부 표시 */
 /* .account-link에 이동 경로(/account-select 예시)와 hover 효과 적용. */
 .account-title {
-  padding-left: 18px; /* nav ul li a와 동일하게 */
-  margin-bottom: 10px;
-  font-size: 22px;
-  font-weight: 600;
+	padding-left: 18px; /* nav ul li a와 동일하게 */
+	margin-bottom: 10px;
+	font-size: 22px;
+	font-weight: 600;
 }
 
 .disabled {
-  display: block;
-  padding: 10px 18px;
-  color: #aaa;
-  font-size: 18px;
-  cursor: not-allowed;
-  user-select: none;
+	display: block;
+	padding: 10px 18px;
+	color: #aaa;
+	font-size: 18px;
+	cursor: not-allowed;
+	user-select: none;
 }
-
 
 .account-link {
-  color: #1E1E1E;
-  text-decoration: none;
-  cursor: pointer;
-  transition: color 0.2s;
+	color: #1E1E1E;
+	text-decoration: none;
+	cursor: pointer;
+	transition: color 0.2s;
 }
+
 .account-link:hover {
-  color: #967E76;
+	color: #967E76;
 }
 
 /* 구분선 스타일 */
 hr.aside-divider {
-  border: none;
-  border-top: 2px solid #967E76;
-  margin: 12px 0 16px 0;
+	border: none;
+	border-top: 2px solid #967E76;
+	margin: 12px 0 16px 0;
 }
 
 /* 메뉴 */
 aside nav ul {
-  list-style: none;
-  margin: 0; padding: 0;
+	list-style: none;
+	margin: 0;
+	padding: 0;
 }
 
 aside nav ul li {
-  margin: 10px 0;
+	margin: 10px 0;
 }
 
 aside nav ul li a {
-  display: block;
-  padding: 10px 18px;
-  color: #5D5045; 
-  text-decoration: none;
-  border-radius: 8px;
-  font-size: 18px;
-  transition: background 0.2s, color 0.2s;
+	display: block;
+	padding: 10px 18px;
+	color: #5D5045;
+	text-decoration: none;
+	border-radius: 8px;
+	font-size: 18px;
+	transition: background 0.2s, color 0.2s;
 }
 
-aside nav ul li a:hover,
-aside nav ul li.active > a {
-  background: #967E76;
-  color: #fff;
+aside nav ul li a:hover, aside nav ul li.active>a {
+	background: #967E76;
+	color: #fff;
 }
 
 /* 설정 2단 메뉴 (기본 숨김) */
 .submenu {
-  display: none;
-  padding-left: 15px;
-  margin-top: 5px;
+	display: none;
+	padding-left: 15px;
+	margin-top: 5px;
 }
 
-.has-sub.open > .submenu {
-  display: block; /* open이 붙으면 펼쳐짐 */
+.has-sub.open>.submenu {
+	display: block; /* open이 붙으면 펼쳐짐 */
 }
 
-.has-sub > a::after {
-  content: "▾"; /* 아래 화살표 */
-  float: right;
-  font-size: 12px;
+.has-sub>a::after {
+	content: "▾"; /* 아래 화살표 */
+	float: right;
+	font-size: 12px;
 }
 
-.has-sub.open > a::after {
-  content: "▴"; /* 위 화살표 */
+.has-sub.open>a::after {
+	content: "▴"; /* 위 화살표 */
 }
-
-
 
 /* 페이지마다 바뀌는 메인 영역 */
 main {
-  margin-top: 100px; 
-  margin-left: 400px; 
-  margin-right: 20px; 
-  padding: 20px;
-  
-  transition: margin-left 0.3s ease;
-  box-sizing: border-box;
-  max-width: calc(100% - 420px); /* 380px(aside) + 20px*2(좌우마진) */
+	position: relative;
+	margin-top: 100px;
+	margin-left: 400px;
+	margin-right: 20px;
+	padding: 20px;
+	z-index: 1; /*  차트 등 자식보다 낮게 유지 */
+	transition: margin-left 0.3s ease;
+	box-sizing: border-box;
+	max-width: calc(100% - 420px); /* 380px(aside) + 20px*2(좌우마진) */
 }
 
-main.shrink  {
-  margin-left: 20px; /* aside와 동일하게 */
+main.shrink {
+	margin-left: 20px; /* aside와 동일하게 */
 }
 /* aside {
   position: fixed;
@@ -172,5 +179,6 @@ main.shrink  {
   z-index: 1000;
 } */
 aside.show {
-  transform: translateX(0);
+	transform: translateX(0);
 }
+

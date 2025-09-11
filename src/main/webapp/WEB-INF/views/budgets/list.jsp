@@ -14,7 +14,7 @@
 	<jsp:include page="/WEB-INF/views/common/aside.jsp" />
 
 	<main id="main" data-ledger-id="${ledgerId}" data-month="${month}">
-	<div class="container" style="padding: 16px;">
+	<div class="container">
 		<h2>예산 (월: ${month})</h2>
 
 		<c:if test="${not empty message}">

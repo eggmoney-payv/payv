@@ -22,22 +22,22 @@
             <!-- ledgerId가 있을 때만 활성화 -->
             <c:choose>
                 <c:when test="${not empty currentLedgerId}">
-                    <li class="${currentPage == 'accounts' ? 'active' : ''}">
-                        <a href="<c:url value='/ledgers/${currentLedgerId}/accounts'/>">내역</a>
+                    <li class="${currentPage == 'transaction' ? 'active' : ''}">
+                        <a href="<c:url value='/ledgers/${currentLedgerId}/transaction'/>">내역</a>
                     </li>
                     <li class="${currentPage == 'calendar' ? 'active' : ''}">
-                        <a href="<c:url value='/ledgers/${currentLedgerId}/calendar'/>">달력</a>
+                        <a href="<c:url value='/ledgers/${currentLedgerId}/transaction/calendar'/>">달력</a>
                     </li>
                     <li class="${currentPage == 'reports' ? 'active' : ''}">
-                        <a href="<c:url value='/ledgers/${currentLedgerId}/reports'/>">보고서</a>
+                        <a href="<c:url value='/ledgers/${currentLedgerId}/insights/reports'/>">보고서</a>
                     </li>
-                    <li class="${currentPage == 'settings-profile' ? 'active' : ''}">
+                    <li class="${currentPage == 'categories' ? 'active' : ''}">
                         <a href="<c:url value='/ledgers/${currentLedgerId}/categories'/>">카테고리 설정</a>
                     </li>
-                    <li class="${currentPage == 'settings-account' ? 'active' : ''}">
+                    <li class="${currentPage == 'accounts' ? 'active' : ''}">
                         <a href="<c:url value='/ledgers/${currentLedgerId}/accounts'/>">자산 설정</a>
                     </li>
-                    <li class="${currentPage == 'settings-budget' ? 'active' : ''}">
+                    <li class="${currentPage == 'budgets' ? 'active' : ''}">
                         <a href="<c:url value='/ledgers/${currentLedgerId}/budgets'/>">예산 설정</a>
                     </li>
                 </c:when>
