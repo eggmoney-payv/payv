@@ -144,6 +144,16 @@ public class TransactionController {
 	    model.addAttribute("ledgerId", ledgerId);
 	    model.addAttribute("accounts", accounts);
 	    model.addAttribute("rootCategories", roots);
+		
+		 // (jw)월 합계 계산
+	    long monthIncome = pr.getContent().stream()
+	            .filter(t -> t.getType().name().equals("INCOME"))
+	            .mapToLong(t -> t.getAmount().toLong())
+	            .sum();
+	    long monthExpense = pr.getContent().stream()
+	            .filter(t -> !t.getType().name().equals("INCOME"))
+	            .mapToLong(t -> t.getAmount().toLong())
+	            .sum();
 
 	    // 필터 값 바인딩(폼 name은 DTO 필드명과 동일하게)
 	    model.addAttribute("cond", cond);
@@ -163,8 +173,10 @@ public class TransactionController {
 	    model.addAttribute("month", ym.toString()); // yyyy-MM
 		model.addAttribute("transaction", items);
 		model.addAttribute("currentPage", "transaction"); // 현재 페이지 정보를 모델에 전달(aside에 호버된 상태 표시하기 위함)
-
-	    return "transactions/list";
+		model.addAttribute("monthIncome", monthIncome);   // (jw)
+	    model.addAttribute("monthExpense", monthExpense); // (jw)
+		
+		return "transactions/list";
 	}
 
 	

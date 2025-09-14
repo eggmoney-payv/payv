@@ -57,14 +57,17 @@
             <button class="btn btn-primary" type="submit">조회</button>
           </form>
 
-          <a class="btn btn-primary outline"
+          <a class="btn btn-primary"
              href="<c:url value='/ledgers/${ledgerId}/transaction?month=${month}'/>">
             거래 목록
           </a>
         </div>
 
         <div class="card">
-          <strong>총 지출</strong> — <span>-${totalExpense}</span>
+          <strong>총 지출</strong>
+          <span class="amt-out" style="margin-left:8px;">
+          - <fmt:formatNumber value="${totalExpense}" pattern="#,###"/>
+          </span>
         </div>
 
         <div id="no-data" class="no-data" style="display:none;">해당 월의 지출 데이터가 없습니다.</div>
@@ -103,13 +106,12 @@
         </div>
 
         <div class="card">
-          <strong>연간 합계</strong> —
-          <fmt:setLocale value="ko_KR"/>
-          <span style="margin-left:8px;">수입:
-            <fmt:formatNumber value="${sumIncome}" type="currency"/>
+          <strong>연간 합계</strong> 
+          <span class="amt-in" style="margin-left:8px;">
+            수입: + <fmt:formatNumber value="${sumIncome}" pattern="#,###"/>
           </span>
-          <span style="margin-left:12px;">지출:
-            <fmt:formatNumber value="${sumExpense}" type="currency"/>
+          <span class="amt-out" style="margin-left:12px;">
+            지출: - <fmt:formatNumber value="${sumExpense}" pattern="#,###"/>
           </span>
         </div>
 

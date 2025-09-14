@@ -13,7 +13,7 @@
 	<jsp:include page="/WEB-INF/views/common/header.jsp" />
 	<jsp:include page="/WEB-INF/views/common/aside.jsp" />
 
-	<main id="main" data-ledger-id="${ledgerId}">	
+	<main id="main" data-ledger-id="${ledgerId}">
 	<div class="container">
 		<h2>새 계좌</h2>
 
@@ -21,35 +21,34 @@
 			<div class="alert error">${error}</div>
 		</c:if>
 
-		<form method="post" action="<c:url value='/ledgers/${ledgerId}/accounts'/>" class="card" style="padding: 16px;">
-			<div style="margin-bottom: 10px;">
-				<label>이름 
-					<input type="text" name="name" value="${form.name}" required />
-				</label>
+		<form method="post"
+			action="<c:url value='/ledgers/${ledgerId}/accounts'/>" class="card">
+			<div class="form-group">
+				<label for="name">이름</label> <input type="text" id="name"
+					name="name" value="${form.name}" required />
 			</div>
 
-			<div style="margin-bottom: 10px;">
-				<label>유형
-					<select name="type" required> 
-						<c:forEach var="t" items="${accountTypes}">
-							<option value="${t.name()}">${t.name()}</option>
-						</c:forEach>
-					</select>
-				</label>
+			<div class="form-group">
+				<label for="type">유형</label> <select id="type" name="type" required>
+					<c:forEach var="t" items="${accountTypes}">
+						<option value="${t.name()}">${t.name()}</option>
+					</c:forEach>
+				</select>
 			</div>
 
-			<div style="margin-bottom: 10px;">
-				<label>초기 잔액(원)
-					<input type="number" name="openingBalanceWon" min="0" step="100" value="${form.openingBalanceWon}" />
-				</label>
-				<div class="muted">* 비워두면 0원으로 생성됩니다.</div>
+			<div class="form-group">
+				<label for="openingBalanceWon">초기 잔액(원)</label> <input type="number"
+					id="openingBalanceWon" name="openingBalanceWon" min="0" step="100"
+					value="${form.openingBalanceWon}" />
 			</div>
+			<div class="muted">* 비워두면 0원으로 생성됩니다.</div>
 
-			<div style="display: flex; gap: 8px;">
-				<button type="submit" class="btn">저장</button>
+			<div class="toolbar">
+				<button type="submit" class="btn btn-primary">저장</button>
 				<a class="btn" href="<c:url value='/ledgers/${ledgerId}/accounts'/>">취소</a>
 			</div>
 		</form>
+
 	</div>
 	</main>
 

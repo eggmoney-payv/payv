@@ -91,6 +91,7 @@
 	background: #C5D3E8;
 	color: #1E1E1E;
 	border-radius: 6px;
+	border: 1px solid #5D5045;
 	text-decoration: none;
 	font-weight: 500;
 }
@@ -407,4 +408,22 @@ main.board-detail {
 	border-radius: 6px;
 	background: #111827;
 	color: #fff;
+}
+
+/* 공통 form-group 무시하고 게시판 전용 세로 정렬 */
+.board-form .form-group {
+  display: flex !important; 
+  flex-direction: column !important;
+  align-items: stretch !important; /* label/input을 좌우 꽉 채우게 */
+}
+
+.board-form label {
+  flex: none !important; 
+  margin-bottom: 6px !important;
+}
+
+.board-form input,
+.board-form textarea {
+  width: 100% !important;
+  flex: none !important;
 }

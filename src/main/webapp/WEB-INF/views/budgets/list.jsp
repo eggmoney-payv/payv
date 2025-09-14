@@ -1,5 +1,6 @@
 <%@ page contentType="text/html; charset=UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt"%>
 
 <!DOCTYPE html>
 <html lang="ko">
@@ -24,37 +25,50 @@
 			<div class="alert error">${error}</div>
 		</c:if>
 
-		<a class="btn" href="<c:url value='/ledgers/${ledgerId}/budgets/new?month=${month}'/>" style="margin-left: 8px;">+ 예산 추가</a>
-		<a class="btn" href="<c:url value='/ledgers/${ledgerId}'/>" style="margin-left: 8px;">← 가계부 홈</a>
+		<div class="toolbar" style="margin-bottom: 16px;">
+			<a class="btn-accent"
+				href="<c:url value='/ledgers/${ledgerId}/budgets/new?month=${month}'/>">예산
+				추가</a> <a class="btn" href="<c:url value='/ledgers/${ledgerId}'/>"
+				style="margin-left: 8px;">← 가계부 홈</a>
+		</div>
 
-		<form method="get" action="<c:url value='/ledgers/${ledgerId}/budgets'/>" style="margin-bottom: 12px;">
-			<label>월 선택: 
-				<input type="month" name="month" value="${month}" />
-			</label>
-			<button class="btn" type="submit">조회</button>
-		</form>		
+		<div class="toolbar">
+			<form method="get"
+				action="<c:url value='/ledgers/${ledgerId}/budgets'/>"
+				class="search-form">
+				<label>월 선택: <input type="month" name="month"
+					value="${month}" />
+				</label>
+				<button type="submit" class="btn btn-primary">조회</button>
+			</form>
+		</div>
 
 		<table class="table" style="width: 100%; border-collapse: collapse;">
 			<thead>
 				<tr>
-					<th style="text-align: left; padding: 8px; border-bottom: 1px solid #ccc;">카테고리</th>
-					<th style="text-align: right; padding: 8px; border-bottom: 1px solid #ccc;">한도</th>
-        			<th style="text-align:right; padding:8px; border-bottom:1px solid #ccc;">사용액</th>
-					<th style="text-align: center; padding: 8px; border-bottom: 1px solid #ccc;">작업</th>
+					<th
+						style="text-align: left; padding: 8px; border-bottom: 1px solid #ccc;">카테고리</th>
+					<th
+						style="text-align: right; padding: 8px; border-bottom: 1px solid #ccc;">한도</th>
+					<th
+						style="text-align: right; padding: 8px; border-bottom: 1px solid #ccc;">사용액</th>
+					<th
+						style="text-align: center; padding: 8px; border-bottom: 1px solid #ccc;">작업</th>
 				</tr>
 			</thead>
 			<tbody>
 				<c:forEach var="b" items="${budgets}">
 					<tr>
 						<td style="padding: 8px;">${b.categoryName}</td>
-						<td style="padding: 8px; text-align: right;">${b.limit}</td>
-			          	<td style="padding:8px; text-align:right;">${b.spent}</td>
-						<td style="padding: 8px; text-align: center;">
-							<a class="btn" href="<c:url value='/ledgers/${ledgerId}/budgets/${b.id}/edit?month=${month}'/>">한도 변경</a>
-							<%-- 
+						<td style="padding: 8px; text-align: right;"><fmt:formatNumber
+								value="${b.limit}" pattern="#,###" /></td>
+						<td style="padding: 8px; text-align: right;"><fmt:formatNumber
+								value="${b.spent}" pattern="#,###" /></td>
+						<td style="padding: 8px; text-align: center;"><a class="btn"
+							href="<c:url value='/ledgers/${ledgerId}/budgets/${b.id}/edit?month=${month}'/>">한도
+								변경</a> <%-- 
 							<button class="btn danger js-del" data-id="${b.id}" style="margin-left: 8px;">삭제</button>
-							--%>
-						</td>
+							--%></td>
 					</tr>
 				</c:forEach>
 			</tbody>
@@ -63,7 +77,7 @@
 	</main>
 
 	<script src="<c:url value='/resources/js/common.js'/>"></script>
-	
+
 	<%--
 	<script>
 		// 삭제는 비동기(JSON)
@@ -91,6 +105,6 @@
 		});
 	</script>
 	--%>
-	
+
 </body>
 </html>

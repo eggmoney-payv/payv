@@ -1,5 +1,3 @@
-/* reports.css (수정본) */
-
 /* 탭 버튼 */
 .reports-container .tab-buttons { display:flex; gap:10px; margin-bottom:16px; }
 .reports-container .tab-btn {
@@ -14,12 +12,12 @@
 .reports-container .section { display:none; }
 .reports-container .section.active { display:block; }
 
-/* 툴바 */
-.reports-container .toolbar {
-  display:flex; align-items:center; gap:10px; margin:12px 0 8px;
+/* 툴바 (report 전용) */
+.toolbar {
+  display:flex; align-items:center; gap:10px; margin:12px 0 132x;
   justify-content:space-between;
 }
-.reports-container .toolbar-left { display:inline-flex; align-items:center; gap:8px; }
+.toolbar-left { display:inline-flex; align-items:center; gap:8px; }
 
 /* 검색 폼 */
 .reports-container .search-form { display:inline-flex; align-items:center; gap:6px; }
@@ -29,17 +27,17 @@
   padding:6px 10px; border:1px solid #967E76; border-radius:6px; font-size:14px; background:#fff;
 }
 
-/* 버튼 (레포트 전용) */
-.reports-container .btn {
+/* 버튼  */
+.btn {
   display:inline-flex; align-items:center; padding:8px 14px; border-radius:6px;
   border:1px solid #ddd; background:#fff; cursor:pointer; text-decoration:none; line-height:1;
 }
-.reports-container .btn:hover { background:#f6f6f6; }
+.btn:hover { background:#f6f6f6; }
 
-.reports-container .btn-primary { border:1px solid #8d786f; background:#967E76; color:#fff; }
-.reports-container .btn-primary:hover { background:#7f6a61; }
-.reports-container .btn-primary.outline { background:#fff; color:#5D5045; border:1px solid #967E76; }
-.reports-container .btn-primary.outline:hover { background:#fff7f0; }
+.btn-primary { border:1px solid #8d786f; background:#967E76; color:#fff; }
+.btn-primary:hover { background:#7f6a61; }
+.btn-primary.outline { background:#fff; color:#5D5045; border:1px solid #967E76; }
+.btn-primary.outline:hover { background:#fff7f0; }
 
 /* 데이터 없음 */
 .reports-container .no-data {

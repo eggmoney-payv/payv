@@ -146,5 +146,6 @@ public class BoardController {
         
 
     }
-    // 수정폼, 수정처리도 추가 예정
+    
+    
 }
