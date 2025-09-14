@@ -21,7 +21,7 @@
 			<div class="alert error">${error}</div>
 		</c:if>
 
-		<div class="card" style="padding: 16px; margin-bottom: 10px;">
+		<div class="card" style="margin-bottom: 10px;">
 			<div>
 				<strong>카테고리:</strong> ${categoryName}
 			</div>
@@ -30,19 +30,23 @@
 			</div>
 		</div>
 
-		<form method="post" action="<c:url value='/ledgers/${ledgerId}/budgets/${budget.id}'/>" class="card" style="padding: 16px;">
+		<form method="post"
+			action="<c:url value='/ledgers/${ledgerId}/budgets/${budget.id}'/>"
+			class="card">
 			<input type="hidden" name="month" value="${form.month}" />
-			<div style="margin-bottom: 10px;">
-				<label>한도(원) 
-					<input type="number" name="limit" min="0" step="100" value="${form.limit}" required />
-				</label>
+
+			<div class="form-group">
+				<label for="limit">한도(원)</label> <input type="number" id="limit"
+					name="limit" min="0" step="100" value="${form.limit}" required />
 			</div>
 
-			<div style="display: flex; gap: 8px;">
-				<button type="submit" class="btn">저장</button>
-				<a class="btn" href="<c:url value='/ledgers/${ledgerId}/budgets?month=${month}'/>">취소</a>
+			<div class="toolbar">
+				<button type="submit" class="btn btn-primary">저장</button>
+				<a class="btn"
+					href="<c:url value='/ledgers/${ledgerId}/budgets?month=${month}'/>">취소</a>
 			</div>
 		</form>
+
 	</div>
 	</main>
 

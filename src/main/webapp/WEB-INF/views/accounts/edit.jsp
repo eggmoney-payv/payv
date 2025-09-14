@@ -21,36 +21,23 @@
 			<div class="alert error">${error}</div>
 		</c:if>
 
-		<form method="post" action="<c:url value='/ledgers/${ledgerId}/accounts/${account.id}'/>" class="card" style="padding: 16px;">
-			<div style="margin-bottom: 10px;">
-				<label>이름 
-					<input type="text" name="name" value="${form.name}" required />
-				</label>
-			</div>
-			
-			<%-- 
-			<div style="margin-bottom: 10px;">
-				<label>유형 
-					<select name="type" required>
-						<c:forEach var="t" items="${accountTypes}">
-							<option value="${t.name()}" <c:if test="${t.name() == form.type}">selected</c:if>>
-								${t.name()}
-							</option>
-						</c:forEach>
-					</select>
-				</label>
-			</div>
-			--%>
-
-			<div class="muted" style="margin-bottom: 10px;">
-				* 현재 잔액은 거래 기록으로 관리됩니다. 초기 잔액 변경이 필요하면 별도 기능으로 확장하세요.
+		<form method="post"
+			action="<c:url value='/ledgers/${ledgerId}/accounts/${account.id}'/>"
+			class="card">
+			<div class="form-group">
+				<label for="name">이름</label> <input type="text" id="name"
+					name="name" value="${form.name}" required />
 			</div>
 
-			<div style="display: flex; gap: 8px;">
-				<button type="submit" class="btn">저장</button>
+			<div class="muted">* 현재 잔액은 거래 기록으로 관리됩니다. 초기 잔액 변경이 필요하면 별도
+				기능으로 확장하세요.</div>
+
+			<div class="toolbar">
+				<button type="submit" class="btn btn-primary">저장</button>
 				<a class="btn" href="<c:url value='/ledgers/${ledgerId}/accounts'/>">취소</a>
 			</div>
 		</form>
+
 	</div>
 	</main>
 

@@ -10,99 +10,88 @@
 </head>
 
 <body>
-	<jsp:include page="/WEB-INF/views/common/header.jsp" />
-	<jsp:include page="/WEB-INF/views/common/aside.jsp" />
+  <jsp:include page="/WEB-INF/views/common/header.jsp" />
+  <jsp:include page="/WEB-INF/views/common/aside.jsp" />
 
-	<main id="main" data-ledger-id="${ledgerId}">
-	<div class="container" style="padding: 16px;">
-		<h2>거래 내역 등록</h2>
+  <main id="main" data-ledger-id="${ledgerId}">
+    <div class="container" style="padding: 16px;">
+      <h2>거래 내역 등록</h2>
 
-		<c:if test="${not empty error}">
-			<div class="alert error">${error}</div>
-		</c:if>
+      <c:if test="${not empty error}">
+        <div class="alert error">${error}</div>
+      </c:if>
 
-		<!-- action 경로는 프로젝트 기존 경로를 유지하세요 -->
-		<form id="transaction-form" method="post"
-			action="<c:url value='/ledgers/${ledgerId}/transaction'/>"
-			class="card">
+      <!-- 폼 -->
+      <form id="transaction-form" method="post"
+            action="<c:url value='/ledgers/${ledgerId}/transaction'/>"
+            class="card">
 
-			<!-- 날짜 -->
-			<div style="margin-bottom: 10px;">
-				<label>일자 <input type="date" name="date"
-					value="${form.date}" required />
-				</label>
-			</div>
+        <div class="form-group">
+          <label for="date">일자</label>
+          <input type="date" id="date" name="date" value="${form.date}" required />
+        </div>
 
-			<!-- 유형(수입/지출) -->
-			<div style="margin-bottom: 10px;">
-				<label>유형 <select name="type" required>
-						<c:forEach var="t" items="${transactionTypes}">
-							<option value="${t.name()}"
-								<c:if test="${t.name()==form.type}">selected</c:if>>${t.name()}</option>
-						</c:forEach>
-				</select>
-				</label>
-			</div>
+        <div class="form-group">
+          <label for="type">유형</label>
+          <select id="type" name="type" required>
+            <c:forEach var="t" items="${transactionTypes}">
+              <option value="${t.name()}" <c:if test="${t.name()==form.type}">selected</c:if>>
+                ${t.name()}
+              </option>
+            </c:forEach>
+          </select>
+        </div>
 
-			<!-- 금액 -->
-			<div style="margin-bottom: 10px;">
-				<label>금액(원) <input type="number" name="amount" min="0"
-					step="100" value="${form.amount}" required />
-				</label>
-			</div>
+        <div class="form-group">
+          <label for="amount">금액(원)</label>
+          <input type="number" id="amount" name="amount" min="0" step="100" value="${form.amount}" required />
+        </div>
 
-			<!-- 자산 -->
-			<div style="margin-bottom: 10px;">
-				<label>자산 <select name="accountId" required>
-						<c:forEach var="a" items="${accounts}">
-							<option value="${a.id}">${a.name}</option>
-						</c:forEach>
-				</select>
-				</label>
-			</div>
+        <div class="form-group">
+          <label for="accountId">자산</label>
+          <select id="accountId" name="accountId" required>
+            <c:forEach var="a" items="${accounts}">
+              <option value="${a.id}">${a.name}</option>
+            </c:forEach>
+          </select>
+        </div>
 
-			<!-- 카테고리: 상위/하위 -->
-			<div style="margin-bottom: 10px;">
-				<label>카테고리(상위) <select id="rootCategoryId" required>
-						<option value="">(선택)</option>
-						<c:forEach var="r" items="${rootCategories}">
-							<option value="${r.id}">${r.name}</option>
-						</c:forEach>
-				</select>
-				</label>
-			</div>
+        <div class="form-group">
+          <label for="rootCategoryId">카테고리(상위)</label>
+          <select id="rootCategoryId" required>
+            <option value="">(선택)</option>
+            <c:forEach var="r" items="${rootCategories}">
+              <option value="${r.id}">${r.name}</option>
+            </c:forEach>
+          </select>
+        </div>
 
-			<div style="margin-bottom: 10px;">
-				<label>카테고리(하위) <select id="childCategoryId">
-						<!-- 처음엔 안내 옵션만 보이도록 -->
-						<option value="">(상위를 먼저 선택하세요)</option>
-				</select>
-				</label>
-				<div class="muted">* 최종 카테고리는 하위 선택값이 우선이며, 하위를 선택하지 않으면 상위가
-					저장됩니다.</div>
-			</div>
+        <div class="form-group">
+          <label for="childCategoryId">카테고리(하위)</label>
+          <select id="childCategoryId">
+            <option value="">(상위를 먼저 선택하세요)</option>
+          </select>
+        </div>
 
-			<!-- 최종 전송용 hidden -->
-			<input type="hidden" name="categoryId" id="categoryIdHidden" />
+        <!-- 최종 전송용 hidden -->
+        <input type="hidden" name="categoryId" id="categoryIdHidden" />
 
-			<!-- 메모 -->
-			<div style="margin-bottom: 10px;">
-				<label>메모 <input type="text" name="memo"
-					value="${form.memo}" />
-				</label>
-			</div>
+        <div class="form-group">
+          <label for="memo">메모</label>
+          <input type="text" id="memo" name="memo" value="${form.memo}" />
+        </div>
 
-			<div style="display: flex; gap: 8px;">
-				<button type="submit" class="btn">저장</button>
-				<a class="btn"
-					href="<c:url value='/ledgers/${ledgerId}/transaction?month=${form.date.substring(0,7)}'/>">취소</a>
-			</div>
-		</form>
-	</div>
-	</main>
+        <div class="toolbar">
+          <button type="submit" class="btn btn-primary">저장</button>
+          <a class="btn"
+             href="<c:url value='/ledgers/${ledgerId}/transaction?month=${form.date.substring(0,7)}'/>">취소</a>
+        </div>
+      </form>
+    </div>
+  </main>
 
-	<script src="<c:url value='/resources/js/common.js'/>"></script>
-	<script>
+  <script src="<c:url value='/resources/js/common.js'/>"></script>
+  <script>
     // API 베이스 (컨텍스트 경로 포함)
     var childApiBase = '<c:url value="/api/ledgers/${ledgerId}/categories/"/>'; // + {rootId}/children
 
@@ -112,28 +101,22 @@
     var hiddenId = document.getElementById('categoryIdHidden');
     var formEl   = document.getElementById('transaction-form');
 
-    // childSel 옵션 모두 제거
     function clearSelectOptions(sel) {
       while (sel.firstChild) sel.removeChild(sel.firstChild);
     }
-
-    // childSel 옵션 설정 (list: [{id,name}, ...])
     function setChildOptions(list) {
       clearSelectOptions(childSel);
-      if (Object.prototype.toString.call(list) === '[object Array]' && list.length > 0) {
-        // 기본 안내 옵션
+      if (Array.isArray(list) && list.length > 0) {
         var base = document.createElement('option');
         base.value = '';
         base.textContent = '(하위 선택)';
         childSel.appendChild(base);
-
-        for (var i=0; i<list.length; i++) {
-          var it = list[i];
+        list.forEach(function(it){
           var opt = document.createElement('option');
           opt.value = it.id;
           opt.textContent = it.name;
           childSel.appendChild(opt);
-        }
+        });
       } else {
         var none = document.createElement('option');
         none.value = '';
@@ -141,11 +124,8 @@
         childSel.appendChild(none);
       }
     }
-
-    // 상위 변경 시 하위 목록 조회
     async function loadChildren(rootId) {
       clearSelectOptions(childSel);
-      // 상위 미선택 → 안내만
       if (!rootId) {
         var msg = document.createElement('option');
         msg.value = '';
@@ -165,13 +145,11 @@
         childSel.appendChild(err);
       }
     }
-
-    // 이벤트: 상위 변경 → 하위 로드
-    rootSel.addEventListener('change', function() {
+    rootSel.addEventListener('change', function(){
       loadChildren(rootSel.value);
     });
 
-    // 제출: 하위 선택값이 있으면 하위, 없으면 상위. 둘 다 없으면 막기.
+    // 제출: 하위 선택값 우선, 없으면 상위. 둘 다 없으면 막기.
     formEl.addEventListener('submit', function(e) {
       var rootId  = rootSel.value || '';
       var childId = childSel.value || '';
@@ -183,7 +161,6 @@
       hiddenId.value = childId || rootId;
     });
 
-    // 초기 진입 시 상위가 미리 선택돼 있으면 하위 로드
     document.addEventListener('DOMContentLoaded', function() {
       if (rootSel.value) {
         loadChildren(rootSel.value);

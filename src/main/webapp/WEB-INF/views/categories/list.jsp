@@ -25,7 +25,7 @@
 		</c:if>
 
 		<p style="margin-bottom: 12px;">
-			<a class="btn" href="<c:url value='/ledgers/${ledgerId}/categories/new'/>">+ 새 카테고리</a> 
+			<a class="btn-accent" href="<c:url value='/ledgers/${ledgerId}/categories/new'/>">새 카테고리</a> 
 			<a class="btn" href="<c:url value='/ledgers/${ledgerId}'/>">← 가계부 홈</a>
 		</p>
 
@@ -48,7 +48,7 @@
 						<button class="btn danger js-del" data-id="${r.id}"
 							<c:if test="${r.system}">
 								disabled="disabled"
-							</c:if>>
+							</c:if>style="margin-left: 8px;">
 							삭제
 						</button>
 					</div>
@@ -65,7 +65,7 @@
 									</c:if>
 								</span> 
 								<span> 
-									<a class="link" href="<c:url value='/ledgers/${ledgerId}/categories/${cNode.id}/edit'/>"
+									<a class="btn" href="<c:url value='/ledgers/${ledgerId}/categories/${cNode.id}/edit'/>"
 										<c:if test="${cNode.system}">
 											onclick="return false;" style="opacity:.5;pointer-events:none;"
 										</c:if>>

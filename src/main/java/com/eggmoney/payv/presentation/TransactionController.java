@@ -103,11 +103,24 @@ public class TransactionController {
 			d.setMemo(t.getMemo());
 			return d;
 		}).collect(Collectors.toList());
+		
+		 // (jw)월 합계 계산
+	    long monthIncome = transactionList.stream()
+	            .filter(t -> t.getType().name().equals("INCOME"))
+	            .mapToLong(t -> t.getAmount().toLong())
+	            .sum();
+	    long monthExpense = transactionList.stream()
+	            .filter(t -> !t.getType().name().equals("INCOME"))
+	            .mapToLong(t -> t.getAmount().toLong())
+	            .sum();
 
 		model.addAttribute("ledgerId", ledgerId);
 		model.addAttribute("month", ym.toString()); // yyyy-MM
 		model.addAttribute("transaction", items);
 		model.addAttribute("currentPage", "transaction"); // 현재 페이지 정보를 모델에 전달(aside에 호버된 상태 표시하기 위함)
+		model.addAttribute("monthIncome", monthIncome);   // (jw)
+	    model.addAttribute("monthExpense", monthExpense); // (jw)
+		
 		return "transactions/list";
 	}
 	

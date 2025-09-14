@@ -1,5 +1,6 @@
 <%@ page contentType="text/html; charset=UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 
 <!DOCTYPE html>
 <html lang="ko">
@@ -25,17 +26,24 @@
 		</c:if>
 
 		<p style="margin-bottom: 12px;">
-			<a class="btn" href="<c:url value='/ledgers/${ledgerId}/accounts/new'/>">+ 자산 추가</a>
-			<a class="btn" href="<c:url value='/ledgers/${ledgerId}'/>">← 가계부 홈</a>
+			<a class="btn-accent"
+				href="<c:url value='/ledgers/${ledgerId}/accounts/new'/>">자산 추가</a>
+			<a class="btn" href="<c:url value='/ledgers/${ledgerId}'/>">← 가계부
+				홈</a>
 		</p>
 
 		<table class="table" style="width: 100%; border-collapse: collapse;">
 			<thead>
 				<tr>
-					<th style="text-align: left; padding: 8px; border-bottom: 1px solid #ccc;">이름</th>
-					<th style="text-align: left; padding: 8px; border-bottom: 1px solid #ccc;">유형</th>
-					<th style="text-align: right; padding: 8px; border-bottom: 1px solid #ccc;">현재 잔액</th>
-					<th style="text-align: center; padding: 8px; border-bottom: 1px solid #ccc;">작업</th>
+					<th
+						style="text-align: left; padding: 8px; border-bottom: 1px solid #ccc;">이름</th>
+					<th
+						style="text-align: left; padding: 8px; border-bottom: 1px solid #ccc;">유형</th>
+					<th
+						style="text-align: right; padding: 8px; border-bottom: 1px solid #ccc;">현재
+						잔액</th>
+					<th
+						style="text-align: center; padding: 8px; border-bottom: 1px solid #ccc;">작업</th>
 				</tr>
 			</thead>
 			<tbody>
@@ -43,11 +51,12 @@
 					<tr>
 						<td style="padding: 8px;">${a.name}</td>
 						<td style="padding: 8px;">${a.type}</td>
-						<td style="padding: 8px; text-align: right;">${a.balance}</td>
-						<td style="padding: 8px; text-align: center;">
-							<a class="btn" href="<c:url value='/ledgers/${ledgerId}/accounts/${a.id}/edit'/>">수정</a>
-							<button class="btn danger js-del" data-id="${a.id}" style="margin-left: 8px;">삭제</button>
-						</td>
+						<td style="padding: 8px; text-align: right;"><fmt:formatNumber
+								value="${a.balance}" pattern="#,###" /></td>
+						<td style="padding: 8px; text-align: center;"><a class="btn"
+							href="<c:url value='/ledgers/${ledgerId}/accounts/${a.id}/edit'/>">수정</a>
+							<button class="btn danger js-del" data-id="${a.id}"
+								style="margin-left: 8px;">삭제</button></td>
 					</tr>
 				</c:forEach>
 			</tbody>

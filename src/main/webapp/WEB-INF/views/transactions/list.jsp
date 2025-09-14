@@ -1,5 +1,6 @@
 <%@ page contentType="text/html; charset=UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt"%>
 
 <!DOCTYPE html>
 <html lang="ko">
@@ -24,26 +25,52 @@
 			<div class="alert error">${error}</div>
 		</c:if>
 
-		<a class="btn" href="<c:url value='/ledgers/${ledgerId}/transaction/new'/>" style="margin-left: 8px;">+ 거래 내역 추가</a>
-		<a class="btn" href="<c:url value='/ledgers/${ledgerId}'/>" style="margin-left: 8px;">← 가계부 홈</a>
-			
-		<form method="get" action="<c:url value='/ledgers/${ledgerId}/transaction'/>" style="margin-bottom: 12px;">
-			<label>월 선택: 
-				<input type="month" name="month" value="${month}" />
-			</label>
-			<button class="btn" type="submit">조회</button>
-		</form>
+		<div class="toolbar" style="margin-bottom: 16px;">
+			<a class="btn-accent"
+				href="<c:url value='/ledgers/${ledgerId}/transaction/new'/>">거래
+				내역 추가 </a> <a class="btn" href="<c:url value='/ledgers/${ledgerId}'/>">←
+				가계부 홈</a>
+		</div>
+
+		<div class="toolbar">
+			<form method="get"
+				action="<c:url value='/ledgers/${ledgerId}/transaction'/>"
+				class="search-form">
+				<label>월 선택: <input type="month" name="month"
+					value="${month}" /></label>
+				<button type="submit" class="btn btn-primary">조회</button>
+			</form>
+		</div>
+
+		<!-- ✅ 합계 박스 추가 -->
+
+		<div class="card">
+			<strong>이 달 합계</strong> — <span class="amt-in"
+				style="margin-left: 8px;">수입: +<fmt:formatNumber
+					value="${monthIncome}" pattern="#,###" /></span> <span class="amt-out"
+				style="margin-left: 12px;">지출: -<fmt:formatNumber
+					value="${monthExpense}" pattern="#,###" /></span>
+		</div>
+
+
 
 		<table class="table" style="width: 100%; border-collapse: collapse;">
 			<thead>
 				<tr>
-					<th style="text-align: left; padding: 8px; border-bottom: 1px solid #ccc;">일자</th>
-					<th style="text-align: left; padding: 8px; border-bottom: 1px solid #ccc;">계좌</th>
-					<th style="text-align: left; padding: 8px; border-bottom: 1px solid #ccc;">카테고리</th>
-					<th style="text-align: center; padding: 8px; border-bottom: 1px solid #ccc;">유형</th>
-					<th style="text-align: right; padding: 8px; border-bottom: 1px solid #ccc;">금액</th>
-					<th style="text-align: left; padding: 8px; border-bottom: 1px solid #ccc;">메모</th>
-					<th style="text-align: center; padding: 8px; border-bottom: 1px solid #ccc;">작업</th>
+					<th
+						style="text-align: left; padding: 8px; border-bottom: 1px solid #ccc;">일자</th>
+					<th
+						style="text-align: left; padding: 8px; border-bottom: 1px solid #ccc;">계좌</th>
+					<th
+						style="text-align: left; padding: 8px; border-bottom: 1px solid #ccc;">카테고리</th>
+					<th
+						style="text-align: center; padding: 8px; border-bottom: 1px solid #ccc;">유형</th>
+					<th
+						style="text-align: right; padding: 8px; border-bottom: 1px solid #ccc;">금액</th>
+					<th
+						style="text-align: left; padding: 8px; border-bottom: 1px solid #ccc;">메모</th>
+					<th
+						style="text-align: center; padding: 8px; border-bottom: 1px solid #ccc;">작업</th>
 				</tr>
 			</thead>
 			<tbody>
@@ -53,15 +80,31 @@
 						<td style="padding: 8px;">${t.accountName}</td>
 						<td style="padding: 8px;">${t.categoryName}</td>
 						<td style="padding: 8px; text-align: center;">${t.type}</td>
-						<td style="padding: 8px; text-align: right;">${t.amount}</td>
+						<td style="padding: 8px; text-align: right;"><span
+							class="<c:out value='${t.type == "INCOME" ? "amt-in" : "amt-out"}'/>">
+								<c:choose>
+									<c:when test="${t.type == 'INCOME'}">
+              +<fmt:formatNumber value="${t.amount}" pattern="#,###" />
+									</c:when>
+									<c:otherwise>
+              -<fmt:formatNumber value="${t.amount}" pattern="#,###" />
+									</c:otherwise>
+								</c:choose>
+						</span></td>
 						<td style="padding: 8px;">${t.memo}</td>
 						<td style="padding: 8px; text-align: center;">
-							<a class="btn" href="<c:url value='/ledgers/${ledgerId}/transaction/${t.id}/edit'/>">수정</a>
-							<button class="btn danger js-del" data-id="${t.id}" style="margin-left: 8px;">삭제</button>
+							<div style="display: inline-flex; gap: 8px;">
+								<a class="btn btn-primary outline"
+									href="<c:url value='/ledgers/${ledgerId}/transaction/${t.id}/edit'/>">수정</a>
+								<button class="btn danger js-del" data-id="${t.id}">삭제</button>
+							</div>
 						</td>
+
 					</tr>
 				</c:forEach>
 			</tbody>
+
+
 		</table>
 	</div>
 	</main>
