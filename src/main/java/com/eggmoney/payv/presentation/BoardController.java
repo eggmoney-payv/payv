@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.eggmoney.payv.application.service.BoardAppService;
 import com.eggmoney.payv.application.service.CommentAppService;
@@ -17,6 +18,7 @@ import com.eggmoney.payv.application.service.ReactionAppService;
 import com.eggmoney.payv.domain.model.entity.Board;
 import com.eggmoney.payv.domain.model.entity.Comment;
 import com.eggmoney.payv.domain.model.vo.BoardId;
+import com.eggmoney.payv.domain.shared.error.DomainException;
 import com.eggmoney.payv.presentation.dto.PageInfo;
 
 import lombok.RequiredArgsConstructor;
@@ -143,9 +145,55 @@ public class BoardController {
         model.addAttribute("pageInfo", pageInfo);
         
         return "board/list";
-        
-
     }
     
+    /** ===== 수정 폼 ===== */
+    @GetMapping("/{boardId}/edit")
+    public String editForm(@PathVariable String boardId, Model model,
+                           RedirectAttributes ra) {
+        try {
+            Board board = boardAppService.getBoard(BoardId.of(boardId));
+            model.addAttribute("board", board);
+            model.addAttribute("currentPage", "boards");
+            return "board/edit"; // 📄 WEB-INF/views/board/edit.jsp
+        } catch (DomainException e) {
+            ra.addFlashAttribute("error", e.getMessage());
+            return "redirect:/boards";
+        }
+    }
+
+    /** ===== 수정 처리 ===== */
+    @PostMapping("/{boardId}")
+    public String update(@PathVariable String boardId,
+                         @RequestParam String title,
+                         @RequestParam String content,
+                         RedirectAttributes ra) {
+        try {
+            if (title == null || title.trim().isEmpty()) {
+                ra.addFlashAttribute("error", "제목은 필수입니다.");
+                return "redirect:/boards/" + boardId + "/edit";
+            }
+            boardAppService.updateBoard(BoardId.of(boardId), title.trim(), content.trim());
+            ra.addFlashAttribute("message", "게시글을 수정했습니다.");
+            return "redirect:/boards/" + boardId;
+        } catch (DomainException e) {
+            ra.addFlashAttribute("error", e.getMessage());
+            return "redirect:/boards/" + boardId + "/edit";
+        }
+    }
+
+    /** ===== 삭제 ===== */
+    @PostMapping("/{boardId}/delete")
+    public String delete(@PathVariable String boardId,
+                         RedirectAttributes ra) {
+        try {
+            boardAppService.deleteBoard(BoardId.of(boardId));
+            ra.addFlashAttribute("message", "게시글을 삭제했습니다.");
+            return "redirect:/boards";
+        } catch (DomainException e) {
+            ra.addFlashAttribute("error", e.getMessage());
+            return "redirect:/boards/" + boardId;
+        }
+    }
     
 }

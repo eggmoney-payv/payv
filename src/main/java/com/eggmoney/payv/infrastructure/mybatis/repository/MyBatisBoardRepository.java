@@ -101,6 +101,12 @@ public class MyBatisBoardRepository implements BoardRepository {
 			return mapper.countByTitle(keyword);
 		}
 	}
+	
+	@Override
+	public void delete(BoardId id) {
+	    mapper.deleteById(id.value());
+	}
+
 
 	// toDomain, toRecord
 	private Board toDomain(BoardRecord record) {
@@ -124,5 +130,4 @@ public class MyBatisBoardRepository implements BoardRepository {
 //            .visibility(board.getVisibility().name()) // Enum → String
 				.build();
 	}
-
 }

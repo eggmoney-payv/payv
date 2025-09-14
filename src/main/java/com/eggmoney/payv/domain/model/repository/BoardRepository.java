@@ -39,4 +39,7 @@ public interface BoardRepository {
 
     // 제목, 내용, 작성자별 검색된 게시글 수
     int countBySearch(String keyword, String searchType);
+    
+    // 삭제
+    void delete(BoardId id);
 }

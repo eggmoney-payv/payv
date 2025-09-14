@@ -335,3 +335,15 @@ aside.show {
   box-sizing: border-box;
 }
 
+/* 수정,삭제,목록 크기 동일하게 */
+.post-actions-right form {
+  margin: 0;              /* 기본 여백 제거 */
+  padding: 0;
+  display: flex;          /* 버튼 높이를 주변과 강제로 일치 */
+  align-items: center;    /* 세로 가운데 정렬 */
+}
+.post-actions-right form button {
+  margin: 0;              /* 버튼 자체 여백도 초기화 */
+}
+
+

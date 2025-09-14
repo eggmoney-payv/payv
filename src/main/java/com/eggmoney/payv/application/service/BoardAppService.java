@@ -65,6 +65,22 @@ public class BoardAppService {
 
 		return board;
 	}
+	
+	// 오버로드 추가 (권한 체크 생략 버전)
+	public Board updateBoard(BoardId boardId, String newTitle, String newContent) {
+	    Board board = boardRepository.findById(boardId)
+	            .orElseThrow(() -> new DomainException("Board not found"));
+	    board.update(newTitle, newContent);
+	    boardRepository.save(board);
+	    return board;
+	}
+
+	//삭제
+	public void deleteBoard(BoardId boardId) {
+	    Board board = boardRepository.findById(boardId)
+	            .orElseThrow(() -> new DomainException("Board not found"));
+	    boardRepository.delete(boardId);
+	}
 
 	// 단건 조회
 	public Board getBoard(BoardId id) {
