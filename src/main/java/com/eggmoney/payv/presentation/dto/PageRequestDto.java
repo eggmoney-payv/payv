@@ -19,4 +19,10 @@ public class PageRequestDto {
 	public int limit() {
 		return size <= 0 ? 20 : size;
 	}
+
+	@Override
+	public String toString() {
+		return "PageRequestDto [page=" + page + 
+				", size=" + size + "]";
+	}
 }

@@ -83,7 +83,7 @@ public class TransactionController {
 	                   @ModelAttribute("error") String error) {
 
 	    LedgerId lId = LedgerId.of(ledgerId);
-
+	    
 	    // 1) 기본값 보정 (이번 달)
 	    YearMonth ym = YearMonth.now();
 	    if (cond.getStart() == null) cond.setStart(ym.atDay(1));
@@ -121,12 +121,6 @@ public class TransactionController {
 
 	    // 4) 서비스 호출 (페이지 결과) : search() -> findListByCondition
 	    PageResultDto<Transaction> pr = transactionAppService.search(lId, cond, page);
-
-	    System.out.println("- - - - - - - - - - - -");
-	    for(Transaction t : pr.getContent()) {
-	    	System.out.println(t.getMemo());
-	    }
-	    System.out.println("- - - - - - - - - - - -");
 	    
 	    // 5) 표시용 이름 맵( {id : name} )
 	    Map<String, String> accountNameMap = accounts.stream()
