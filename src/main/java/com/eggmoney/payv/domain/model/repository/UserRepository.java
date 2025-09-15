@@ -15,4 +15,5 @@ public interface UserRepository {
     
     // UPSERT = 새 UUID면 insert, 아니면 update
     void save(User user);
+    
 }

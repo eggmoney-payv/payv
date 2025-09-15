@@ -5,7 +5,6 @@ import java.time.LocalDateTime;
 import com.eggmoney.payv.domain.model.vo.UserId;
 import com.eggmoney.payv.domain.shared.util.EntityIdentifier;
 
-import lombok.Builder;
 import lombok.Getter;
 
 /**
@@ -31,7 +30,7 @@ public class User {
 		this.email = email;
 		this.password = password;
 		this.name = name;
-		this.createdAt = createdAt;
+		this.createdAt = createdAt != null ? createdAt : LocalDateTime.now();
 	}
 	
 	public static User create(String email, String password, String name){
@@ -58,4 +57,9 @@ public class User {
         }
         this.email = newEmail;
     }
+	
+	// 이름 변경
+	public void changeName(String newName) {
+		this.name = newName != null ? newName.trim() : null;
+	}
 }

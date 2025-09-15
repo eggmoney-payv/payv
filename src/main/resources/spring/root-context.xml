@@ -66,5 +66,8 @@
         <property name="basePackage" value="com.eggmoney.payv.infrastructure.mybatis.mapper"/>
         <property name="sqlSessionFactoryBeanName" value="sqlSessionFactory"/>
     </bean>
+    
+    <!-- 7) security-context.xml import -->
+	<import resource="classpath:spring/security-context.xml" />
 
 </beans>
