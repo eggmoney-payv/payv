@@ -96,6 +96,8 @@ public class BudgetController {
 		YearMonth ym = (month == null || month.trim().isEmpty()) ? YearMonth.now() : YearMonth.parse(month.trim());
 
 		LedgerId lId = LedgerId.of(ledgerId);
+		
+		/*
 		List<Category> categories = categoryAppService.listByLedger(lId);
 
 		// 해당 월에 이미 예산이 있는 카테고리는 필터링하여 중복 생성 방지.
@@ -105,10 +107,16 @@ public class BudgetController {
 		List<Category> candidate = categories.stream()
 				.filter(c -> !already.contains(c.getId().toString()))
 				.collect(Collectors.toList());
+		*/
+		
+		List<Category> rootCategories = categoryAppService.rootCategoryListByLedger(lId);
+		
+		
+		
 
 		model.addAttribute("ledgerId", ledgerId);
 		model.addAttribute("month", ym.toString());
-		model.addAttribute("categories", candidate);
+		model.addAttribute("rootCategories", rootCategories);
 
 		BudgetCreateDto form = new BudgetCreateDto();
 		form.setMonth(ym.toString());

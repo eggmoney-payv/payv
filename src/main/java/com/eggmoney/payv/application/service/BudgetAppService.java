@@ -167,12 +167,12 @@ public class BudgetAppService {
 	private void enforceMutualExclusionOnCreate(LedgerId ledgerId, Category category, YearMonth month) {
 		if (category.isRoot()) {
 			if (budgetRepository.existsForAnyChild(ledgerId, category.getId(), month)) {
-				throw new DomainException("주어진 달(월)에 해당 카테고리의 하위 카테고리가 이미 예산에 등록되어 있습니다.");
+				throw new DomainException("선택된 달(월)에 해당 카테고리의 하위 카테고리가 이미 예산에 등록되어 있습니다.");
 			}
 		} else {
 			CategoryId parentId = category.getParentId();
 			if (budgetRepository.existsFor(ledgerId, parentId, month)) {
-				throw new DomainException("주어진 달(월)에 해당 카테고리의 상위 카테고리가 이미 예산에 등록되어 있습니다.");
+				throw new DomainException("선택된 달(월)에 해당 카테고리의 상위 카테고리가 이미 예산에 등록되어 있습니다.");
 			}
 		}
 	}

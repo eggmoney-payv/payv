@@ -29,8 +29,7 @@
 					name="name" value="${form.name}" required />
 			</div>
 
-			<div class="muted">* 현재 잔액은 거래 기록으로 관리됩니다. 초기 잔액 변경이 필요하면 별도
-				기능으로 확장하세요.</div>
+			<div class="muted">* 현재 잔액은 거래 기록으로 관리됩니다.</div>
 
 			<div class="toolbar">
 				<button type="submit" class="btn btn-primary">저장</button>

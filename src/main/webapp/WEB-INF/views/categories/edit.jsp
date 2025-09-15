@@ -30,9 +30,9 @@
 			</div>
 
 			<div class="form-group">
-				<label for="parentId">부모(선택)</label> <select id="parentId"
+				<label for="parentId">상위(선택)</label> <select id="parentId"
 					name="parentId">
-					<option value="">(루트)</option>
+					<option value="">(상위)</option>
 					<c:forEach var="p" items="${roots}">
 						<option value="${p.id}">${p.name}</option>
 					</c:forEach>

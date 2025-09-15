@@ -30,7 +30,7 @@ document.getElementById("btnOpenLedger").addEventListener("click", function() {
     const selectedId = document.getElementById("ledgerSelect").value;
     if (selectedId) {
         // 선택한 가계부의 내역 페이지로 이동
-        window.location.href = "/ledgers/" + selectedId + "/accounts";
+        window.location.href = "/ledgers/" + selectedId + "/transaction";
     } else {
         alert("가계부를 선택해주세요.");
     }
@@ -59,7 +59,7 @@ document.getElementById("btnOpenLedger").addEventListener("click", function() {
                 <tr>
                     <td>${l.id}</td>
                     <td>${l.name}</td>
-                    <td><a href="<c:url value='/ledgers/${l.id}'/>" class="btn-open">열기</a></td>
+                    <td><a href="<c:url value='/ledgers/${l.id}/transaction'/>" class="btn-open">열기</a></td>
                     <td><a href="<c:url value='/ledgers/${l.id}/accounts'/>" class="btn-asset-settings">자산 설정</a></td>
                     <td><a href="<c:url value='/ledgers/${l.id}/budgets'/>" class="btn-budget-settings">예산 설정</a></td>
                 </tr>

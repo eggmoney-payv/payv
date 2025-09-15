@@ -107,11 +107,18 @@
 			BUDGET
 		WHERE 
 			LEDGER_ID = #{ledgerId} AND 
-			YEAR_MONTH = #{yearMonth} AND 
-			CATEGORY_ID IN
-				<foreach collection="categoryIds" item="id" open="(" separator="," close=")">
-					#{id}
-				</foreach>
+			YEAR_MONTH = #{yearMonth} 
+			AND (
+	            <if test="categoryIds != null and categoryIds.size > 0">
+	                CATEGORY_ID IN
+	                <foreach collection="categoryIds" item="id" open="(" separator="," close=")">
+	                    #{id}
+	                </foreach>
+	            </if>
+	            <if test="categoryIds == null or categoryIds.size == 0">
+	                1 = 0
+	            </if>
+	        )
 	</select>
 
 	<insert id="insert" parameterType="com.eggmoney.payv.infrastructure.mybatis.record.BudgetRecord">
