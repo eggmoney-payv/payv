@@ -194,6 +194,6 @@ public class BoardController {
             ra.addFlashAttribute("error", e.getMessage());
             return "redirect:/boards/" + boardId;
         }
-    }
+    }	
     
 }
