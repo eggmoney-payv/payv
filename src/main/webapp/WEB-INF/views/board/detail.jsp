@@ -36,17 +36,17 @@
 		<!-- (2) 메타: 왼쪽 작성자/날짜 · 오른쪽 수정/삭제/목록 -->
 		<div class="post-meta-bar">
 			<div class="post-meta-left">
-				<span class="author-name">${board.userId.value}</span> <span
+				<span class="author-name">${board.owner}</span> <span
 					class="meta-sep"></span> <span class="post-date">${boardCreatedAtText}</span>
 			</div>
 
 			<div class="post-actions-right">
 				<!-- 작성자 본인만 보이는 영역 -->
 				<c:if
-					test="${loginUser != null && loginUser.id.value == board.userId.value}">
+					test="${loginUserId != null && loginUserId == board.userId}">
 					<a class="btn btn-primary outline"
-						href="<c:url value='/boards/${board.id.value}/edit'/>">수정</a>
-					<form action="<c:url value='/boards/${board.id.value}'/>"
+						href="<c:url value='/boards/${board.id}/edit'/>">수정</a>
+					<form action="<c:url value='/boards/${board.id}'/>"
 						method="post">
 						<input type="hidden" name="_method" value="DELETE" />
 						<button type="submit" class="btn danger"
@@ -54,8 +54,8 @@
 					</form>
 				</c:if>
 
-				<!-- 임시: 로그인 기능 없을 때 표시할 수정/삭제 -->
-				<c:if test="${loginUser == null}">
+				<%-- 임시: 로그인 기능 없을 때 표시할 수정/삭제 
+				<c:if test="${loginUserId == null}">
 					<a
 						href="${pageContext.request.contextPath}/boards/${board.id}/edit"
 						class="btn btn-primary outline">수정</a>
@@ -66,6 +66,7 @@
 							onclick="return confirm('정말 삭제하시겠습니까?');">삭제</button>
 					</form>
 				</c:if>
+				--%>
 
 				<!-- 목록 버튼 -->
 				<a href="<c:url value='/boards'/>" class="btn-accent">목록</a>
@@ -78,9 +79,8 @@
 		<div class="post-content">${fn:escapeXml(board.content)}</div>
 
 		<!-- (4) 좋아요 / 댓글수 -->
-		<div class="post-stats" data-board-id="${board.id.value}"
-			data-like-count="${likeCount}">
-			<!-- 좋아요 -->
+		<div class="post-stats" data-board-id="${board.id}">
+			<%-- 좋아요 
 			<button type="button" class="like-toggle" aria-pressed="false"
 				title="좋아요">
 				<svg class="icon-heart" viewBox="0 0 24 24" width="20" height="20"
@@ -90,6 +90,7 @@
           </svg>
 				<span class="like-count">${likeCount}</span>
 			</button>
+			--%>
 
 			<span class="meta-sep"></span>
 
@@ -111,16 +112,8 @@
 				<c:forEach var="comment" items="${comments}">
 					<li class="comment-item">
 						<div class="comment-head">
-							<strong>${comment.userId.value}</strong> <span class="meta-sep"></span>
-							<c:choose>
-								<c:when test="${not empty comment.createdAtText}">
-									<span>${comment.createdAtText}</span>
-								</c:when>
-								<c:otherwise>
-									<fmt:formatDate value="${comment.createdAt}"
-										pattern="yyyy.MM.dd HH:mm" />
-								</c:otherwise>
-							</c:choose>
+							<strong>${comment.writer}</strong> <span class="meta-sep"></span>
+							<span>${comment.createdAt}</span>
 						</div>
 						<p class="comment-content">${fn:escapeXml(comment.content)}</p>
 					</li>
@@ -128,7 +121,7 @@
 			</ul>
 
 			<!-- 댓글 작성 -->
-			<form action="<c:url value='/boards/${board.id.value}/comments'/>"
+			<form action="<c:url value='/boards/${board.id}/comments'/>"
 				method="post" class="comment-form">
 				<input type="hidden" name="userId" value="anonymous" />
 				<textarea name="content" placeholder="댓글을 입력하세요"></textarea>

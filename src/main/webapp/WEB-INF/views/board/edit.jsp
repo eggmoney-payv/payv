@@ -17,8 +17,8 @@
         <input type="hidden" name="_method" value="put" />
 
         <div class="form-group">
-            <label>작성자 ID</label>
-            <input type="text" name="userId" value="${board.userId}" readonly />
+            <label>작성자 이메일</label>
+            <input type="text" name="userId" value="${board.owner}" readonly />
         </div>
 
         <div class="form-group">

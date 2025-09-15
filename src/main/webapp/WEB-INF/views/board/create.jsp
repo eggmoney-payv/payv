@@ -15,11 +15,6 @@
 
     <form action="${pageContext.request.contextPath}/boards" method="post" class="board-form">
         <div class="form-group">
-            <label>작성자 ID</label>
-            <input type="text" name="userId" required />
-        </div>
-
-        <div class="form-group">
             <label>제목</label>
             <input type="text" name="title" required />
         </div>

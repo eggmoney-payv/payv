@@ -57,8 +57,8 @@
 		<tbody>
 			<c:forEach var="board" items="${boardList}">
 				<tr>
-					<td><a href="<c:url value='/boards/${board.id.value}'/>">${board.title}</a></td>
-					<td>${board.userId.value}</td>
+					<td><a href="<c:url value='/boards/${board.id}'/>">${board.title}</a></td>
+					<td>${board.owner}</td>
 					<td>${fn:replace(fn:substring(board.createdAt, 0, 10), "/", ".")}</td>
 					<td>${board.viewCount}</td>
 					<td>0</td>
