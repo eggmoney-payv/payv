@@ -26,4 +26,7 @@ public class BoardRecord {
 	private long viewCount;
 	private LocalDateTime createdAt;
 	private LocalDateTime updatedAt;
+	
+	// 작성자 이메일 추가
+    private String email;
 }

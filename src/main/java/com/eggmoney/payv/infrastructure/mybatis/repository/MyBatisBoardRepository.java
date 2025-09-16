@@ -14,18 +14,21 @@ import com.eggmoney.payv.domain.model.vo.BoardId;
 import com.eggmoney.payv.domain.model.vo.UserId;
 import com.eggmoney.payv.infrastructure.mybatis.mapper.BoardMapper;
 import com.eggmoney.payv.infrastructure.mybatis.record.BoardRecord;
+import com.eggmoney.payv.presentation.dto.BoardItemDto;
 
 import lombok.RequiredArgsConstructor;
 
 /**
- * Repository Implementation: MyBatisBoardRepository - 책임: BoardRepository 인터페이스
- * 구현 (MyBatis 기반). - BoardRecord ↔ Board 변환을 담당.
+ * Repository Implementation: MyBatisBoardRepository
  * 
- * 동작 방식: - findById(): Mapper 호출 후 Domain 변환 - save(): 존재 여부 확인 후 insert/update
- * 결정 - findAll(): 전체 조회 후 Domain 변환 - findByUser(): 특정 사용자 조회 후 Domain 변환
+ * 책임:
+ * - BoardRepository의 MyBatis 기반 구현체
+ * - Mapper를 이용해 DB와 실제 통신
+ * - BoardRecord ↔ Board(Entity) ↔ DTO 간 변환 로직 포함
  * 
- * @author 한지원
- *
+ * Layer: Infrastructure
+ * 
+ * author 한지원
  */
 @Repository
 @RequiredArgsConstructor
@@ -68,23 +71,23 @@ public class MyBatisBoardRepository implements BoardRepository {
 		return mapper.selectByPage(offset, limit).stream().map(this::toDomain).collect(Collectors.toList());
 	}
 
-	// 검색 처리: 제목, 내용, 작성자 검색
+	// 검색 처리: 제목, 내용, 작성자 검색  //검색은 DTO 직접 반환
 	@Override
-    public List<Board> findBySearch(String keyword, String searchType, int offset, int limit) {
+    public List<BoardItemDto> findBySearch(String keyword, String searchType, int offset, int limit) {
         switch (searchType) {
-        case "content":
-            return mapper.selectByContent(keyword, offset, limit).stream()
-                    .map(this::toDomain) // BoardRecord -> Board로 변환
-                    .collect(Collectors.toList());
-        case "author":
-            return mapper.selectByAuthor(keyword, offset, limit).stream()
-                    .map(this::toDomain) // BoardRecord -> Board로 변환
-                    .collect(Collectors.toList());
-        case "title":
-        default:
-            return mapper.selectByTitle(keyword, offset, limit).stream()
-                    .map(this::toDomain) // BoardRecord -> Board로 변환
-                    .collect(Collectors.toList());
+            case "content":
+                return mapper.selectByContent(keyword, offset, limit).stream()
+                        .map(this::toDtoWithEmail)
+                        .collect(Collectors.toList());
+            case "author":
+                return mapper.selectByAuthor(keyword, offset, limit).stream()
+                        .map(this::toDtoWithEmail)
+                        .collect(Collectors.toList());
+            case "title":
+            default:
+                return mapper.selectByTitle(keyword, offset, limit).stream()
+                        .map(this::toDtoWithEmail)
+                        .collect(Collectors.toList());
         }
     }
 
@@ -107,15 +110,19 @@ public class MyBatisBoardRepository implements BoardRepository {
 	    mapper.deleteById(id.value());
 	}
 
-
+	/* ---------------- 변환 로직 ---------------- */
 	// toDomain, toRecord
 	private Board toDomain(BoardRecord record) {
-		return Board.builder().id(BoardId.of(record.getBoardId())).userId(UserId.of(record.getUserId()))
-//          .type(BoardType.valueOf(record.getType())) // String → Enum
-				.type(record.getType() != null ? BoardType.valueOf(record.getType()) : null).title(record.getTitle())
+		return Board.builder()
+				.id(BoardId.of(record.getBoardId()))
+				.userId(UserId.of(record.getUserId()))
+				.type(record.getType() != null ? BoardType.valueOf(record.getType()) : null)
+				.title(record.getTitle())
 				.content(record.getContent())
 				.visibility(record.getVisibility() != null ? Visibility.valueOf(record.getVisibility()) : null)
-				.viewCount(record.getViewCount()).createdAt(record.getCreatedAt()).updatedAt(record.getUpdatedAt())
+				.viewCount(record.getViewCount())
+				.createdAt(record.getCreatedAt())
+				.updatedAt(record.getUpdatedAt())
 
 				.build();
 	}
@@ -126,8 +133,20 @@ public class MyBatisBoardRepository implements BoardRepository {
 				.content(board.getContent())
 				.visibility(board.getVisibility() != null ? board.getVisibility().name() : null)
 				.viewCount(board.getViewCount()).createdAt(board.getCreatedAt()).updatedAt(board.getUpdatedAt())
-//            .type(board.getType().name())          // Enum → String
-//            .visibility(board.getVisibility().name()) // Enum → String
 				.build();
 	}
+	
+	/* 🔹 BoardRecord → DTO 변환 (email 포함) */
+    private BoardItemDto toDtoWithEmail(BoardRecord record) {
+        return new BoardItemDto(
+                record.getBoardId(),
+                record.getUserId(),
+                record.getTitle(),
+                record.getContent(),
+                record.getEmail(), // 작성자 email
+                record.getViewCount(),
+                record.getCreatedAt(),
+                record.getUpdatedAt()
+        );
+    }
 }

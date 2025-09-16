@@ -11,15 +11,22 @@ import com.eggmoney.payv.domain.model.repository.UserRepository;
 import com.eggmoney.payv.domain.model.vo.BoardId;
 import com.eggmoney.payv.domain.model.vo.UserId;
 import com.eggmoney.payv.domain.shared.error.DomainException;
+import com.eggmoney.payv.presentation.dto.BoardItemDto;
 
 import lombok.RequiredArgsConstructor;
 
 /**
- * Application Service: BoardAppService - 책임: Board 관련 유스케이스(application logic)
- * 제공. - 도메인 엔티티(User, Board)와 Repository를 조합하는 역할. - 트랜잭션 경계로 동작할 수 있음.
+ * Application Service: BoardAppService
  * 
- * @author 한지원
- *
+ * 책임:
+ * - Board 관련 유스케이스(application logic) 제공
+ * - 도메인 엔티티(Board, User)와 Repository를 조합하여 업무 흐름 처리
+ * - 게시글 생성, 수정, 삭제, 조회, 검색 등의 기능 제공
+ * - 트랜잭션 경계로 동작할 수 있으며 도메인 규칙을 위반하지 않도록 검증
+ * 
+ * Layer: Application
+ * 
+ * author 한지원
  */
 @Service
 @RequiredArgsConstructor
@@ -29,31 +36,27 @@ public class BoardAppService {
 	private final BoardRepository boardRepository;
 
 	// 게시글 생성
-	// 1) 작성자 존재 확인
-	// 2) Board 엔티티 생성
-	// 3) 저장 후 반환
 	public Board createBoard(User author, String title, String content) {
 		// 작성자 존재 유무 확인
-		userRepository.findById(author.getId()).orElseThrow(() -> new DomainException("Author not found"));
+		userRepository.findById(author.getId())
+			.orElseThrow(() -> new DomainException("Author not found"));
 
 		Board board = Board.create(author.getId(), title, content);
 		boardRepository.save(board);
 		return board;
 	}
-	// BoardAppService 클래스 내부에 추가
+	
 	public Board createBoardByUserId(String userId, String title, String content) {
 	    User user = userRepository.findById(UserId.of(userId))
-	                              .orElseThrow(() -> new DomainException("Author not found"));
+	                     .orElseThrow(() -> new DomainException("Author not found"));
 	    return createBoard(user, title, content);
 	}
 
 	// 게시글 수정
-	// 1) 게시글 존재 확인
-	// 2) 수정 권한 확인 (작성자만 가능)
-	// 3) 제목/내용 업데이트 후 저장
 	public Board updateBoard(BoardId boardId, String newTitle, String newContent, UserId editorId) {
 		// 게시글 존재 유무 확인
-		Board board = boardRepository.findById(boardId).orElseThrow(() -> new DomainException("Board  not found"));
+		Board board = boardRepository.findById(boardId)
+				.orElseThrow(() -> new DomainException("Board  not found"));
 
 		// 수정 권한 확인 (작성자 본인만)
 		if (!board.getUserId().equals(editorId)) {
@@ -77,7 +80,7 @@ public class BoardAppService {
 
 	//삭제
 	public void deleteBoard(BoardId boardId) {
-	    Board board = boardRepository.findById(boardId)
+	    boardRepository.findById(boardId)
 	            .orElseThrow(() -> new DomainException("Board not found"));
 	    boardRepository.delete(boardId);
 	}
@@ -98,19 +101,15 @@ public class BoardAppService {
 	    return boardRepository.count();
 	}
 
-	// 패이징 조회
+	// 패이징 조회 (엔티티 반환)
 	public List<Board> getBoardsByPage(int offset, int limit) {
 	    return boardRepository.findByPage(offset, limit);
 	}
 	
-	// 검색된 게시글 목록
-	public List<Board> getBoardsBySearch(String keyword, String searchType, int offset, int limit) {
-	    List<Board> boards = boardRepository.findBySearch(keyword, searchType, offset, limit);
-	    if (boards.isEmpty()) {
-	    	 return boards; // 검색된 게시글이 없으면 빈 리스트 반환
-	    }
-	    return boards;
-	}
+	//  검색 
+    public List<BoardItemDto> getBoardsBySearch(String keyword, String searchType, int offset, int limit) {
+        return boardRepository.findBySearch(keyword, searchType, offset, limit);
+    }
 
 
     // 검색된 게시글 수

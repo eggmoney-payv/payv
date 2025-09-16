@@ -14,6 +14,7 @@
     <h1 class="board-title">게시글 작성</h1>
 
     <form action="${pageContext.request.contextPath}/boards" method="post" class="board-form">
+   		<input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>
         <div class="form-group">
             <label>제목</label>
             <input type="text" name="title" required />

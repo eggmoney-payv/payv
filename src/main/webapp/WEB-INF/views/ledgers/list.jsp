@@ -47,7 +47,6 @@ document.getElementById("btnOpenLedger").addEventListener("click", function() {
     <table class="ledger-table">
         <thead>
             <tr>
-                <th>ID</th>
                 <th>이름</th>
                 <th>보기</th>
                 <th>자산 설정</th>
@@ -57,7 +56,6 @@ document.getElementById("btnOpenLedger").addEventListener("click", function() {
         <tbody>
             <c:forEach var="l" items="${ledgers}">
                 <tr>
-                    <td>${l.id}</td>
                     <td>${l.name}</td>
                     <td><a href="<c:url value='/ledgers/${l.id}/transaction'/>" class="btn-open">열기</a></td>
                     <td><a href="<c:url value='/ledgers/${l.id}/accounts'/>" class="btn-asset-settings">자산 설정</a></td>
