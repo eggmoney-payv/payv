@@ -97,23 +97,8 @@ public class BudgetController {
 
 		LedgerId lId = LedgerId.of(ledgerId);
 		
-		/*
-		List<Category> categories = categoryAppService.listByLedger(lId);
-
-		// 해당 월에 이미 예산이 있는 카테고리는 필터링하여 중복 생성 방지.
-		Set<String> already = budgetAppService.listByLedgerAndMonth(lId, ym).stream()
-				.map(b -> b.getCategoryId().toString()).collect(Collectors.toSet());
-
-		List<Category> candidate = categories.stream()
-				.filter(c -> !already.contains(c.getId().toString()))
-				.collect(Collectors.toList());
-		*/
-		
 		List<Category> rootCategories = categoryAppService.rootCategoryListByLedger(lId);
 		
-		
-		
-
 		model.addAttribute("ledgerId", ledgerId);
 		model.addAttribute("month", ym.toString());
 		model.addAttribute("rootCategories", rootCategories);
@@ -166,9 +151,6 @@ public class BudgetController {
 
 			// 카테고리 이름 표기용
 			LedgerId lId = LedgerId.of(ledgerId);
-//			String categoryName = categoryAppService.listByLedger(lId).stream()
-//					.filter(c -> c.getId().toString().equals(b.getCategoryId().toString())).map(Category::getName)
-//					.findFirst().orElse(b.getCategoryId().toString());
 			String categoryName = categoryAppService.getDetails(b.getCategoryId()).getName();
 
 			model.addAttribute("ledgerId", ledgerId);
@@ -204,24 +186,6 @@ public class BudgetController {
 			return "redirect:/ledgers/" + ledgerId + "/budgets/" + budgetId + "/edit?month=" + safe(form.getMonth());
 		}
 	}
-
-	/**
-	// ===== 삭제 (AJAX, JSON) =====
-	@DeleteMapping(value = "/{budgetId}", produces = MediaType.APPLICATION_JSON_VALUE)
-	@ResponseBody
-	public Map<String, Object> deleteAjax(@PathVariable String ledgerId, @PathVariable String budgetId,
-			@RequestParam("month") String month) {
-		Map<String, Object> res = new HashMap<>();
-		try {
-			budgetAppService.delete(LedgerId.of(ledgerId), BudgetId.of(budgetId));
-			res.put("ok", true);
-		} catch (DomainException e) {
-			res.put("ok", false);
-			res.put("message", e.getMessage());
-		}
-		return res;
-	}
-	*/
 
 	// ===== helpers =====
 	private boolean isBlank(String s) {

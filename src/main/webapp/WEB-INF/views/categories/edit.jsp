@@ -29,6 +29,7 @@
 					name="name" value="${form.name}" required />
 			</div>
 
+			<%--
 			<div class="form-group">
 				<label for="parentId">상위(선택)</label> <select id="parentId"
 					name="parentId">
@@ -39,6 +40,7 @@
 				</select>
 			</div>
 			<div class="muted">* 상위 카테고리를 선택하면 하위(2단계) 카테고리로 생성됩니다.</div>
+			--%>
 
 			<div class="toolbar">
 				<button type="submit" class="btn btn-primary">저장</button>

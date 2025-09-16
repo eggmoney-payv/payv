@@ -7,6 +7,19 @@
 <meta charset="UTF-8">
 <title>카테고리 목록</title>
 <link rel="stylesheet" href="<c:url value='/resources/css/common.css'/>">
+<style>
+.badge {
+    display: inline-block;
+    padding: 2px 6px;
+    font-size: 0.5rem;
+    font-weight: bold;
+    color: #fff;
+    background-color: #888;
+    border-radius: 4px;
+    vertical-align: middle;
+    margin-left: 4px;
+}
+</style>
 </head>
 
 <body>
@@ -39,46 +52,30 @@
 						</c:if>
 					</div>
 					<div>
-						<a class="btn" href="<c:url value='/ledgers/${ledgerId}/categories/${r.id}/edit'/>" 
-							<c:if test="${r.system}">
-								onclick="return false;" style="opacity:.5;pointer-events:none;"
-							</c:if>>
-							수정
-						</a>
-						<button class="btn danger js-del" data-id="${r.id}"
-							<c:if test="${r.system}">
-								disabled="disabled"
-							</c:if>style="margin-left: 8px;">
-							삭제
-						</button>
+						<c:if test="${not r.system}">
+							<a class="btn"
+								href="<c:url value='/ledgers/${ledgerId}/categories/${r.id}/edit'/>">수정</a>
+							<button class="btn danger js-del" data-id="${r.id}"
+								style="margin-left: 8px;">삭제</button>
+						</c:if>
 					</div>
 				</div>
 
 				<c:if test="${not empty r.children}">
 					<ul style="margin-top: 8px; padding-left: 18px;">
 						<c:forEach var="cNode" items="${r.children}">
-							<li style="margin: 6px 0; display: flex; justify-content: space-between; align-items: center;">
-								<span> 
-									${cNode.name} 
-									<c:if test="${cNode.system}">
+							<li
+								style="margin: 6px 0; display: flex; justify-content: space-between; align-items: center;">
+								<span> ${cNode.name} <c:if test="${cNode.system}">
 										<span class="badge">SYSTEM</span>
 									</c:if>
-								</span> 
-								<span> 
-									<a class="btn" href="<c:url value='/ledgers/${ledgerId}/categories/${cNode.id}/edit'/>"
-										<c:if test="${cNode.system}">
-											onclick="return false;" style="opacity:.5;pointer-events:none;"
-										</c:if>>
-										수정
-									</a>
-									<button class="btn danger js-del" data-id="${cNode.id}"
-										<c:if test="${cNode.system}">
-											disabled="disabled"
-										</c:if>
-										style="margin-left: 8px;">
-										삭제
-									</button>
-								</span>
+							</span> <span> <c:if test="${not cNode.system}">
+										<a class="btn"
+											href="<c:url value='/ledgers/${ledgerId}/categories/${cNode.id}/edit'/>">수정</a>
+										<button class="btn danger js-del" data-id="${cNode.id}"
+											style="margin-left: 8px;">삭제</button>
+									</c:if>
+							</span>
 							</li>
 						</c:forEach>
 					</ul>
@@ -93,7 +90,7 @@
 		// 컨텍스트 경로를 포함한 베이스 URL을 JSP에서 한번에 생성
 		var deleteBaseUrl = '<c:url value="/ledgers/${ledgerId}/categories/"/>'; // 끝에 슬래시 포함
 		
-		document.addEventListener('click', async (e)=>{
+		document.addEventListener('click', async (e) => {
 			const btn = e.target.closest('.js-del');
 			if(!btn) return;
 			const id = btn.getAttribute('data-id');

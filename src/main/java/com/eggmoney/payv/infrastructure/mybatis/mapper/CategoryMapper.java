@@ -29,4 +29,6 @@ public interface CategoryMapper {
     
     // 자식 일괄 소프트 삭제.
     int deleteChildren(@Param("ledgerId") String ledgerId, @Param("parentId") String parentId);
+    
+    List<CategoryRecord> selectSystemTemplatesOrdered();
 }

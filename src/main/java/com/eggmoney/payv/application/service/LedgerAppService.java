@@ -24,6 +24,8 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class LedgerAppService {
 
+	private final CategoryAppService categoryAppService;
+	
 	private final LedgerRepository ledgerRepository;
     private final UserRepository userRepository;
     
@@ -41,6 +43,14 @@ public class LedgerAppService {
         Ledger ledger = owner.createLedger(name);
         ledgerRepository.save(ledger);
         
+        /**
+         * TODO: 
+         * 가계부와 카테고리 간의 연관관계를 다대다로 구성해야 하지만,
+         * 현재 일대다로 구성되어 있기 때문에 가계부 생성 시, 시스템 카테고리가 자동 등록되도록 임시 구현.
+         * 추후, 수정 필요.
+         */
+        categoryAppService.seedForLedger(ledger.getId());
+                
         return ledger;
     }
 

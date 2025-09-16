@@ -153,4 +153,25 @@
 			IS_DELETED = 'N'
 	</update>
 
+	<select id="selectSystemTemplatesOrdered" resultMap="CategoryMap">
+		SELECT 
+			CATEGORY_ID, 
+			LEDGER_ID, 
+			NAME, 
+			IS_SYSTEM_CATEGORY, 
+			PARENT_ID,
+			SORT_ORDER, 
+			IS_DELETED
+		FROM 
+			CATEGORY
+		WHERE 
+			IS_SYSTEM_CATEGORY = 'Y' AND 
+			LEDGER_ID = 'SYSTEM' AND 
+			IS_DELETED = 'N'
+		ORDER BY
+			CASE WHEN PARENT_ID IS NULL THEN 0 ELSE 1 END, -- 루트 먼저
+			NVL(PARENT_ID, '0'),
+			SORT_ORDER ASC, NAME ASC
+	</select>
+	
 </mapper>

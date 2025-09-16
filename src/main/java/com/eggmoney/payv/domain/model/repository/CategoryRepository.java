@@ -31,4 +31,7 @@ public interface CategoryRepository {
     
     // 소프트 삭제.(상위 카테고리 삭제 시, 하위 카테고리 CASCADE)
     void delete(LedgerId ledgerId, CategoryId id);
+    
+    // 시스템 카테고리 목록 조회.( 루트→자식 순서 반환 )
+    List<Category> findSystemTemplatesOrdered();
 }

@@ -46,7 +46,7 @@ public class Category {
 		this.isDeleted = isDeleted;
 	}
     
-    // 루트 카테고리 생성 (depth=1)
+	// 루트 카테고리 생성 (depth=1)
     public static Category createRoot(LedgerId ledgerId, String name, 
     		boolean isSystem, int sortOrder) {
     	
@@ -114,4 +114,12 @@ public class Category {
     	return Objects.hash(id); 
     }
 
+	@Override
+	public String toString() {
+		return "Category [id=" + id + ", ledgerId=" + ledgerId + ", name=" + name + ", isSystemCategory="
+				+ isSystemCategory + ", parentId=" + parentId + ", sortOrder=" + sortOrder + ", isDeleted=" + isDeleted
+				+ "]";
+	}
+    
+    
 }
