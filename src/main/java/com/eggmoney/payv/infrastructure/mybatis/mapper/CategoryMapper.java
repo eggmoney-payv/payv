@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
+import org.apache.ibatis.annotations.ResultMap;
 
 import com.eggmoney.payv.infrastructure.mybatis.record.CategoryRecord;
 
@@ -20,7 +21,6 @@ public interface CategoryMapper {
     List<CategoryRecord> selectSubCategoryListByLedgerAndParentCategory(@Param("ledgerId") String ledgerId,
     													   				@Param("parentId") String parentId);
     
-
     int insert(CategoryRecord rec);
     int update(CategoryRecord rec);
     
@@ -30,5 +30,6 @@ public interface CategoryMapper {
     // 자식 일괄 소프트 삭제.
     int deleteChildren(@Param("ledgerId") String ledgerId, @Param("parentId") String parentId);
     
+    @ResultMap("CategoryMap")
     List<CategoryRecord> selectSystemTemplatesOrdered();
 }

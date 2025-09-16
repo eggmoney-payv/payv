@@ -9,7 +9,7 @@
 		<result property="isSystemCategory" column="IS_SYSTEM_CATEGORY" />
 		<result property="parentId" column="PARENT_ID" />
 		<result property="sortOrder" column="SORT_ORDER" />
-		<result property="isDeleted" column="IS_DELETED"/>
+		<result property="isDeleted" column="IS_DELETED" />
 	</resultMap>
 
 	<select id="selectById" parameterType="string" resultMap="CategoryMap">
@@ -169,7 +169,7 @@
 			LEDGER_ID = 'SYSTEM' AND 
 			IS_DELETED = 'N'
 		ORDER BY
-			CASE WHEN PARENT_ID IS NULL THEN 0 ELSE 1 END, -- 루트 먼저
+			CASE WHEN PARENT_ID IS NULL THEN 0 ELSE 1 END,
 			NVL(PARENT_ID, '0'),
 			SORT_ORDER ASC, NAME ASC
 	</select>

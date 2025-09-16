@@ -80,10 +80,10 @@ public class MyBatisCategoryRepository implements CategoryRepository {
     
     @Override
     public List<Category> findSystemTemplatesOrdered() {
-        return mapper.selectSystemTemplatesOrdered().stream()
+    	return mapper.selectSystemTemplatesOrdered().stream()
                 .map(this::toDomain)
                 .collect(Collectors.toList());
-    }
+	}
 
     // ---- 변환부 ----
     private Category toDomain(CategoryRecord record) {

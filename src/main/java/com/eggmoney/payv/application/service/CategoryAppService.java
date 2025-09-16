@@ -122,9 +122,10 @@ public class CategoryAppService {
      */
     @Transactional
     public void seedForLedger(LedgerId ledgerId) {
+    	
         List<Category> templates = categoryRepository.findSystemTemplatesOrdered();
         if (templates.isEmpty()) return;
-
+        
         Map<CategoryId, CategoryId> idMap = new HashMap<>();
 
         // 1) 루트 먼저 생성
