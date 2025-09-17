@@ -42,16 +42,17 @@
 
 			<div class="post-actions-right">
 				<!-- 작성자 본인만 보이는 영역 -->
-				<c:if
-					test="${loginUserId != null && loginUserId == board.userId}">
+				<c:if test="${loginUserId != null && loginUserId == board.userId}">
 					<a class="btn btn-primary outline"
 						href="<c:url value='/boards/${board.id}/edit'/>">수정</a>
-					<form action="<c:url value='/boards/${board.id}'/>"
+					<form action="<c:url value='/boards/${board.id}/delete'/>"
 						method="post">
-						<input type="hidden" name="_method" value="DELETE" />
+						<input type="hidden" name="${_csrf.parameterName}"
+							value="${_csrf.token}" />
 						<button type="submit" class="btn danger"
 							onclick="return confirm('정말 삭제하시겠습니까?');">삭제</button>
 					</form>
+
 				</c:if>
 
 				<%-- 임시: 로그인 기능 없을 때 표시할 수정/삭제 
@@ -74,7 +75,7 @@
 		</div>
 
 		<hr class="post-divider" />
-		
+
 		<!-- (3) 본문 -->
 		<div class="post-content">${fn:escapeXml(board.content)}</div>
 
